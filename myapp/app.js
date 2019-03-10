@@ -8,15 +8,7 @@ var mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var projectRouter = require('./routes/project'); // project routes
-
-// mongoose.connect('mongodb+srv://dat:' + process.env.MONGO_ATLAS_PW + '@cluster0-74q3u.mongodb.net/test?retryWrites=true',{
-//     useNewUrlParser: true
-// });
-mongoose.connect('mongodb+srv://dat:dat123456@cluster0-74q3u.mongodb.net/realestate?retryWrites=true',{
-    useNewUrlParser: true
-});
-mongoose.Promise = global.Promise;
+var projectsRouter = require('./routes/projects');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -28,17 +20,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// mongoose.connect('mongodb+srv://dat:' + process.env.MONGO_ATLAS_PW + '@cluster0-mmyqj.mongodb.net/test?retryWrites=true',{
+//     useNewUrlParser: true
+// });
+mongoose.connect('mongodb+srv://dat:datdeptrai123@cluster0-mmyqj.mongodb.net/realestate?retryWrites=true',{
+    useNewUrlParser: true
+});
+mongoose.Promise = global.Promise;
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/project', projectRouter);
+app.use('/projects', projectsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res, next) { // error handler
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

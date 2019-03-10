@@ -3,9 +3,6 @@ const router = express.Router();
 const Project = require('../models/projectModel');
 const mongoose = require('mongoose');
 
-// var MongoClient = require('mongodb').MongoClient; // connect online
-// var uri = 'mongodb+srv://dat:dat123456@cluster0-74q3u.mongodb.net/test?retryWrites=true'; // connect online
-
 router.get('/', (req, res, next) => {
     Project.find()
         .select('_id id name investor price unit area type info')
@@ -14,12 +11,15 @@ router.get('/', (req, res, next) => {
             console.log(results);
             const response = {
                 count: results.length,
-                project: results.map(result => {
+                projects: results.map(result => {
                     return {
                         _id: result._id,
                         name: result.name,
+                        invertor: result.invertor,
                         price: result.price,
                         unit: result.unit,
+                        area: result.area,
+                        type: result.type,
                     }
                 })
             };

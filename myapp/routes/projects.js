@@ -3,10 +3,11 @@ const router = express.Router();
 const Project = require('../models/projectModel');
 const mongoose = require('mongoose');
 const checkAuth = require('../middleware/check-auth');
+const libFunction = require('../lib/function');
 
 router.get('/', (req, res, next) => {
     Project.find()
-    .select('_id id name investor price unit area address type info')
+    .select('_id id name investor price unit area address type info lat long')
     .exec()
     .then(results => {
         console.log(results);
@@ -23,6 +24,54 @@ router.get('/', (req, res, next) => {
                     address: result.address,
                     type: result.type,
                     info: result.info,
+                    lat: result.lat,
+                    long: result.long,
+                }
+            })
+        };
+        if (results.length >= 0) {
+            res.status(200).json({
+                status: 200,
+                response,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+});
+
+router.post('/getListInRadius', (req, res, next) => {
+    Project.find()
+    .select('_id id name investor price unit area address type info lat long')
+    .exec()
+    .then(temp => {
+        const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long);
+        console.log(results);
+        const response = {
+            count: results.length,
+            projects: results.map(result => {
+                return {
+                    _id: result._id,
+                    name: result.name,
+                    investor: result.investor,
+                    price: result.price,
+                    unit: result.unit,
+                    area: result.area,
+                    address: result.address,
+                    type: result.type,
+                    info: result.info,
+                    lat: result.lat,
+                    long: result.long,
                 }
             })
         };
@@ -79,6 +128,8 @@ router.post('/', (req, res, next) => {
         address: req.body.address,
         type: req.body.type,
         info: req.body.info,
+        lat: req.body.lat,
+        long: req.body.long,
     });
     project
         .save()
@@ -96,10 +147,12 @@ router.post('/', (req, res, next) => {
                     address: result.address,
                     type: result.type,
                     info: result.info,
+                    lat: result.lat,
+                    long: result.long,
                     _id: result._id,
                     request: {
                         type: 'POST',
-                        url: 'http://localhost:3000/projects/' + result._id,
+                        url: 'http://localhost:3001/projects/' + result._id,
                     }
                 }
             });
@@ -124,6 +177,8 @@ router.patch('/:id', (req, res, next) => {
     const address = req.body.address;
     const type = req.body.type;
     const info = req.body.info;
+    const lat = req.body.lat;
+    const long = req.body.long;
     Project.update({
         _id: id
     }, {
@@ -136,6 +191,8 @@ router.patch('/:id', (req, res, next) => {
                 address: address,
                 type: type,
                 info: info,
+                lat: lat,
+                long: long,
             }
         })
         .exec()
@@ -155,10 +212,12 @@ router.patch('/:id', (req, res, next) => {
                         address: address,
                         type: type,
                         info: info,
+                        lat: lat,
+                        long: long,
                     },
                     request: {
                         type: 'PATCH',
-                        url: 'http://localhost:3000/projects/' + id,
+                        url: 'http://localhost:3001/projects/' + id,
                     }
                 });
             } else {
@@ -191,7 +250,7 @@ router.delete('/:id', (req, res, next) => {
                     message: 'delete project success',
                     request: {
                         type: 'DELETE',
-                        url: 'http://localhost:3000/projects/',
+                        url: 'http://localhost:3001/projects/',
                     }
                 });
             } else {

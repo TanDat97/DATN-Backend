@@ -3,7 +3,7 @@ const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     username: {
         type: String,
-        // required: true
+        required: true
     },
     password: {
         type: String,
@@ -11,11 +11,11 @@ const Schema = mongoose.Schema({
     },
     fullname: {
         type: String,
-        // required: true
+        required: true
     },
     address: {
         type: String,
-        // required: true
+        required: true
     },
     email: {
         type: String,
@@ -24,8 +24,12 @@ const Schema = mongoose.Schema({
     },
     phone: {
         type: String,
-        // required: true
+        required: true
     },
+    status: {
+        type: Number,
+        required: true,
+    }
 });
 
 // Export the model

@@ -55,8 +55,7 @@ router.post('/getListInRadius', (req, res, next) => {
     .select('_id id name investor price unit area address type info lat long')
     .exec()
     .then(temp => {
-        const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long);
-        console.log(results);
+        const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
         const response = {
             count: results.length,
             projects: results.map(result => {

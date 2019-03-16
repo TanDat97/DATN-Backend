@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+const checkAuth = require('../middleware/check-auth');
+const libFunction = require('../lib/function');
+const User = require('../models/user');
+const Project = require('../models/projectModel');
 
 router.post('/signup', (req, res, next) => {
     User.find({
@@ -115,7 +119,7 @@ router.post('/login', (req, res, next) => {
   });
 });
 
-router.delete('/:userID', (req, res, next) => {
+router.delete('/:userID', checkAuth, (req, res, next) => {
   User.remove({
     _id: req.params.userID
   })
@@ -134,6 +138,51 @@ router.delete('/:userID', (req, res, next) => {
       error: err
     });
   });
+});
+
+router.post('/dansachproject/:id', checkAuth, (req, res, next) => {
+  Project.find()
+    .select()
+    .exec()
+    .then(temp => {
+      const results = libFunction.findProjectByOwner(temp, req.params.id)
+      const response = {
+        count: results.length,
+        projects: results.map(result => {
+          return {
+            _id: result._id,
+            name: result.name,
+            investor: result.investor,
+            price: result.price,
+            unit: result.unit,
+            area: result.area,
+            address: result.address,
+            type: result.type,
+            info: result.info,
+            lat: result.lat,
+            long: result.long,
+          }
+        })
+      };
+      if (results.length >= 0) {
+        res.status(200).json({
+          status: 200,
+          response,
+        });
+      } else {
+        res.status(404).json({
+          status: 404,
+          message: 'No valid entry found',
+        })
+      }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
 });
 
 module.exports = router;

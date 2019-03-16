@@ -28,4 +28,16 @@ function distanceListPlace(listProject, radius, lat, long){
     return result;
 }
 
+function findProjectByOwner(listProject, id){
+    var result = [];
+    listProject.forEach(project=>{
+        console.log(project.ownerid + ' ' + id)
+        if(project.ownerid == id){
+            result.push(project);
+        }
+    })
+    return result;
+}
+
 module.exports.distanceListPlace = distanceListPlace
+module.exports.findProjectByOwner = findProjectByOwner

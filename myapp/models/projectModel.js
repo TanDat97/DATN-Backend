@@ -46,7 +46,11 @@ var projectSchema = new Schema({
     long: {
         type: Number,
         required: true,
-    }
+    },
+    ownerid: {
+        type: String,
+        required: true,
+    },
 });
 
 // Export the model

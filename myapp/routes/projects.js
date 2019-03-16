@@ -1,33 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const Project = require('../models/projectModel');
 const mongoose = require('mongoose');
+
 const checkAuth = require('../middleware/check-auth');
 const libFunction = require('../lib/function');
+const Project = require('../models/projectModel');
 
 router.get('/', (req, res, next) => {
     Project.find()
-    .select('_id id name investor price unit area address type info lat long')
+    .select()
     .exec()
     .then(results => {
         console.log(results);
         const response = {
             count: results.length,
-            projects: results.map(result => {
-                return {
-                    _id: result._id,
-                    name: result.name,
-                    investor: result.investor,
-                    price: result.price,
-                    unit: result.unit,
-                    area: result.area,
-                    address: result.address,
-                    type: result.type,
-                    info: result.info,
-                    lat: result.lat,
-                    long: result.long,
-                }
-            })
+            projects: results,
         };
         if (results.length >= 0) {
             res.status(200).json({
@@ -52,27 +39,13 @@ router.get('/', (req, res, next) => {
 
 router.post('/getListInRadius', (req, res, next) => {
     Project.find()
-    .select('_id id name investor price unit area address type info lat long')
+    .select()
     .exec()
     .then(temp => {
         const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
         const response = {
             count: results.length,
-            projects: results.map(result => {
-                return {
-                    _id: result._id,
-                    name: result.name,
-                    investor: result.investor,
-                    price: result.price,
-                    unit: result.unit,
-                    area: result.area,
-                    address: result.address,
-                    type: result.type,
-                    info: result.info,
-                    lat: result.lat,
-                    long: result.long,
-                }
-            })
+            projects: results,
         };
         if (results.length >= 0) {
             res.status(200).json({

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Project = require('../models/projectModel');
 const mongoose = require('mongoose');
+const checkAuth = require('../middleware/check-auth');
 
 router.get('/', (req, res, next) => {
     Project.find()
@@ -46,7 +47,7 @@ router.get('/', (req, res, next) => {
     });
 });
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     Project.findById(id)
     .exec()

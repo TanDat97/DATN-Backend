@@ -47,6 +47,10 @@ var projectSchema = new Schema({
         type: String,
         required: true,
     },
+    statusProject:{
+        type: String,
+        required: true,
+    },
 });
 
 // Export the model

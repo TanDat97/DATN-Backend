@@ -94,6 +94,7 @@ router.post('/', checkAuth, (req, res, next) => {
         lat: req.body.lat,
         long: req.body.long,
         ownerid: req.body.ownerid,
+        statusProject: req.body.statusProject,
     });
     project
         .save()
@@ -102,18 +103,7 @@ router.post('/', checkAuth, (req, res, next) => {
                 status: 201,
                 message: 'add project success',
                 createdProject: {
-                    name: result.name,
-                    investor: result.investor,
-                    price: result.price,
-                    unit: result.unit,
-                    area: result.area,
-                    address: result.address,
-                    type: result.type,
-                    info: result.info,
-                    lat: result.lat,
-                    long: result.long,
-                    ownerid: result.ownerid,
-                    _id: result._id,
+                    result,
                     request: {
                         type: 'POST',
                         url: 'http://localhost:3001/projects/' + result._id,
@@ -144,6 +134,7 @@ router.patch('/:id', checkAuth, (req, res, next) => {
     const lat = req.body.lat;
     const long = req.body.long;
     const ownerid = req.body.ownerid;
+    const  statusProject = req.body.statusProject;
     Project.update({
         _id: id
     }, {
@@ -159,6 +150,7 @@ router.patch('/:id', checkAuth, (req, res, next) => {
                 lat: lat,
                 long: long,
                 ownerid: ownerid,
+                statusProject: statusProject,
             }
         })
         .exec()
@@ -180,6 +172,7 @@ router.patch('/:id', checkAuth, (req, res, next) => {
                         lat: lat,
                         long: long,
                         ownerid: ownerid,
+                        statusProject: statusProject,
                     },
                     request: {
                         type: 'PATCH',
@@ -232,6 +225,33 @@ router.delete('/:id', checkAuth, (req, res, next) => {
                 error: err
             });
         });
+});
+
+router.get('search/:type/:address/:area/:price', (req, res, next) => {
+    Project.find()
+    .select()
+    .exec()
+    .then(results => {
+        if (results.length >= 0) {
+            res.status(200).json({
+                status: 200,
+                count: results.length,
+                projects: results,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
 });
 
 module.exports = router;

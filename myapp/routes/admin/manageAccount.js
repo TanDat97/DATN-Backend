@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 const checkAuth = require('../../middleware/check-auth');
 const libFunction = require('../../lib/function');
-const User = require('../../models/user');
+const User = require('../../models/userModel');
 const Project = require('../../models/projectModel');
 
 router.delete('/:userID', checkAuth, (req, res, next) => {

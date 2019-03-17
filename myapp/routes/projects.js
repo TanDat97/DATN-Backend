@@ -11,15 +11,11 @@ router.get('/', (req, res, next) => {
     .select()
     .exec()
     .then(results => {
-        console.log(results);
-        const response = {
-            count: results.length,
-            projects: results,
-        };
         if (results.length >= 0) {
             res.status(200).json({
                 status: 200,
-                response,
+                count: results.length,
+                projects: results,
             });
         } else {
             res.status(404).json({
@@ -43,14 +39,11 @@ router.post('/getListInRadius', (req, res, next) => {
     .exec()
     .then(temp => {
         const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
-        const response = {
-            count: results.length,
-            projects: results,
-        };
         if (results.length >= 0) {
             res.status(200).json({
                 status: 200,
-                response,
+                count: results.length,
+                projects: results,
             });
         } else {
             res.status(404).json({
@@ -72,11 +65,10 @@ router.get('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     Project.findById(id)
     .exec()
-    .then(doc => {
-        console.log(doc);
+    .then(result => {
         res.status(200).json({
             status: 200,
-            doc,
+            result,
         });
     })
     .catch(err => {
@@ -88,10 +80,9 @@ router.get('/:id', checkAuth, (req, res, next) => {
     });
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', checkAuth, (req, res, next) => {
     const project= new Project({
         _id: new mongoose.Types.ObjectId(),
-        id: "project",
         name: req.body.name,
         investor: req.body.investor,
         price: req.body.price,
@@ -102,11 +93,11 @@ router.post('/', (req, res, next) => {
         info: req.body.info,
         lat: req.body.lat,
         long: req.body.long,
+        ownerid: req.body.ownerid,
     });
     project
         .save()
         .then(result => {
-            console.log(result);
             res.status(201).json({
                 status: 201,
                 message: 'add project success',
@@ -121,6 +112,7 @@ router.post('/', (req, res, next) => {
                     info: result.info,
                     lat: result.lat,
                     long: result.long,
+                    ownerid: result.ownerid,
                     _id: result._id,
                     request: {
                         type: 'POST',
@@ -139,7 +131,7 @@ router.post('/', (req, res, next) => {
 
 });
 
-router.patch('/:id', (req, res, next) => {
+router.patch('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     const name = req.body.name;
     const investor = req.body.investor;
@@ -151,6 +143,7 @@ router.patch('/:id', (req, res, next) => {
     const info = req.body.info;
     const lat = req.body.lat;
     const long = req.body.long;
+    const ownerid = req.body.ownerid;
     Project.update({
         _id: id
     }, {
@@ -165,11 +158,11 @@ router.patch('/:id', (req, res, next) => {
                 info: info,
                 lat: lat,
                 long: long,
+                ownerid: ownerid,
             }
         })
         .exec()
         .then(result => {
-            console.log(result);
             if (result) {
                 res.status(200).json({
                     status: 200,
@@ -186,6 +179,7 @@ router.patch('/:id', (req, res, next) => {
                         info: info,
                         lat: lat,
                         long: long,
+                        ownerid: ownerid,
                     },
                     request: {
                         type: 'PATCH',
@@ -208,14 +202,13 @@ router.patch('/:id', (req, res, next) => {
         });
 });
 
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     Project.remove({
         _id: id
     })
         .exec()
         .then(result => {
-            console.log(result);
             if (result) {
                 res.status(200).json({
                     status: 200,

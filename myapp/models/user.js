@@ -26,8 +26,16 @@ const Schema = mongoose.Schema({
         type: String,
         required: true
     },
-    status: {
+    totalProject: {
         type: Number,
+        required: true,
+    },
+    statusAccount: {
+        type: Number,
+        required: true,
+    },
+    avatar: {
+        type: String,
         required: true,
     }
 });

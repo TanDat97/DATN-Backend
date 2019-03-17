@@ -39,5 +39,21 @@ function findProjectByOwner(listProject, id){
     return result;
 }
 
+function convertData(inStr){
+    var  result = {
+        start: 0,
+        end: 1000000,
+    }
+    if(inStr == -1){
+        return result;
+    }
+    var temp = inStr.split('-');
+    result.start = parseInt(temp[0]);
+    result.end = parseInt(temp[1]);
+    return result;
+}
+
+
 module.exports.distanceListPlace = distanceListPlace
 module.exports.findProjectByOwner = findProjectByOwner
+module.exports.convertData = convertData

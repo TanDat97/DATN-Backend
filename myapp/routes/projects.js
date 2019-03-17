@@ -227,8 +227,19 @@ router.delete('/:id', checkAuth, (req, res, next) => {
         });
 });
 
-router.get('search/:type/:address/:area/:price', (req, res, next) => {
-    Project.find()
+router.post('/search/:type/:address/:area/:price', (req, res, next) => {
+    const addressParam =  req.body.address
+    const areaParam = libFunction.convertData(req.body.area);
+    const priceParam = libFunction.convertData(req.body.price);    
+    console.log(`.*${addressParam}.*`)
+    console.log(areaParam)
+    console.log(priceParam)
+    Project.find({
+        statusProject: req.body.type,
+        area: {$gte: areaParam.start, $lte: areaParam.end},
+        price: {$gte: priceParam.start, $lte: priceParam.end},
+        address: {$regex:`.*${addressParam}.*`},
+    })
     .select()
     .exec()
     .then(results => {

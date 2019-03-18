@@ -61,7 +61,7 @@ router.post('/getListInRadius', (req, res, next) => {
     });
 });
 
-router.get('/:id', checkAuth, (req, res, next) => {
+router.get('/:id', (req, res, next) => {
     const id = req.params.id;
     Project.findById(id)
     .exec()

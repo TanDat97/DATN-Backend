@@ -2,85 +2,11 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
-const checkAuth = require('../middleware/checkAuth');
+const checkAuthAdmin = require('../middleware/checkAuthAdmin');
 const libFunction = require('../lib/function');
 const Project = require('../models/projectModel');
 
-router.get('/', (req, res, next) => {
-    Project.find()
-    .select()
-    .exec()
-    .then(results => {
-        if (results.length >= 0) {
-            res.status(200).json({
-                status: 200,
-                count: results.length,
-                projects: results,
-            });
-        } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found',
-            })
-        }
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            status: 500,
-            error: err
-        });
-    });
-});
-
-router.post('/getListInRadius', (req, res, next) => {
-    Project.find()
-    .select()
-    .exec()
-    .then(temp => {
-        const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
-        if (results.length >= 0) {
-            res.status(200).json({
-                status: 200,
-                count: results.length,
-                projects: results,
-            });
-        } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found',
-            })
-        }
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            status: 500,
-            error: err
-        });
-    });
-});
-
-router.get('/:id', (req, res, next) => {
-    const id = req.params.id;
-    Project.findById(id)
-    .exec()
-    .then(result => {
-        res.status(200).json({
-            status: 200,
-            result,
-        });
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            status: 500,
-            error: err
-        });
-    });
-});
-
-router.post('/', checkAuth, (req, res, next) => {
+router.post('/', checkAuthAdmin, (req, res, next) => {
     const project= new Project({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -121,7 +47,7 @@ router.post('/', checkAuth, (req, res, next) => {
 
 });
 
-router.patch('/:id', checkAuth, (req, res, next) => {
+router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
     const name = req.body.name;
     const investor = req.body.investor;
@@ -195,7 +121,7 @@ router.patch('/:id', checkAuth, (req, res, next) => {
         });
 });
 
-router.delete('/:id', checkAuth, (req, res, next) => {
+router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
     Project.remove({
         _id: id
@@ -225,42 +151,6 @@ router.delete('/:id', checkAuth, (req, res, next) => {
                 error: err
             });
         });
-});
-
-router.post('/search/:type/:address/:area/:price', (req, res, next) => {
-    const addressParam =  req.body.address
-    const areaParam = libFunction.convertData(req.body.area);
-    const priceParam = libFunction.convertData(req.body.price);    
-    // console.log(`.*${addressParam}.*`)
-    Project.find({
-        statusProject: req.body.type,
-        area: {$gte: areaParam.start, $lte: areaParam.end},
-        price: {$gte: priceParam.start, $lte: priceParam.end},
-        address: {$regex:`.*${addressParam}.*`},
-    })
-    .select()
-    .exec()
-    .then(results => {
-        if (results.length >= 0) {
-            res.status(200).json({
-                status: 200,
-                count: results.length,
-                projects: results,
-            });
-        } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found',
-            })
-        }
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            status: 500,
-            error: err
-        });
-    });
 });
 
 module.exports = router;

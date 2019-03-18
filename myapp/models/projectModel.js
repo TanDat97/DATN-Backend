@@ -3,10 +3,6 @@ var Schema = mongoose.Schema;
 
 var projectSchema = new Schema({
     _id: mongoose.Schema.Types.ObjectId,
-    id: {
-        type: String,
-        required: true
-    },
     name: {
         type: String,
         required: true
@@ -46,7 +42,15 @@ var projectSchema = new Schema({
     long: {
         type: Number,
         required: true,
-    }
+    },
+    ownerid: {
+        type: String,
+        required: true,
+    },
+    statusProject:{
+        type: String,
+        required: true,
+    },
 });
 
 // Export the model

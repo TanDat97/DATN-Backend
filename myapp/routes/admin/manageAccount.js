@@ -4,12 +4,12 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const checkAuth = require('../../middleware/check-auth');
+const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
 const libFunction = require('../../lib/function');
 const User = require('../../models/userModel');
 const Project = require('../../models/projectModel');
 
-router.delete('/:userID', checkAuth, (req, res, next) => {
+router.delete('/:userID', checkAuthAdmin, (req, res, next) => {
     User.remove({
             _id: req.params.userID
         })

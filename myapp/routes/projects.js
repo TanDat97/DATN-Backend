@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
-const checkAuth = require('../middleware/check-auth');
+const checkAuth = require('../middleware/checkAuth');
 const libFunction = require('../lib/function');
 const Project = require('../models/projectModel');
 
@@ -231,9 +231,7 @@ router.post('/search/:type/:address/:area/:price', (req, res, next) => {
     const addressParam =  req.body.address
     const areaParam = libFunction.convertData(req.body.area);
     const priceParam = libFunction.convertData(req.body.price);    
-    console.log(`.*${addressParam}.*`)
-    console.log(areaParam)
-    console.log(priceParam)
+    // console.log(`.*${addressParam}.*`)
     Project.find({
         statusProject: req.body.type,
         area: {$gte: areaParam.start, $lte: areaParam.end},

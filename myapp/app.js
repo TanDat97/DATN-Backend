@@ -9,14 +9,16 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const cors = require('cors');
 
+// const swaggerUi = require('swagger-ui-express');
+// const swaggerDocument = require('./swagger.json');
+
+
+
 const indexRouter = require('./routes/index');
 const adminRouter = require('./routes/admin/admin');
 const usersRouter = require('./routes/users');
 const projectsRouter = require('./routes/projects');
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
 
 app.use(cors()); 
 app.use(logger('dev'));

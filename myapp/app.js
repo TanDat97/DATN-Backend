@@ -9,6 +9,11 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const cors = require('cors');
 
+// const swaggerUi = require('swagger-ui-express');
+// const swaggerDocument = require('./swagger.json');
+
+
+
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const projectsRouter = require('./routes/projects');

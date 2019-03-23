@@ -1,9 +1,12 @@
-var express = require('express');
-var router = express.Router();
+const router = require('express').Router();
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./../swagger.json');
+ 
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Team10 DATN' });
-});
-
+router.use('/', swaggerUi.serve);
+const options = {
+    explorer : false,
+    
+  };
+router.get('/', swaggerUi.setup(swaggerDocument,options));
 module.exports = router;

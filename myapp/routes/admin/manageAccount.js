@@ -45,7 +45,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
     .then(result => {
         res.status(200).json({
             status: 200,
-            result,
+            account: result,
         });
     })
     .catch(err => {

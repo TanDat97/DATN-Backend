@@ -79,11 +79,11 @@ router.post('/login', (req, res, next) => {
                 }
                 if (result) {
                     const token = jwt.sign({
-                        id: user[0]._id,
-                        email: user[0].email,
-                        adminname: user[0].adminname,
-                        fullname: user[0].fullname,
-                        address: user[0].address,
+                        id: admin[0]._id,
+                        email: admin[0].email,
+                        adminname: admin[0].adminname,
+                        fullname: admin[0].fullname,
+                        address: admin[0].address,
                         status: 'adminaccount',
                     }, 'HS256', {
                         expiresIn: "1h"
@@ -91,12 +91,12 @@ router.post('/login', (req, res, next) => {
                     return res.status(200).json({
                         status: 200,
                         message: 'successful',
-                        id: user[0]._id,
-                        email: user[0].email,
-                        adminname: user[0].adminname,
-                        fullname: user[0].fullname,
-                        address: user[0].address,
-                        phone: user[0].phone,
+                        id: admin[0]._id,
+                        email: admin[0].email,
+                        adminname: admin[0].adminname,
+                        fullname: admin[0].fullname,
+                        address: admin[0].address,
+                        phone: admin[0].phone,
                         token: token,
                     })
                 }

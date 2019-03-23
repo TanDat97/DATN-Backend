@@ -10,9 +10,12 @@ const fs = require('fs');
 const cors = require('cors');
 
 const indexRouter = require('./routes/index');
-const adminRouter = require('./routes/admin/admin');
 const usersRouter = require('./routes/users');
 const projectsRouter = require('./routes/projects');
+
+const adminRouter = require('./routes/admin/admin');
+const manageAccountRouter = require('./routes/admin/manageAccount');
+const manageProjectRouter = require('./routes/admin/manageProject');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -34,9 +37,12 @@ mongoose.connect('mongodb+srv://dat:datdeptrai123@cluster0-mmyqj.mongodb.net/rea
 mongoose.Promise = global.Promise;
 
 app.use('/', indexRouter);
-app.use('/admin', adminRouter);
 app.use('/users', usersRouter);
 app.use('/projects', projectsRouter);
+
+app.use('/admin', adminRouter);
+app.use('/manageAccount', manageAccountRouter);
+app.use('/manageProject', manageProjectRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

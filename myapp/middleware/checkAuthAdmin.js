@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
         next();
     } catch (error) {
         return res.status(401).json({
-            status: 400,
+            status: 401,
             message: 'token failed'
         });
     }

@@ -20,7 +20,7 @@ router.get('/', checkAuthAdmin,  (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 count: results.length,
-                projects: results,
+                accounts: results,
             });
         } else {
             res.status(404).json({
@@ -56,15 +56,16 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         });
     });
 });
-router.delete('/:userID', checkAuthAdmin, (req, res, next) => {
+
+router.delete('/:accountID', checkAuthAdmin, (req, res, next) => {
     User.remove({
-            _id: req.params.userID
+            _id: req.params.accountID
         })
         .exec()
         .then(result => {
             res.status(200).json({
                 status: 200,
-                message: 'user deleted',
+                message: 'account deleted',
                 result: result
             });
         })

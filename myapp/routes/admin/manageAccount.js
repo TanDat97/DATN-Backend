@@ -57,6 +57,66 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
     });
 });
 
+router.patch('/:id', checkAuthAdmin, (req, res, next) => {
+    const id = req.params.id;
+    const username = req.body.username;
+    const fullname = req.body.fullname;
+    const address = req.body.address;
+    const email = req.body.email;
+    const phone = req.body.phone;
+    const totalProject = req.body.totalProject;
+    const statusAccount = req.body.statusAccount;
+
+    User.update({
+        _id: id
+    }, {
+            $set: {
+                username: username,
+                fullname: fullname,
+                address: address,
+                email: email,
+                phone: phone,
+                totalProject: totalProject,
+                statusAccount: statusAccount,
+            }
+        })
+        .exec()
+        .then(result => {
+            if (result) {
+                res.status(200).json({
+                    status: 200,
+                    message: 'update account success',
+                    project: {
+                        _id: id,
+                        username: username,
+                        fullname: fullname,
+                        address: address,
+                        email: email,
+                        phone: phone,
+                        totalProject: totalProject,
+                        statusAccount: statusAccount,
+                    },
+                    request: {
+                        type: 'PATCH',
+                    }
+                });
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found'
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                status: 500,
+                error: err
+            });
+        });
+});
+
+
 router.delete('/:accountID', checkAuthAdmin, (req, res, next) => {
     User.remove({
             _id: req.params.accountID

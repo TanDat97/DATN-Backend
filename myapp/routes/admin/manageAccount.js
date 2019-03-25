@@ -43,10 +43,17 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
     User.findById(id)
     .exec()
     .then(result => {
-        res.status(200).json({
-            status: 200,
-            account: result,
-        });
+        if (result !== null) {
+            res.status(200).json({
+                status: 200,
+                account: result,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
     })
     .catch(err => {
         console.log(err);

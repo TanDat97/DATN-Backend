@@ -8,9 +8,18 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const cors = require('cors');
+var url='mongodb+srv://tuan:tuan123@cluster0-mmyqj.mongodb.net/realestate?retryWrites=true'
 
 // const swaggerUi = require('swagger-ui-express');
 // const swaggerDocument = require('./swagger.json');
+
+var corsOption = {
+  origin: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  exposedHeaders: ['x-auth-token']
+};
+app.use(cors(corsOption));
 
 
 
@@ -30,8 +39,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 // mongoose.connect('mongodb+srv://dat:' + process.env.MONGO_ATLAS_PW + '@cluster0-mmyqj.mongodb.net/test?retryWrites=true',{
 //     useNewUrlParser: true
 // });
-mongoose.connect('mongodb+srv://dat:datdeptrai123@cluster0-mmyqj.mongodb.net/realestate?retryWrites=true',{
-  useNewUrlParser: true
+
+
+mongoose.connect(url,{
+useNewUrlParser: true
+},function(err)
+{
+  if (err) throw err
+  else
+  {
+    console.log('Connect Data Successful')
+  }
 });
 mongoose.Promise = global.Promise;
 
@@ -45,13 +63,14 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
-app.use(function(err, req, res, next) { // error handler
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+// app.use(function(err, req, res, next) { // error handler
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+//   // render the error page
+//   res.status(err.status || 500);
+//   res.render('error');
+// });
+
 
 module.exports = app;

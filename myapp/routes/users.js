@@ -9,6 +9,12 @@ const libFunction = require('../lib/function');
 const User = require('../models/userModel');
 const Project = require('../models/projectModel');
 
+var { generateToken, sendToken } = require('./../middleware/token.utils');
+var passport = require('passport');
+var config = require('./../middleware/config');
+var request = require('request');
+require('./../middleware/passport');
+
 router.post('/signup', (req, res, next) => {
   User.find({
       email: req.body.email,
@@ -176,5 +182,16 @@ router.post('/dansachproject/:id', checkAuth, (req, res, next) => {
       });
     });
 });
+router.post('/auth/google',passport.authenticate('google-token', {session: false}), function(req, res, next) {
+        if (!req.user) {
+            return res.send(401, 'User Not Authenticated');
+        }
+        req.auth = {
+            id: req.user.id
+        };
+
+        next();
+    }, generateToken, sendToken);
+
 
 module.exports = router;

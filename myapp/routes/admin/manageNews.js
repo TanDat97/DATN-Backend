@@ -58,6 +58,8 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         title: req.body.title,
         content: req.body.content,
         type: req.body.type,
+        createTime: req.body.createTime,
+        updateTime: req.body.updateTime,
     });
     news
         .save()
@@ -89,6 +91,8 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     const title = req.body.title
     const content = req.body.content
     const type = req.body.type
+    const createTime = req.body.createTime
+    const updateTime = req.body.updateTime
     News.update({
         _id: id
     }, {
@@ -96,6 +100,8 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                 title: title,
                 content: content,
                 type: type,
+                createTime: createTime,
+                updateTime: updateTime,
             }
         })
         .exec()
@@ -109,6 +115,8 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                         title: title,
                         content: content,
                         type: type,
+                        createTime: createTime,
+                        updateTime: updateTime, 
                     },
                     request: {
                         type: 'PATCH',

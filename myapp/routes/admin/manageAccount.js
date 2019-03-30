@@ -10,17 +10,31 @@ const User = require('../../models/userModel');
 const Project = require('../../models/projectModel');
 const Admin = require('../../models/adminModel');
 
+const numItem = 30
 
-router.get('/', checkAuthAdmin,  (req, res, next) => {
+router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
+    const page = req.params.id;
     User.find()
     .select()
     .exec()
     .then(results => {
-        if (results.length >= 0) {
+        if (results.length >= 0 && results.length <= numItem) {
             res.status(200).json({
                 status: 200,
                 count: results.length,
+                page: 1,
                 accounts: results,
+            });
+        } else if (results.length >= numItem && page > 0) {
+            var i
+            var accounts=[]
+            for (i=(page-1)*numItem; i < page*numItem; i++)
+                accounts.push(results[i])
+            res.status(200).json({
+                status: 200,
+                count: results.length,
+                page: page,
+                accounts: accounts,
             });
         } else {
             res.status(404).json({

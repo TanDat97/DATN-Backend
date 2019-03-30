@@ -6,16 +6,31 @@ const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
 const libFunction = require('../../lib/function');
 const News = require('../../models/newsModel');
 
-router.get('/', checkAuthAdmin, (req, res, next) => {
+const numItem = 30
+
+router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
+    const page = req.params.page
     News.find()
     .select()
     .exec()
     .then(results => {
-        if (results.length >= 0) {
+        if (results.length >= 0 && results.length <= numItem) {
             res.status(200).json({
                 status: 200,
                 count: results.length,
+                page: 1,
                 news: results,
+            });
+        } else if (results.length >= numItem && page > 0) {
+            var i
+            var news=[]
+            for (i=(page-1)*numItem; i < page*numItem; i++)
+                news.push(results[i])
+            res.status(200).json({
+                status: 200,
+                count: results.length,
+                page: page,
+                news: news,
             });
         } else {
             res.status(404).json({

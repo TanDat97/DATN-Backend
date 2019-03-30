@@ -8,7 +8,7 @@ const Project = require('../models/projectModel');
 
 const numItem = 30;
 
-router.get('/:page', (req, res, next) => {
+router.get('/all/:page', (req, res, next) => {
     const page = req.params.page
     Project.find()
     .select()

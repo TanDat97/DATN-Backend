@@ -30,6 +30,7 @@ const projectsRouter = require('./routes/projects');
 const adminRouter = require('./routes/admin/admin');
 const manageAccountRouter = require('./routes/admin/manageAccount');
 const manageProjectRouter = require('./routes/admin/manageProject');
+const manageNewsRouter = require('./routes/admin/manageNews');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -66,6 +67,7 @@ app.use('/projects', projectsRouter);
 app.use('/admin', adminRouter);
 app.use('/manageAccount', manageAccountRouter);
 app.use('/manageProject', manageProjectRouter);
+app.use('/manageNews', manageNewsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

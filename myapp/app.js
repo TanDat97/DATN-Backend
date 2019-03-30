@@ -26,6 +26,7 @@ app.use(cors(corsOption));
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const projectsRouter = require('./routes/projects');
+const newsRouter = require('./routes/news');
 
 const adminRouter = require('./routes/admin/admin');
 const manageAccountRouter = require('./routes/admin/manageAccount');
@@ -63,6 +64,7 @@ mongoose.Promise = global.Promise;
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/projects', projectsRouter);
+app.use('/news', newsRouter);
 
 app.use('/admin', adminRouter);
 app.use('/manageAccount', manageAccountRouter);

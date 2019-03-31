@@ -42,7 +42,7 @@ function findProjectByOwner(listProject, id){
 function convertData(inStr){
     var  result = {
         start: 0,
-        end: 1000000,
+        end: 1000000000,
     }
     if(inStr == -1){
         return result;

@@ -98,7 +98,7 @@ router.post('/login', (req, res, next) => {
             phone: user[0].phone,
             statusAccount: user[0].statusAccount,
           }, 'shhhhh', {
-            expiresIn: "1h"
+            expiresIn: "2h"
           });
           return res.status(200).json({
             status: 200,
@@ -182,6 +182,7 @@ router.post('/dansachproject/:id', checkAuth, (req, res, next) => {
       });
     });
 });
+
 router.post('/auth/google',passport.authenticate('google-token', {session: false}), function(req, res, next) {
         if (!req.user) {
             return res.send(401, 'User Not Authenticated');
@@ -191,7 +192,6 @@ router.post('/auth/google',passport.authenticate('google-token', {session: false
         };
 
         next();
-    }, generateToken, sendToken);
-
+}, generateToken, sendToken);
 
 module.exports = router;

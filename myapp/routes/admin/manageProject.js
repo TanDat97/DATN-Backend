@@ -89,13 +89,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
             res.status(201).json({
                 status: 201,
                 message: 'add project success',
-                createdProject: {
-                    result,
-                    request: {
-                        type: 'POST',
-                        url: 'http://localhost:3001/projects/' + result._id,
-                    }
-                }
+                project: result,
             });
         })
         .catch(err => {

@@ -82,13 +82,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
             res.status(201).json({
                 status: 201,
                 message: 'add news success',
-                createdNews: {
-                    result,
-                    request: {
-                        type: 'POST',
-                        url: 'http://localhost:3001/news/' + result._id,
-                    }
-                }
+                news: result,
             });
         })
         .catch(err => {

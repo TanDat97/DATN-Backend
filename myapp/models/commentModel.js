@@ -1,0 +1,39 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema({
+    _id: mongoose.Schema.Types.ObjectId,
+    userid: {
+        type: String,
+        required: true
+    },
+    fullname: {
+        type: String,
+        required: true
+    },
+    commentTime: {
+        type: Number,
+        requireed: true,
+    },
+    updateTime: {
+        type: Number,
+        requireed: true,
+    },
+    content: {
+        type: String,
+        required: true
+    },
+    star: {
+        type: Number,
+        required: true
+    },
+    accountType: {
+        type: String,
+        requireed: true,
+    }, 
+    projectid: {
+        type: String,
+        requireed: true,
+    },
+});
+
+// Export the model
+module.exports = mongoose.model('Comment', Schema);

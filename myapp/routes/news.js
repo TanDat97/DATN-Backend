@@ -8,12 +8,13 @@ const News = require('../models/newsModel');
 
 const numItem = 30;
 
-router.get('/all/:type', (req, res, next) => {
+router.get('/all/:type/:page', (req, res, next) => {
     var type = req.params.type
+    const page = req.params.page
     if(type === 'phong-thuy')
         type = 'Phong thủy'
-    else if(type='noi-that-ngoai-that')
-        type ='Nội thất - Ngoại thất'
+    else if(type === 'noi-that-ngoai-that')
+        type = 'Nội thất - Ngoại thất'
     else if(type === 'xay-dung-kien-truc')
         type = 'Xây dựng - Kiến trúc'
     News.find({

@@ -45,6 +45,10 @@ const Schema = mongoose.Schema({
     avatar: {
         type: String,
         required: false,
+    },
+    description: {
+        type: String,
+        required: false,
     }
 });
 Schema.set('toJSON', {getters: true, virtuals: true});

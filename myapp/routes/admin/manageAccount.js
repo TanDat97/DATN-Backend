@@ -103,7 +103,7 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
         })
         .exec()
         .then(result => {
-            if (result) {
+            if (result.nModified > 0) {
                 res.status(200).json({
                     status: 200,
                     message: 'update account success',
@@ -138,17 +138,25 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
 });
 
 
-router.delete('/:accountID', checkAuthAdmin, (req, res, next) => {
+router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     User.remove({
-            _id: req.params.accountID
+            _id: req.params.id
         })
         .exec()
         .then(result => {
-            res.status(200).json({
-                status: 200,
-                message: 'account deleted',
-                result: result
-            });
+            Project.remove({ownerid: req.params.id}).exec().then(result => console.log('delete project success'))
+            if(result.n > 0) {
+                res.status(200).json({
+                    status: 200,
+                    message: 'account deleted',
+                    result: result
+                });
+            } else {
+                res.status(404).json({
+                    status: 200,
+                    message: 'No valid entry found'
+                });
+            }
         })
         .catch(err => {
             console.log(err);

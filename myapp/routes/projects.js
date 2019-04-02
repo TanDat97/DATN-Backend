@@ -110,6 +110,8 @@ router.post('/', checkAuth, (req, res, next) => {
         long: req.body.long,
         ownerid: req.body.ownerid,
         statusProject: req.body.statusProject,
+        createTime: req.body.createTime,
+        updateTime: req.body.updateTime,
     });
     project
         .save()
@@ -149,9 +151,12 @@ router.patch('/:id', checkAuth, (req, res, next) => {
     const lat = req.body.lat;
     const long = req.body.long;
     const ownerid = req.body.ownerid;
-    const  statusProject = req.body.statusProject;
+    const statusProject = req.body.statusProject;
+    const createTime = req.body.createTime;
+    const updateTime = req.body.updateTime;
     Project.update({
-        _id: id
+        _id: id,
+        ownerid: req.userData.id
     }, {
             $set: {
                 name: name,
@@ -164,13 +169,14 @@ router.patch('/:id', checkAuth, (req, res, next) => {
                 info: info,
                 lat: lat,
                 long: long,
-                ownerid: ownerid,
                 statusProject: statusProject,
+                createTime: createTime,
+                updateTime: updateTime,
             }
         })
         .exec()
         .then(result => {
-            if (result) {
+            if (result.nModified > 0) {
                 res.status(200).json({
                     status: 200,
                     message: 'update project success',
@@ -188,6 +194,8 @@ router.patch('/:id', checkAuth, (req, res, next) => {
                         long: long,
                         ownerid: ownerid,
                         statusProject: statusProject,
+                        createTime: createTime,
+                        updateTime: updateTime,
                     },
                     request: {
                         type: 'PATCH',
@@ -213,11 +221,12 @@ router.patch('/:id', checkAuth, (req, res, next) => {
 router.delete('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     Project.remove({
-        _id: id
+        _id: id,
+        ownerid: req.userData.id,
     })
         .exec()
         .then(result => {
-            if (result) {
+            if (result.n > 0) {
                 res.status(200).json({
                     status: 200,
                     message: 'delete project success',

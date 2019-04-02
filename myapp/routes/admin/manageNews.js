@@ -115,7 +115,7 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
         })
         .exec()
         .then(result => {
-            if (result) {
+            if (result.nModified > 0) {
                 res.status(200).json({
                     status: 200,
                     message: 'update news success',
@@ -136,7 +136,7 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                 res.status(404).json({
                     status: 404,
                     message: 'No valid entry found'
-                })
+                });
             }
         })
         .catch(err => {
@@ -155,7 +155,7 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     })
         .exec()
         .then(result => {
-            if (result) {
+            if (result.n > 0) {
                 res.status(200).json({
                     status: 200,
                     message: 'delete news success',

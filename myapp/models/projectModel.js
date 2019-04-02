@@ -51,6 +51,14 @@ var projectSchema = new Schema({
         type: String,
         required: true,
     },
+    createTime: {
+        type: Number,
+        requireed: false,
+    },
+    updateTime: {
+        type: Number,
+        requireed: false,
+    }
 });
 
 // Export the model

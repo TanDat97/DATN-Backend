@@ -98,6 +98,7 @@ router.post('/login', (req, res, next) => {
             fullname: user[0].fullname,
             address: user[0].address,
             phone: user[0].phone,
+            totalProject: user[0].totalProject,
             statusAccount: user[0].statusAccount,
           }, 'shhhhh', {
             expiresIn: "2h"
@@ -111,6 +112,8 @@ router.post('/login', (req, res, next) => {
             fullname: user[0].fullname,
             address: user[0].address,
             description: user[0].description,
+            totalProject: user[0].totalProject,
+            statusAccount: user[0].statusAccount,
             token: token,
           })
         }

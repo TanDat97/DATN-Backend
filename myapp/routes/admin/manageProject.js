@@ -85,6 +85,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
     });
+    // console.log(project)
     project
         .save()
         .then(result => {

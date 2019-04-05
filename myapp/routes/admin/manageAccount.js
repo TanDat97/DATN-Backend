@@ -107,7 +107,7 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                 res.status(200).json({
                     status: 200,
                     message: 'update account success',
-                    project: {
+                    account: {
                         _id: id,
                         username: username,
                         fullname: fullname,

@@ -207,11 +207,11 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
                     message: 'Account not found'
                 });
             }
-            bcrypt.compare(req.body.oldPassword, admin[0].password, (err, result) => {
+            bcrypt.compare(req.body.currentPassword, admin[0].password, (err, result) => {
                 if (err) {
-                    return res.status(401).json({
+                    return res.status(40).json({
                         status: 401,
-                        message: 'change password failed',
+                        message: 'Change password failed 1',
                     });
                 }
                 if (result) {
@@ -235,14 +235,14 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
                                 if (result.nModified > 0) {
                                     res.status(200).json({
                                         status: 200,
-                                        message: 'change password success',
+                                        message: 'Change password success',
                                         email: req.userData.email,
                                         _id: req.userData.id,
                                     });
                                 } else {
                                     res.status(404).json({
                                         status: 404,
-                                        message: 'No valid entry found'
+                                        message: 'Change password failed 2'
                                     })
                                 }
                             })
@@ -251,16 +251,17 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
                                 res.status(500).json({
                                     status: 500,
                                     error: err,
-                                    message: 'change password failed',
+                                    message: 'Change password failed 3',
                                 });
                             });     
                         }
                     }) 
+                } else {
+                    return res.status(401).json({
+                        status: 401,
+                        message: 'Change password failed 4',
+                    });
                 }
-                return res.status(401).json({
-                    status: 401,
-                    message: 'change password failed',
-                });
             });
         })
         .catch(err => {
@@ -268,7 +269,7 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
             return res.status(401).json({
                 status: 401,
                 error: err,
-                message: 'change password failed',
+                message: 'Change password failed 5',
             });
         });
 });

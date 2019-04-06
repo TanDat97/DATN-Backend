@@ -1,5 +1,5 @@
-var gg = require('../models/userGGModel'),
-  UserGG = gg.model('UserGG');
+var gg = require('../models/userModel'),
+  UserGG = gg.model('User');
 
 var  mongoose = require('mongoose');
 

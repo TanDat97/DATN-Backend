@@ -50,4 +50,4 @@ const Schema = mongoose.Schema({
 // Schema.set('toJSON', {getters: true, virtuals: true});
 
 // Export the model
-module.exports = mongoose.model('UserGG', Schema);
+module.exports = mongoose.model('User', Schema);

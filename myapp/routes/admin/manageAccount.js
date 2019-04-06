@@ -87,18 +87,19 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     const phone = req.body.phone;
     const totalProject = req.body.totalProject;
     const statusAccount = req.body.statusAccount;
-
+    const description = req.body.description;
     User.update({
-        _id: id
+        _id: id,
+        email: email,
     }, {
             $set: {
                 username: username,
                 fullname: fullname,
                 address: address,
-                email: email,
                 phone: phone,
                 totalProject: totalProject,
                 statusAccount: statusAccount,
+                description: description,
             }
         })
         .exec()
@@ -116,6 +117,7 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                         phone: phone,
                         totalProject: totalProject,
                         statusAccount: statusAccount,
+                        description: description,
                     },
                     request: {
                         type: 'PATCH',

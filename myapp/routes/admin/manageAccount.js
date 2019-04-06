@@ -13,28 +13,17 @@ const Admin = require('../../models/adminModel');
 const numItem = 30
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
-    const page = req.params.id;
-    User.find()
+    const page = parseInt(req.params.page) - 1
+    User.find().skip(page).limit(numItem)
     .select()
     .exec()
     .then(results => {
-        if (results.length >= 0 && results.length <= numItem) {
+        if (results.length > 0) {
             res.status(200).json({
                 status: 200,
                 count: results.length,
-                page: 1,
+                page: page + 1,
                 accounts: results,
-            });
-        } else if (results.length >= numItem && page > 0) {
-            var i
-            var accounts=[]
-            for (i=(page-1)*numItem; i < page*numItem; i++)
-                accounts.push(results[i])
-            res.status(200).json({
-                status: 200,
-                count: results.length,
-                page: page,
-                accounts: accounts,
             });
         } else {
             res.status(404).json({

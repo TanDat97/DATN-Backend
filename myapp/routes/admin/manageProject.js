@@ -9,28 +9,17 @@ const Project = require('../../models/projectModel');
 const numItem = 30
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
-    const page = req.params.page
-    Project.find()
+    const page = parseInt(req.params.page) - 1
+    Project.find().sort({'createTime': -1}).skip(page).limit(numItem)
     .select()
     .exec()
     .then(results => {
-        if (results.length >= 0 && results.length <= numItem) {
+        if (results.length > 0) {
             res.status(200).json({
                 status: 200,
                 count: results.length,
-                page: 1,
+                page: page + 1,
                 projects: results,
-            });
-        } else if (results.length >= numItem && page > 0) {
-            var i
-            var projects=[]
-            for (i=(page-1)*numItem; i < page*numItem; i++)
-                projects.push(results[i])
-            res.status(200).json({
-                status: 200,
-                count: results.length,
-                page: page,
-                projects: projects,
             });
         } else {
             res.status(404).json({

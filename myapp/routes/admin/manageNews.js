@@ -9,28 +9,17 @@ const News = require('../../models/newsModel');
 const numItem = 30
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
-    const page = req.params.page
-    News.find()
+    const page = parseInt(req.params.page) - 1
+    News.find().sort({'createTime': -1}).skip(page).limit(numItem)
     .select()
     .exec()
     .then(results => {
-        if (results.length >= 0 && results.length <= numItem) {
+        if (results.length > 0) {
             res.status(200).json({
                 status: 200,
                 count: results.length,
-                page: 1,
+                page: page + 1,
                 news: results,
-            });
-        } else if (results.length >= numItem && page > 0) {
-            var i
-            var news=[]
-            for (i=(page-1)*numItem; i < page*numItem; i++)
-                news.push(results[i])
-            res.status(200).json({
-                status: 200,
-                count: results.length,
-                page: page,
-                news: news,
             });
         } else {
             res.status(404).json({

@@ -5,7 +5,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const checkAuth = require('../middleware/checkAuth');
-const checkAuthWithID = require('../middleware/checkAuthWithID');
 const libFunction = require('../lib/function');
 const User = require('../models/userModel');
 const Project = require('../models/projectModel');

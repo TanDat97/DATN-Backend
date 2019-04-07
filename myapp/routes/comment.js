@@ -141,7 +141,7 @@ router.patch('/:id', checkAuth, (req, res, next) => {
     });
 });
 
-router.delete('/', checkAuth, (req, res, next) => { //checkAuthWithID
+router.delete('/', checkAuth, (req, res, next) => {
     Comment.remove({
         _id: req.body.commentid,
         userid: req.userData.userid,

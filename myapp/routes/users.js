@@ -14,7 +14,7 @@ var { generateToken, sendToken } = require('./../middleware/token.utils');
 var passport = require('passport');
 var config = require('./../middleware/config');
 var request = require('request');
-require('./../middleware/passport');
+require('./../middleware/passport')();
 
 router.post('/signup', (req, res, next) => {
   User.find({

@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-    password: {
-        type: String,
-        required: false,
-    },
+    // username: {
+    //     type: String,
+    //     required: false
+    // },
+    // password: {
+    //     type: String,
+    //     required: false
+    // },
     fullname: {
         type: String,
-        required: true,
+        required: true
     },
     address: {
         type: String,
@@ -28,7 +32,7 @@ const Schema = mongoose.Schema({
     },
     phone: {
         type: String,
-        required: false,
+        required: false
     },
     totalProject: {
         type: Number,
@@ -41,12 +45,9 @@ const Schema = mongoose.Schema({
     avatar: {
         type: String,
         required: false,
-    },
-    description: {
-        type: String,
-        required: false,
     }
 });
+// Schema.set('toJSON', {getters: true, virtuals: true});
 
 // Export the model
 module.exports = mongoose.model('User', Schema);

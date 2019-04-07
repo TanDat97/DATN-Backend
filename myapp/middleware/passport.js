@@ -1,7 +1,6 @@
 'use strict';
-require('./../models/userModel')();
 var passport = require('passport');
-var User = require('../models/userModel').model('User')
+var UserGG = require('../controllers/GoogleUser')
 var GoogleTokenStrategy = require('passport-google-token').Strategy;
 var config = require('./config');
 
@@ -12,7 +11,7 @@ module.exports = function () {
             clientSecret: config.googleAuth.clientSecret
         },
         function (accessToken, refreshToken, profile, done) {
-            User.upsertGoogleUser(accessToken, refreshToken, profile, function(err, user) {
+            UserGG.upsertGoogleUser(accessToken, refreshToken, profile, function(err, user) {
                 return done(err, user);
             });
         }));

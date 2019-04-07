@@ -18,123 +18,120 @@ require('./../middleware/passport');
 
 router.post('/signup', (req, res, next) => {
   User.find({
-      email: req.body.email,
-    })
-    .exec()
-    .then(user => {
-      if (user.length >= 1) {
-        return res.status(409).json({
-          status: 409,
-          message: 'user exists',
-        });
-      } else {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
-          if (err) {
-            return res.status(500).json({
-              status: 500,
-              error: err,
-            });
-          } else {
-            const user = User({
-              _id: new mongoose.Types.ObjectId(),
-              username: req.body.username,
-              password: hash,
-              fullname: req.body.fullname,
-              address: req.body.address,
-              email: req.body.email,
-              phone: req.body.phone,
-              description: req.body.description,
-              totalProject: 0,
-              statusAccount: 0,
-            });
-            user
-              .save()
-              .then(result => {
-                res.status(201).json({
-                  status: 201,
-                  message: 'user created',
-                  email: result.email,
-                  // id: result._id,
-                })
+    email: req.body.email,
+  })
+  .exec()
+  .then(user => {
+    if (user.length >= 1) {
+      return res.status(409).json({
+        status: 409,
+        message: 'user exists',
+      });
+    } else {
+      bcrypt.hash(req.body.password, 10, (err, hash) => {
+        if (err) {
+          return res.status(500).json({
+            status: 500,
+            error: err,
+          });
+        } else {
+          const user = User({
+            _id: new mongoose.Types.ObjectId(),
+            password: hash,
+            fullname: req.body.fullname,
+            address: req.body.address,
+            email: req.body.email,
+            phone: req.body.phone,
+            description: req.body.description,
+            totalProject: 0,
+            statusAccount: 0,
+          });
+          user
+            .save()
+            .then(result => {
+              res.status(201).json({
+                status: 201,
+                message: 'user created',
+                email: result.email,
+                // id: result._id,
               })
-              .catch(err => {
-                console.log(err);
-                res.status(500).json({
-                  status: 500,
-                  error: err
-                });
+            })
+            .catch(err => {
+              console.log(err);
+              res.status(500).json({
+                status: 500,
+                error: err
               });
-          }
-        });
-      }
-    })
-    .catch();
+            });
+        }
+      });
+    }
+  })
+  .catch();
 });
 
 router.post('/login', (req, res, next) => {
   User.find({
-      email: req.body.email
-    })
-    .exec()
-    .then(user => {
-      if (user.length < 0) {
-        return res.status(401).json({
-          status: 401,
-          message: 'Auth failed email,'
-        });
-      }
-      bcrypt.compare(req.body.password, user[0].password, (err, result) => {
-        if (err) {
-          return res.status(401).json({
-            status: 401,
-            message: 'Auth failed password'
-          });
-        }
-        if (result) {
-          const token = jwt.sign({
-            id: user[0]._id,
-            email: user[0].email,
-            username: user[0].username,
-            fullname: user[0].fullname,
-            address: user[0].address,
-            phone: user[0].phone,
-            totalProject: user[0].totalProject,
-            statusAccount: user[0].statusAccount,
-          }, 'shhhhh', {
-            expiresIn: "2h"
-          });
-          return res.status(200).json({
-            status: 200,
-            message: 'successful',
-            id: user[0]._id,
-            email: user[0].email,
-            username: user[0].username,
-            fullname: user[0].fullname,
-            address: user[0].address,
-            description: user[0].description,
-            totalProject: user[0].totalProject,
-            statusAccount: user[0].statusAccount,
-            token: token,
-          })
-        }
-        return res.status(401).json({
-          status: 401,
-          message: 'Auth failed'
-        });
-      });
-    })
-    .catch(err => {
-      console.log(err);
+    email: req.body.email
+  })
+  .exec()
+  .then(user => {
+    if (user.length < 0) {
       return res.status(401).json({
         status: 401,
-        message: 'Auth failed',
-        error: err
+        message: 'Auth failed email,'
+      });
+    }
+    bcrypt.compare(req.body.password, user[0].password, (err, result) => {
+      if (err) {
+        return res.status(401).json({
+          status: 401,
+          message: 'Auth failed password'
+        });
+      }
+      if (result) {
+        const token = jwt.sign({
+          id: user[0]._id,
+          email: user[0].email,
+          fullname: user[0].fullname,
+          address: user[0].address,
+          phone: user[0].phone,
+          totalProject: user[0].totalProject,
+          statusAccount: user[0].statusAccount,
+        }, 'shhhhh', {
+          expiresIn: "2h"
+        });
+        return res.status(200).json({
+          status: 200,
+          message: 'successful',
+          id: user[0]._id,
+          email: user[0].email,
+          fullname: user[0].fullname,
+          address: user[0].address,
+          description: user[0].description,
+          totalProject: user[0].totalProject,
+          statusAccount: user[0].statusAccount,
+          token: token,
+        })
+      }
+      return res.status(401).json({
+        status: 401,
+        message: 'Auth failed'
       });
     });
+  })
+  .catch(err => {
+    console.log(err);
+    return res.status(401).json({
+      status: 401,
+      message: 'Auth failed',
+      error: err
+    });
+  });
 });
 
-router.get('/info/:id', checkAuthWithID, (req, res, next) => {
-  const id = req.params.id;
+router.get('/info', checkAuth, (req, res, next) => {
+  const id = req.userData.id;
     User.findById(id)
     .exec()
     .then(result => {
@@ -143,7 +140,6 @@ router.get('/info/:id', checkAuthWithID, (req, res, next) => {
         message: 'successful',
         id: result._id,
         email: result.email,
-        username: result.username,
         fullname: result.fullname,
         address: result.address,
         phone: result.phone,
@@ -161,9 +157,8 @@ router.get('/info/:id', checkAuthWithID, (req, res, next) => {
     });
 });
 
-router.patch('/:id', checkAuthWithID, (req, res, next) => {
-  const id = req.params.id;
-  const username = req.body.username;
+router.patch('/', checkAuth, (req, res, next) => {
+  const id = req.userData.id;
   const fullname = req.body.fullname;
   const address = req.body.address;
   const phone = req.body.phone;
@@ -174,9 +169,9 @@ router.patch('/:id', checkAuthWithID, (req, res, next) => {
 
   User.update({
     _id: id,
+    email: req.userData.email,
   }, {
     $set: {
-      username: username,
       fullname: fullname,
       address: address,
       phone: phone,
@@ -194,7 +189,7 @@ router.patch('/:id', checkAuthWithID, (req, res, next) => {
         message: 'update user success',
         user: {
           _id: id,
-          username: username,
+          email: email,
           fullname: fullname,
           address: address,
           phone: phone,
@@ -221,9 +216,9 @@ router.patch('/:id', checkAuthWithID, (req, res, next) => {
   });
 });
 
-router.post('/dansachproject/:id', checkAuthWithID, (req, res, next) => {
+router.post('/dansachproject', checkAuth, (req, res, next) => {
   Project.find({
-      ownerid: req.params.id
+      ownerid: req.userData.id
     })
     .select()
     .exec()

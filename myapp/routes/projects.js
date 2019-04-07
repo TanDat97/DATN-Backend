@@ -103,27 +103,22 @@ router.post('/', checkAuth, (req, res, next) => {
         updateTime: req.body.updateTime,
     });
     project
-        .save()
-        .then(result => {
-            res.status(201).json({
-                status: 201,
-                message: 'add project success',
-                createdProject: {
-                    result,
-                    request: {
-                        type: 'POST',
-                        url: 'http://localhost:3001/projects/' + result._id,
-                    }
-                }
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                error: err,
-            });
+    .save()
+    .then(result => {
+        res.status(201).json({
+            status: 201,
+            message: 'add project success',
+            project: project,
+            result: result,
         });
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err,
+        });
+    });
 
 });
 
@@ -147,64 +142,64 @@ router.patch('/:id', checkAuth, (req, res, next) => {
         _id: id,
         ownerid: req.userData.id
     }, {
-            $set: {
-                name: name,
-                investor: investor,
-                price: price,
-                unit: unit,
-                area: area,
-                address: address,
-                type: type,
-                info: info,
-                lat: lat,
-                long: long,
-                statusProject: statusProject,
-                createTime: createTime,
-                updateTime: updateTime,
-            }
-        })
-        .exec()
-        .then(result => {
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: 'update project success',
-                    project: {
-                        _id: id,
-                        name: name,
-                        investor: investor,
-                        price: price,
-                        unit: unit,
-                        area: area,
-                        address: address,
-                        type: type,
-                        info: info,
-                        lat: lat,
-                        long: long,
-                        ownerid: ownerid,
-                        statusProject: statusProject,
-                        createTime: createTime,
-                        updateTime: updateTime,
-                    },
-                    request: {
-                        type: 'PATCH',
-                        url: 'http://localhost:3001/projects/' + id,
-                    }
-                });
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found'
-                })
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                error: err
+        $set: {
+            name: name,
+            investor: investor,
+            price: price,
+            unit: unit,
+            area: area,
+            address: address,
+            type: type,
+            info: info,
+            lat: lat,
+            long: long,
+            statusProject: statusProject,
+            createTime: createTime,
+            updateTime: updateTime,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'update project success',
+                project: {
+                    _id: id,
+                    name: name,
+                    investor: investor,
+                    price: price,
+                    unit: unit,
+                    area: area,
+                    address: address,
+                    type: type,
+                    info: info,
+                    lat: lat,
+                    long: long,
+                    ownerid: ownerid,
+                    statusProject: statusProject,
+                    createTime: createTime,
+                    updateTime: updateTime,
+                },
+                request: {
+                    type: 'PATCH',
+                    url: 'http://localhost:3001/projects/' + id,
+                }
             });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
         });
+    });
 });
 
 router.delete('/:id', checkAuth, (req, res, next) => {

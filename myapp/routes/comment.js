@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const checkAuthWithID = require('../middleware/checkAuthWithID');
+const checkAuth = require('../middleware/checkAuth');
 const libFunction = require('../lib/function');
 const User = require('../models/userModel');
 const Project = require('../models/projectModel');
@@ -40,38 +40,29 @@ router.get('/all', (req, res, next) => {
     });
 });
 
-router.post('/', checkAuthWithID, (req, res, next) => { //checkAuthWithID
-    User.findById(req.body.userid)
-        .exec()
-        .then(user => {
-            const comment = Comment({
-                _id: new mongoose.Types.ObjectId(),
-                userid: req.body.userid,
-                fullname: req.body.fullname,
-                commentTime: req.body.commentTime,
-                updateTime: req.body.updateTime,
-                content: req.body.content,
-                star: req.body.star,
-                accountType: req.body.accountType,
-                projectid: req.body.projectid,
-            });
-            comment
-                .save()
-                .then(result => {
-                    res.status(201).json({
-                        status: 201,
-                        message: 'add comment success',
-                        comment: result,
-                    })
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).json({
-                        status: 500,
-                        error: err
-                    });
-                });   
-            
+router.post('/', checkAuth, (req, res, next) => {
+    User.findById(req.userData.id)
+    .exec()
+    .then(user => {
+        const comment = Comment({
+            _id: new mongoose.Types.ObjectId(),
+            userid: req.userData.id,
+            fullname: req.body.fullname,
+            commentTime: req.body.commentTime,
+            updateTime: req.body.updateTime,
+            content: req.body.content,
+            star: req.body.star,
+            accountType: req.body.accountType,
+            projectid: req.body.projectid,
+        });
+        comment
+        .save()
+        .then(result => {
+            res.status(201).json({
+                status: 201,
+                message: 'add comment success',
+                comment: result,
+            })
         })
         .catch(err => {
             console.log(err);
@@ -80,11 +71,20 @@ router.post('/', checkAuthWithID, (req, res, next) => { //checkAuthWithID
                 error: err
             });
         });   
+        
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });   
 });
 
-router.patch('/:id', checkAuthWithID, (req, res, next) => {
+router.patch('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
-    const userid = req.body.userid;
+    const userid = req.userData.id;
     const fullname = req.body.fullname;
     const createTime = req.body.createTime;
     const updateTime = req.body.updateTime;
@@ -97,81 +97,79 @@ router.patch('/:id', checkAuthWithID, (req, res, next) => {
         _id: id,
         userid: userid,
     }, {
-            $set: {
-                userid: userid,
-                fullname: fullname,
-                createTime: createTime,
-                updateTime: updateTime,
-                content: content,
-                star: star,
-                accountType: accountType,
-                projectid: projectid,
-            }
-        })
-        .exec()
-        .then(result => {
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: 'update comment success',
-                    comment: {
-                        _id: id,
-                        userid: userid,
-                        fullname: fullname,
-                        createTime: createTime,
-                        updateTime: updateTime,
-                        content: content,
-                        star: star,
-                        accountType: accountType,
-                        projectid: projectid,
-                    },
-                });
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found',
-                    result: result,
-                });
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                error: err
+        $set: {
+            fullname: fullname,
+            createTime: createTime,
+            updateTime: updateTime,
+            content: content,
+            star: star,
+            accountType: accountType,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'update comment success',
+                comment: {
+                    _id: id,
+                    userid: userid,
+                    fullname: fullname,
+                    createTime: createTime,
+                    updateTime: updateTime,
+                    content: content,
+                    star: star,
+                    accountType: accountType,
+                    projectid: projectid,
+                },
             });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+                result: result,
+            });
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
         });
+    });
 });
 
-router.delete('/', checkAuthWithID, (req, res, next) => { //checkAuthWithID
+router.delete('/', checkAuth, (req, res, next) => { //checkAuthWithID
     Comment.remove({
-            _id: req.body.commentid,
-            userid: req.body.userid,
-        })
-        .exec()
-        .then(result => {
-            if(result.n > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: 'comment deleted',
-                    result: result,
-                });
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found',
-                    result: result,
-                });
-            }
-            
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                error: err
+        _id: req.body.commentid,
+        userid: req.userData.userid,
+    })
+    .exec()
+    .then(result => {
+        if(result.n > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'comment deleted',
+                result: result,
             });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+                result: result,
+            });
+        }
+        
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
         });
+    });
 });
 
 module.exports = router;

@@ -69,7 +69,6 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
 
 router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
-    const username = req.body.username;
     const fullname = req.body.fullname;
     const address = req.body.address;
     const email = req.body.email;
@@ -82,7 +81,6 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
         email: email,
     }, {
             $set: {
-                username: username,
                 fullname: fullname,
                 address: address,
                 phone: phone,
@@ -99,7 +97,6 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                     message: 'update account success',
                     account: {
                         _id: id,
-                        username: username,
                         fullname: fullname,
                         address: address,
                         email: email,

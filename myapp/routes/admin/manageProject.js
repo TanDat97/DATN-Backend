@@ -9,28 +9,17 @@ const Project = require('../../models/projectModel');
 const numItem = 30
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
-    const page = req.params.page
-    Project.find()
+    const page = parseInt(req.params.page) - 1
+    Project.find().sort({'createTime': -1}).skip(page).limit(numItem)
     .select()
     .exec()
     .then(results => {
-        if (results.length >= 0 && results.length <= numItem) {
+        if (results.length > 0) {
             res.status(200).json({
                 status: 200,
                 count: results.length,
-                page: 1,
+                page: page + 1,
                 projects: results,
-            });
-        } else if (results.length >= numItem && page > 0) {
-            var i
-            var projects=[]
-            for (i=(page-1)*numItem; i < page*numItem; i++)
-                projects.push(results[i])
-            res.status(200).json({
-                status: 200,
-                count: results.length,
-                page: page,
-                projects: projects,
             });
         } else {
             res.status(404).json({
@@ -82,20 +71,17 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         long: req.body.long,
         ownerid: req.body.ownerid,
         statusProject: req.body.statusProject,
+        createTime: req.body.createTime,
+        updateTime: req.body.updateTime,
     });
+    // console.log(project)
     project
         .save()
         .then(result => {
             res.status(201).json({
                 status: 201,
                 message: 'add project success',
-                createdProject: {
-                    result,
-                    request: {
-                        type: 'POST',
-                        url: 'http://localhost:3001/projects/' + result._id,
-                    }
-                }
+                project: result,
             });
         })
         .catch(err => {
@@ -121,9 +107,11 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     const lat = req.body.lat;
     const long = req.body.long;
     const ownerid = req.body.ownerid;
-    const  statusProject = req.body.statusProject;
+    const statusProject = req.body.statusProject;
+    const createTime = req.body.createTime;
+    const updateTime = req.body.updateTime;
     Project.update({
-        _id: id
+        _id: id,
     }, {
             $set: {
                 name: name,
@@ -138,11 +126,13 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                 long: long,
                 ownerid: ownerid,
                 statusProject: statusProject,
+                createTime: createTime,
+                updateTime: updateTime,
             }
         })
         .exec()
         .then(result => {
-            if (result) {
+            if (result.nModified > 0) {
                 res.status(200).json({
                     status: 200,
                     message: 'update project success',
@@ -160,6 +150,8 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                         long: long,
                         ownerid: ownerid,
                         statusProject: statusProject,
+                        createTime: createTime,
+                        updateTime: updateTime,
                     },
                     request: {
                         type: 'PATCH',
@@ -189,7 +181,7 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     })
         .exec()
         .then(result => {
-            if (result) {
+            if (result.n > 0) {
                 res.status(200).json({
                     status: 200,
                     message: 'delete project success',
@@ -202,7 +194,7 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                 res.status(404).json({
                     status: 200,
                     message: 'No valid entry found'
-                })
+                });
             }
         })
         .catch(err => {

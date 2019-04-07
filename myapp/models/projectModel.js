@@ -9,31 +9,31 @@ var projectSchema = new Schema({
     },
     investor: {
         type: String,
-        required: true
+        required: false,
     },
     price: {
         type: Number,
-        required: true
+        required: true,
     },
     unit: {
         type: String,
-        required: true
+        required: true,
     },
     area: {
         type: Number,
-        required: true
+        required: true,
     },
     address: {
         type: String,
-        required: true
+        required: true,
     },
     type: {
         type: String,
-        required: true
+        required: true,
     },
     info: {
         type: String,
-        required: true
+        required: false,
     },
     lat: {
         type: Number,
@@ -51,6 +51,14 @@ var projectSchema = new Schema({
         type: String,
         required: true,
     },
+    createTime: {
+        type: Number,
+        requireed: false,
+    },
+    updateTime: {
+        type: Number,
+        requireed: false,
+    }
 });
 
 // Export the model

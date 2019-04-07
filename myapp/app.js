@@ -27,6 +27,7 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const projectsRouter = require('./routes/projects');
 const newsRouter = require('./routes/news');
+const commentRouter = require('./routes/comment');
 
 const adminRouter = require('./routes/admin/admin');
 const manageAccountRouter = require('./routes/admin/manageAccount');
@@ -50,12 +51,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 mongoose.connect(url,{
-useNewUrlParser: true
-},function(err)
-{
-  if (err) throw err
-  else
-  {
+  useNewUrlParser: true
+},function(err){
+  if (err) 
+    throw err
+  else{
     console.log('Connect Data Successful')
   }
 });
@@ -65,6 +65,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/projects', projectsRouter);
 app.use('/news', newsRouter);
+app.use('/comment', commentRouter);
 
 app.use('/admin', adminRouter);
 app.use('/manageAccount', manageAccountRouter);

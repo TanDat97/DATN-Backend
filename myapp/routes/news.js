@@ -8,37 +8,27 @@ const News = require('../models/newsModel');
 
 const numItem = 30;
 
-router.get('/all/:type', (req, res, next) => {
+router.get('/all/:type/:page', (req, res, next) => {
     var type = req.params.type
+    const page = parseInt(req.params.page) - 1
     if(type === 'phong-thuy')
         type = 'Phong thủy'
-    else if(type='noi-that-ngoai-that')
-        type ='Nội thất - Ngoại thất'
+    else if(type === 'noi-that-ngoai-that')
+        type = 'Nội thất - Ngoại thất'
     else if(type === 'xay-dung-kien-truc')
         type = 'Xây dựng - Kiến trúc'
     News.find({
         type: type,
-    })
+    }).sort({'createTime': -1}).skip(page).limit(numItem)
     .select()
     .exec()
     .then(results => {
-        if (results.length >= 0 && results.length <= numItem) {
+        if (results.length > 0) {
             res.status(200).json({
                 status: 200,
                 count: results.length,
-                page: 1,
+                page: page + 1,
                 news: results,
-            });
-        } else if (results.length >= numItem && page > 0) {
-            var i
-            var news=[]
-            for (i=(page-1)*numItem; i < page*numItem; i++)
-                news.push(results[i])
-            res.status(200).json({
-                status: 200,
-                count: results.length,
-                page: page,
-                news: news,
             });
         } else {
             res.status(404).json({

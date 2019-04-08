@@ -175,9 +175,9 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     });
 });
 
-router.get('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
+router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
     Project.update({
-        _id: id,
+        _id: req.params.id,
     }, {
         $set: {
             allowComment: req.body.allowComment,

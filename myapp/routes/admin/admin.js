@@ -142,8 +142,8 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
     });
 });
 
-router.patch('/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
+router.patch('/', checkAuthAdmin, (req, res, next) => {
+    const id = req.userData.id;
     const fullname = req.body.fullname;
     const address = req.body.address;
     const email = req.body.email;
@@ -151,7 +151,7 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     const createBy = req.body.createBy;
 
     Admin.update({
-        _id: req.userData.id,
+        _id: id,
         email:email,
     }, {
         $set: {

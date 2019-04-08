@@ -17,6 +17,10 @@ router.get('/all/:type/:page', (req, res, next) => {
         type = 'Nội thất - Ngoại thất'
     else if(type === 'xay-dung-kien-truc')
         type = 'Xây dựng - Kiến trúc'
+    else if(type === 'tai-chinh')
+        type = 'Tài chính'
+    else if(type === 'luat-bat-dong-san')
+        type = 'Luật bất động sản'
     News.find({
         type: type,
     }).sort({'createTime': -1}).skip(page).limit(numItem)

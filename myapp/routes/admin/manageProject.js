@@ -73,6 +73,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         statusProject: req.body.statusProject,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
+        allowComment: true,
     });
     // console.log(project)
     project

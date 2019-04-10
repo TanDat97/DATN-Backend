@@ -10,8 +10,8 @@ const User = require('../models/userModel');
 const Project = require('../models/projectModel');
 const Comment = require('../models/commentModel');
 
-router.get('/all', (req, res, next) => {
-    const projectid = req.body.projectid
+router.get('/all/:id', (req, res, next) => {
+    const projectid = req.params.id
     Comment.find({
         projectid: projectid,
     })
@@ -22,7 +22,7 @@ router.get('/all', (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 count: results.length,
-                comment: results,
+                comments: results,
             });
         } else {
             res.status(404).json({
@@ -48,7 +48,7 @@ router.post('/', checkAuth, (req, res, next) => {
             _id: new mongoose.Types.ObjectId(),
             userid: req.userData.id,
             fullname: req.body.fullname,
-            commentTime: req.body.commentTime,
+            createTime: req.body.createTime,
             updateTime: req.body.updateTime,
             content: req.body.content,
             star: req.body.star,
@@ -141,9 +141,9 @@ router.patch('/:id', checkAuth, (req, res, next) => {
     });
 });
 
-router.delete('/', checkAuth, (req, res, next) => {
+router.delete('/:id', checkAuth, (req, res, next) => {
     Comment.remove({
-        _id: req.body.commentid,
+        _id: req.params.id,
         userid: req.userData.userid,
     })
     .exec()

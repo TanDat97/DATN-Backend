@@ -9,7 +9,7 @@ const Schema = mongoose.Schema({
         type: String,
         required: true
     },
-    commentTime: {
+    createTime: {
         type: Number,
         requireed: true,
     },
@@ -27,11 +27,15 @@ const Schema = mongoose.Schema({
     },
     accountType: {
         type: String,
-        requireed: true,
+        required: false,
     }, 
     projectid: {
         type: String,
-        requireed: true,
+        required: true,
+    },
+    avatar: {
+        type: String,
+        required: false,
     },
 });
 

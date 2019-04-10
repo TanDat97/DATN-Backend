@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
 const libFunction = require('../../lib/function');
 const Project = require('../../models/projectModel');
+const Comment = require('../../models/commentModel');
 
 const numItem = 30
 
@@ -237,6 +238,36 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                 error: err
             });
         });
+});
+
+router.get('/allcomment/:id', checkAuthAdmin, (req, res, next) => {
+    const projectid = req.params.id
+    Comment.find({
+        projectid: projectid,
+    })
+    .select()
+    .exec()
+    .then(results => {
+        if (results.length > 0) {
+            res.status(200).json({
+                status: 200,
+                count: results.length,
+                comments: results,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
 });
 
 module.exports = router;

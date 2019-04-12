@@ -14,7 +14,11 @@ module.exports = {
       return next();
   },
   sendToken: function(req, res) {
-      res.setHeader('authorization', req.token);
-      return res.status(200).send(JSON.stringify(req.user));
+      return res.status(200).json({
+          status: 200,
+          message: 'login google success',
+          user: req.user,
+          token: req.token,
+      });
   }
 };

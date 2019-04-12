@@ -53,11 +53,15 @@ var projectSchema = new Schema({
     },
     createTime: {
         type: Number,
-        requireed: false,
+        required: false,
     },
     updateTime: {
         type: Number,
-        requireed: false,
+        required: false,
+    },
+    allowComment : {
+        type: Boolean,
+        required: true,
     }
 });
 

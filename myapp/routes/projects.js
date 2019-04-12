@@ -101,6 +101,7 @@ router.post('/', checkAuth, (req, res, next) => {
         statusProject: req.body.statusProject,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
+        allowComment: true,
     });
     project
     .save()

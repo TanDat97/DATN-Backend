@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
 const libFunction = require('../../lib/function');
 const Project = require('../../models/projectModel');
+const Comment = require('../../models/commentModel');
 
 const numItem = 30
 
@@ -73,6 +74,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         statusProject: req.body.statusProject,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
+        allowComment: true,
     });
     // console.log(project)
     project
@@ -113,66 +115,98 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     Project.update({
         _id: id,
     }, {
-            $set: {
-                name: name,
-                investor: investor,
-                price: price,
-                unit: unit,
-                area: area,
-                address: address,
-                type: type,
-                info: info,
-                lat: lat,
-                long: long,
-                ownerid: ownerid,
-                statusProject: statusProject,
-                createTime: createTime,
-                updateTime: updateTime,
-            }
-        })
-        .exec()
-        .then(result => {
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: 'update project success',
-                    project: {
-                        _id: id,
-                        name: name,
-                        investor: investor,
-                        price: price,
-                        unit: unit,
-                        area: area,
-                        address: address,
-                        type: type,
-                        info: info,
-                        lat: lat,
-                        long: long,
-                        ownerid: ownerid,
-                        statusProject: statusProject,
-                        createTime: createTime,
-                        updateTime: updateTime,
-                    },
-                    request: {
-                        type: 'PATCH',
-                        url: 'http://localhost:3001/projects/' + id,
-                    }
-                });
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found'
-                })
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                error: err
+        $set: {
+            name: name,
+            investor: investor,
+            price: price,
+            unit: unit,
+            area: area,
+            address: address,
+            type: type,
+            info: info,
+            lat: lat,
+            long: long,
+            ownerid: ownerid,
+            statusProject: statusProject,
+            createTime: createTime,
+            updateTime: updateTime,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'update project success',
+                project: {
+                    _id: id,
+                    name: name,
+                    investor: investor,
+                    price: price,
+                    unit: unit,
+                    area: area,
+                    address: address,
+                    type: type,
+                    info: info,
+                    lat: lat,
+                    long: long,
+                    ownerid: ownerid,
+                    statusProject: statusProject,
+                    createTime: createTime,
+                    updateTime: updateTime,
+                },
+                request: {
+                    type: 'PATCH',
+                    url: 'http://localhost:3001/projects/' + id,
+                }
             });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
         });
+    });
 });
+
+router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
+    Project.update({
+        _id: req.params.id,
+    }, {
+        $set: {
+            allowComment: req.body.allowComment,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'change allow comment success',
+                allowComment: req.body.allowComment,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+})
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -181,6 +215,7 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     })
         .exec()
         .then(result => {
+            Comment.remove({projectid: req.params.id}).exec().then(result => console.log('delete comment success'))
             if (result.n > 0) {
                 res.status(200).json({
                     status: 200,
@@ -204,6 +239,36 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                 error: err
             });
         });
+});
+
+router.get('/allcomment/:id', checkAuthAdmin, (req, res, next) => {
+    const projectid = req.params.id
+    Comment.find({
+        projectid: projectid,
+    })
+    .select()
+    .exec()
+    .then(results => {
+        if (results.length > 0) {
+            res.status(200).json({
+                status: 200,
+                count: results.length,
+                comments: results,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
 });
 
 module.exports = router;

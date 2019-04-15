@@ -8,31 +8,36 @@ var app = require('../app');
 var debug = require('debug')('myapp:server');
 var http = require('http');
 
-/**
- * Get port from environment and store in Express.
- */
-
+// Get port from environment and store in Express.
 var port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
+// Create HTTP server.
 var server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+const socketIo = require("socket.io");
+const io = socketIo(server);
 
+// Listen on provided port, on all network interfaces.
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 console.log('RESTful API server started on: ' + port);
-/**
- * Normalize a port into a number, string, or false.
- */
 
+//socket connect
+io.on("connection", socket => {
+  console.log("New client connected"),
+
+  socket.on("addCommentFromAdmin", data => {
+    console.log(data)
+    socket.emit("commentFromServerToAdmin", data);
+  })
+
+  socket.on("disconnect", () => console.log("Client disconnected"));
+});
+
+
+// Normalize a port into a number, string, or false.
 function normalizePort(val) {
   var port = parseInt(val, 10);
 

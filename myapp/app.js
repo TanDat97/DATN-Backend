@@ -8,7 +8,8 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const cors = require('cors');
-var url='mongodb+srv://tuan:tuan123@cluster0-mmyqj.mongodb.net/realestate?retryWrites=true'
+
+const url='mongodb+srv://tuan:tuan123@cluster0-mmyqj.mongodb.net/realestate?retryWrites=true'
 
 // const swaggerUi = require('swagger-ui-express');
 // const swaggerDocument = require('./swagger.json');

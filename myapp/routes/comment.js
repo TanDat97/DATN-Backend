@@ -15,6 +15,7 @@ router.get('/all/:id', (req, res, next) => {
     Comment.find({
         projectid: projectid,
     })
+    .sort({'createTime': -1})
     .select()
     .exec()
     .then(results => {

@@ -246,6 +246,7 @@ router.get('/allcomment/:id', checkAuthAdmin, (req, res, next) => {
     Comment.find({
         projectid: projectid,
     })
+    .sort({'createTime': -1})
     .select()
     .exec()
     .then(results => {

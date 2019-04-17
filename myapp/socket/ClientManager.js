@@ -6,8 +6,8 @@ module.exports = function () {
         clients.set(client.id, { client })
     }
 
-    function registerClient(client, user) {
-        clients.set(client.id, { client, user })
+    function registerClient(client, email) {
+        clients.set(client.id, { client, email })
     }
 
     function removeClient(client) {
@@ -15,13 +15,18 @@ module.exports = function () {
     }
 
     function getUserByClientId(clientId) {
-        return (clients.get(clientId) || {}).user
+        return (clients.get(clientId) || {}).email
     }
+
+    function getAvailableClient() {
+        return clients.slice()
+      }
 
     return {
         addClient,
         registerClient,
         removeClient,
         getUserByClientId,
+        getAvailableClient,
     }
 }

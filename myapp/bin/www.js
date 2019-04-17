@@ -8,6 +8,15 @@ var app = require('../app');
 var debug = require('debug')('myapp:server');
 var http = require('http');
 
+//socket
+const ClientManager = require('../socket/ClientManager')
+const NotifyManager = require('../socket/NotifyManager')
+const makeHandlers = require('../socket/handlers')
+
+const clientManager = ClientManager()
+const notifyManager = NotifyManager()
+//
+
 // Get port from environment and store in Express.
 var port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
@@ -25,15 +34,44 @@ server.on('listening', onListening);
 console.log('RESTful API server started on: ' + port);
 
 //socket connect
-io.on("connection", socket => {
-  console.log("New client connected"),
+io.on("connection", client => {
 
-  socket.on("addCommentFromAdmin", data => {
-    console.log(data)
-    socket.emit("commentFromServerToAdmin", data);
+  const {
+    handleRegister,
+    handleJoin,
+    handleLeave,
+    handleComment,
+    handleGetProjects,
+    handleGetAvailableClients,
+    handleDisconnect,
+  } = makeHandlers(client, clientManager, notifyManager)
+
+  console.log("New client connected... " + client.id),
+
+    clientManager.addClient(client)
+
+  client.on('register', handleRegister)
+
+  client.on('join', handleJoin)
+
+  client.on('leave', handleLeave)
+
+  client.on('comment', handleComment)
+
+  client.on('projects', handleGetProjects)
+
+  client.on('availableClients', handleGetAvailableClients)
+
+  client.on('disconnect', () => {
+    console.log('Client disconnect... ', client.id)
+    handleDisconnect()
   })
 
-  socket.on("disconnect", () => console.log("Client disconnected"));
+  client.on('error', (err) => {
+    console.log('Received error from client:', client.id)
+    console.log(err)
+  })
+
 });
 
 

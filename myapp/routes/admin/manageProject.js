@@ -157,7 +157,6 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                 },
                 request: {
                     type: 'PATCH',
-                    url: 'http://localhost:3001/projects/' + id,
                 }
             });
         } else {
@@ -222,7 +221,6 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                     message: 'delete project success',
                     request: {
                         type: 'DELETE',
-                        url: 'http://localhost:3001/projects/',
                     }
                 });
             } else {

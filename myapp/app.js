@@ -22,8 +22,6 @@ var corsOption = {
 };
 app.use(cors(corsOption));
 
-
-
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const projectsRouter = require('./routes/projects');
@@ -49,7 +47,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // mongoose.connect('mongodb+srv://dat:' + process.env.MONGO_ATLAS_PW + '@cluster0-mmyqj.mongodb.net/test?retryWrites=true',{
 //     useNewUrlParser: true
 // });
-
 
 mongoose.connect(url,{
   useNewUrlParser: true

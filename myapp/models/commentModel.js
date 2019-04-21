@@ -26,7 +26,7 @@ const Schema = mongoose.Schema({
         required: true
     },
     accountType: {
-        type: String,
+        type: Number,
         required: false,
     }, 
     projectid: {

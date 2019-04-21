@@ -21,8 +21,7 @@ function makeHandleEvent(client, clientManager, notifyManager) {
         )
     }
 
-    function ensureValidProjectAndUserSelected(projectid) {
-        
+    function ensureValidProjectAndUserSelected(projectid) {    
         return new Promise((resolve, reject) => { 
             Promise.all([ensureValidProject(projectid), ensureUserSelected(client.id)])
             .then(([project, user]) => {
@@ -74,7 +73,7 @@ module.exports = function (client, clientManager, notifyManager) {
         handleEvent(projectid, createEntry)
             .then(project => {
                 // remove member from project
-                project.removeUser(client.id)
+                project.removeUser(client)
                 callback(null)
             })
             .catch(callback)

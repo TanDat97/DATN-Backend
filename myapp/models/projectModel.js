@@ -28,7 +28,7 @@ var projectSchema = new Schema({
         required: true,
     },
     type: {
-        type: String,
+        type: Number,
         required: true,
     },
     info: {
@@ -48,7 +48,7 @@ var projectSchema = new Schema({
         required: true,
     },
     statusProject:{
-        type: String,
+        type: Number,
         required: true,
     },
     createTime: {

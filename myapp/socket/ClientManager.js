@@ -20,7 +20,7 @@ module.exports = function () {
 
     function getAvailableClient() {
         return clients.slice()
-      }
+    }
 
     return {
         addClient,

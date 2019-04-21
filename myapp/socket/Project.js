@@ -3,15 +3,17 @@ module.exports = function ({ projectid }) {
     let commentHistory = []
 
     function broadcastComment(message) {
-        listClient.forEach(m => m.emit('comment', message))
+        listClient.forEach(m => m.emit('commentaction', message))
     }
 
     function addUser(client) {
         listClient.set(client.id, client)
+        console.log(client.id + ' add, ' + listClient.size)
     }
 
     function removeUser(client) {
         listClient.delete(client.id)
+        console.log(client.id + ' remove, ' + listClient.size)
     }
 
     function serialize() {

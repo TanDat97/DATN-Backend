@@ -47,8 +47,8 @@ io.on("connection", client => {
   } = makeHandlers(client, clientManager, notifyManager)
 
   console.log("New client connected... " + client.id),
-
-    clientManager.addClient(client)
+  
+  clientManager.addClient(client)
 
   client.on('register', handleRegister)
 

@@ -118,7 +118,6 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                     },
                     request: {
                         type: 'PATCH',
-                        url: 'http://localhost:3001/news/' + id,
                     }
                 });
             } else {
@@ -150,7 +149,6 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                     message: 'delete news success',
                     request: {
                         type: 'DELETE',
-                        url: 'http://localhost:3001/news/',
                     }
                 });
             } else {

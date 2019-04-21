@@ -11,16 +11,20 @@ const numItem = 30;
 router.get('/all/:type/:page', (req, res, next) => {
     var type = req.params.type
     const page = parseInt(req.params.page) - 1
-    if(type === 'phong-thuy')
-        type = 'Phong thủy'
-    else if(type === 'noi-that-ngoai-that')
-        type = 'Nội thất - Ngoại thất'
-    else if(type === 'xay-dung-kien-truc')
-        type = 'Xây dựng - Kiến trúc'
-    else if(type === 'tai-chinh')
-        type = 'Tài chính'
-    else if(type === 'luat-bat-dong-san')
-        type = 'Luật bất động sản'
+    // if(type === 1)
+    //     type = 'Phong thủy'
+    // else if(type === 2)
+    //     type = 'Nội thất'
+    // else if(type === 3)
+    //     type = 'Ngoại thất'
+    // else if(type === 4)
+    //     type = 'Xây dựng'
+    // else if(type === 5)
+    //     type = 'Kiến trúc'
+    // else if(type === 6)
+    //     type = 'Tài chính'
+    // else if(type === 7)
+    //     type = 'Luật bất động sản'
     News.find({
         type: type,
     }).sort({'createTime': -1}).skip(page).limit(numItem)

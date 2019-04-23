@@ -55,6 +55,7 @@ router.post('/', checkAuth, (req, res, next) => {
             star: req.body.star,
             accountType: req.body.accountType,
             projectid: req.body.projectid,
+            avatar: req.body.avatar,
         });
         comment
         .save()

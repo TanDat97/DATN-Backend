@@ -97,6 +97,7 @@ router.post('/login', (req, res, next) => {
                     fullname: admin[0].fullname,
                     address: admin[0].address,
                     phone: admin[0].phone,
+                    avatar: admin[0].avatar,
                     token: token,
                 })
             }
@@ -149,6 +150,7 @@ router.patch('/', checkAuthAdmin, (req, res, next) => {
     const email = req.body.email;
     const phone = req.body.phone;
     const createBy = req.body.createBy;
+    const avatar = req.body.avatar;
 
     Admin.update({
         _id: id,
@@ -158,6 +160,7 @@ router.patch('/', checkAuthAdmin, (req, res, next) => {
             fullname: fullname,
             address: address,
             phone: phone,
+            avatar: avatar,
         }
     })
     .exec()

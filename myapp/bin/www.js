@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 /**
  * Module dependencies.
  */
@@ -12,7 +11,6 @@ var http = require('http');
 const ClientManager = require('../socket/ClientManager')
 const NotifyManager = require('../socket/NotifyManager')
 const makeHandlers = require('../socket/handlers')
-
 const clientManager = ClientManager()
 const notifyManager = NotifyManager()
 //
@@ -35,7 +33,6 @@ console.log('RESTful API server started on: ' + port);
 
 //socket connect
 io.on("connection", client => {
-
   const {
     handleRegister,
     handleJoin,

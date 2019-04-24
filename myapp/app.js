@@ -55,10 +55,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// mongoose.connect('mongodb+srv://dat:' + process.env.MONGO_ATLAS_PW + '@cluster0-mmyqj.mongodb.net/test?retryWrites=true',{
-//     useNewUrlParser: true
-// });
-
 mongoose.connect(url,{
   useNewUrlParser: true
 },function(err){

@@ -1,5 +1,5 @@
 {
-  "name": "DATN-Backend",
+  "name": "datn_backend",
   "version": "0.0.0",
   "private": true,
   "scripts": {

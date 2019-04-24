@@ -183,7 +183,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
                     long: long,
                     ownerid: ownerid,
                     statusProject: statusProject,
-                    createTime: createTime,
                     updateTime: updateTime,
                 },
             });

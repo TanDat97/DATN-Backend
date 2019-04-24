@@ -128,7 +128,6 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
             long: long,
             ownerid: ownerid,
             statusProject: statusProject,
-            createTime: createTime,
             updateTime: updateTime,
         }
     })

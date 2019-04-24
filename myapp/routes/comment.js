@@ -96,7 +96,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     }, {
         $set: {
             fullname: fullname,
-            createTime: createTime,
             updateTime: updateTime,
             content: content,
             star: star,

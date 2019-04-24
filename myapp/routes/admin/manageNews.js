@@ -98,7 +98,6 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                 title: title,
                 content: content,
                 type: type,
-                createTime: createTime,
                 updateTime: updateTime,
             }
         })

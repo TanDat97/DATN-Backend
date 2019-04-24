@@ -156,7 +156,7 @@ router.get('/info', checkAuth, (req, res, next) => {
     });
 });
 
-router.patch('/', checkAuth, (req, res, next) => {
+router.post('/edit', checkAuth, (req, res, next) => {
   const id = req.userData.id;
   const fullname = req.body.fullname;
   const address = req.body.address;
@@ -215,7 +215,7 @@ router.patch('/', checkAuth, (req, res, next) => {
   });
 });
 
-router.post('/dansachproject', checkAuth, (req, res, next) => {
+router.get('/dansachproject', checkAuth, (req, res, next) => {
   Project.find({
       ownerid: req.userData.id
     })
@@ -245,14 +245,14 @@ router.post('/dansachproject', checkAuth, (req, res, next) => {
 });
 
 router.post('/auth/google',passport.authenticate('google-token', {session: false}), function(req, res, next) {
-        if (!req.user) {
-            return res.send(401, 'User Not Authenticated');
-        }
-        req.auth = {
-            id: req.user.id
-        };
+  if (!req.user) {
+      return res.send(401, 'User Not Authenticated');
+  }
+  req.auth = {
+      id: req.user.id
+  };
 
-        next();
+  next();
 }, generateToken, sendToken);
 
 module.exports = router;

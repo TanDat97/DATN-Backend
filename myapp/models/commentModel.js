@@ -24,10 +24,6 @@ const Schema = mongoose.Schema({
     star: {
         type: Number,
         required: true
-    },
-    accountType: {
-        type: Number,
-        required: false,
     }, 
     projectid: {
         type: String,

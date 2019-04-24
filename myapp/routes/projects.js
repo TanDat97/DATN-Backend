@@ -37,13 +37,13 @@ router.get('/all/:page', (req, res, next) => {
     });
 });
 
-router.post('/getListInRadius', (req, res, next) => {
+router.post('/home', (req, res, next) => {
     Project.find()
     .select()
     .exec()
     .then(temp => {
         const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
-        if (results.length >= 0) {
+        if (results.length > 0) {
             res.status(200).json({
                 status: 200,
                 count: results.length,
@@ -70,10 +70,17 @@ router.get('/:id', (req, res, next) => {
     Project.findById(id)
     .exec()
     .then(result => {
-        res.status(200).json({
-            status: 200,
-            project: result,
-        });
+        if(result!=null){
+            res.status(200).json({
+                status: 200,
+                project: result,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
     })
     .catch(err => {
         console.log(err);
@@ -97,7 +104,7 @@ router.post('/', checkAuth, (req, res, next) => {
         info: req.body.info,
         lat: req.body.lat,
         long: req.body.long,
-        ownerid: req.body.ownerid,
+        ownerid: req.userData.id,
         statusProject: req.body.statusProject,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
@@ -109,8 +116,7 @@ router.post('/', checkAuth, (req, res, next) => {
         res.status(201).json({
             status: 201,
             message: 'add project success',
-            project: project,
-            result: result,
+            project: result,
         });
     })
     .catch(err => {
@@ -120,10 +126,9 @@ router.post('/', checkAuth, (req, res, next) => {
             error: err,
         });
     });
-
 });
 
-router.patch('/:id', checkAuth, (req, res, next) => {
+router.post('/edit/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     const name = req.body.name;
     const investor = req.body.investor;
@@ -135,7 +140,7 @@ router.patch('/:id', checkAuth, (req, res, next) => {
     const info = req.body.info;
     const lat = req.body.lat;
     const long = req.body.long;
-    const ownerid = req.body.ownerid;
+    const ownerid = req.userData.id;
     const statusProject = req.body.statusProject;
     const createTime = req.body.createTime;
     const updateTime = req.body.updateTime;
@@ -155,7 +160,6 @@ router.patch('/:id', checkAuth, (req, res, next) => {
             lat: lat,
             long: long,
             statusProject: statusProject,
-            createTime: createTime,
             updateTime: updateTime,
         }
     })
@@ -182,9 +186,6 @@ router.patch('/:id', checkAuth, (req, res, next) => {
                     createTime: createTime,
                     updateTime: updateTime,
                 },
-                request: {
-                    type: 'PATCH',
-                }
             });
         } else {
             res.status(404).json({
@@ -234,7 +235,7 @@ router.delete('/:id', checkAuth, (req, res, next) => {
         });
 });
 
-router.post('/search/:type/:address/:area/:price', (req, res, next) => {
+router.post('/search', (req, res, next) => {
     const addressParam =  req.body.address
     const areaParam = libFunction.convertData(req.body.area);
     const priceParam = libFunction.convertData(req.body.price);    
@@ -270,7 +271,7 @@ router.post('/search/:type/:address/:area/:price', (req, res, next) => {
     });
 });
 
-router.post('/searchInAddress/:address/:area/:price', (req, res, next) => {
+router.post('/searchAddress', (req, res, next) => {
     const addressParam = req.body.address
     const areaParam = libFunction.convertData(req.body.area);
     const priceParam = libFunction.convertData(req.body.price);    

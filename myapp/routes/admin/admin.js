@@ -150,7 +150,6 @@ router.patch('/', checkAuthAdmin, (req, res, next) => {
     const email = req.body.email;
     const phone = req.body.phone;
     const createBy = req.body.createBy;
-    const avatar = req.body.avatar;
 
     Admin.update({
         _id: id,
@@ -160,7 +159,6 @@ router.patch('/', checkAuthAdmin, (req, res, next) => {
             fullname: fullname,
             address: address,
             phone: phone,
-            avatar: avatar,
         }
     })
     .exec()
@@ -276,5 +274,43 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
         });
     });
 });
+
+router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
+    const id = req.userData.id;
+    const avatar = req.body.avatar;
+
+    Admin.update({
+        _id: id,
+    }, {
+        $set: {
+            avatar: avatar,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'change avatar admin success',
+                admin: {
+                    id: id,
+                    avatar: avatar
+                },
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+})
 
 module.exports = router;

@@ -9,7 +9,7 @@ const News = require('../models/newsModel');
 const numItem = 30;
 
 router.get('/all/:type/:page', (req, res, next) => {
-    var type = req.params.type
+    const type = req.params.type
     const page = parseInt(req.params.page) - 1
     News.find({
         type: type,

@@ -1,13 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
 const checkAuth = require('../middleware/checkAuth');
 const libFunction = require('../lib/function');
 const User = require('../models/userModel');
-const Project = require('../models/projectModel');
 const Comment = require('../models/commentModel');
 
 router.get('/all/:id', (req, res, next) => {
@@ -53,7 +50,6 @@ router.post('/', checkAuth, (req, res, next) => {
             updateTime: req.body.updateTime,
             content: req.body.content,
             star: req.body.star,
-            accountType: req.body.accountType,
             projectid: req.body.projectid,
             avatar: req.body.avatar,
         });
@@ -84,7 +80,7 @@ router.post('/', checkAuth, (req, res, next) => {
     });   
 });
 
-router.patch('/:id', checkAuth, (req, res, next) => {
+router.post('/edit/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     const userid = req.userData.id;
     const fullname = req.body.fullname;
@@ -92,7 +88,6 @@ router.patch('/:id', checkAuth, (req, res, next) => {
     const updateTime = req.body.updateTime;
     const content = req.body.content;
     const star = req.body.star;
-    const accountType = req.body.accountType;
     const projectid = req.body.projectid;
 
     Comment.update({
@@ -105,7 +100,6 @@ router.patch('/:id', checkAuth, (req, res, next) => {
             updateTime: updateTime,
             content: content,
             star: star,
-            accountType: accountType,
         }
     })
     .exec()
@@ -122,7 +116,6 @@ router.patch('/:id', checkAuth, (req, res, next) => {
                     updateTime: updateTime,
                     content: content,
                     star: star,
-                    accountType: accountType,
                     projectid: projectid,
                 },
             });
@@ -146,7 +139,7 @@ router.patch('/:id', checkAuth, (req, res, next) => {
 router.delete('/:id', checkAuth, (req, res, next) => {
     Comment.remove({
         _id: req.params.id,
-        userid: req.userData.userid,
+        userid: req.userData.id,
     })
     .exec()
     .then(result => {

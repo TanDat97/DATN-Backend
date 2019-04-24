@@ -7,6 +7,15 @@
     "start": "nodemon ./bin/www.js",
     "build": "webpack"
   },
+  "keywords": [
+    "example",
+    "heroku"
+  ],
+  "author": "dattran",
+  "engines": {
+    "node": "10.4.0",
+    "npm": "6.4.1"
+  },
   "dependencies": {
     "bcrypt": "^3.0.4",
     "body-parser": "^1.18.3",

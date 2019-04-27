@@ -208,30 +208,30 @@ router.delete('/:id', checkAuth, (req, res, next) => {
         _id: id,
         ownerid: req.userData.id,
     })
-        .exec()
-        .then(result => {
-            if (result.n > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: 'delete project success',
-                    request: {
-                        type: 'DELETE',
-                    }
-                });
-            } else {
-                res.status(404).json({
-                    status: 200,
-                    message: 'No valid entry found'
-                })
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                error: err
+    .exec()
+    .then(result => {
+        if (result.n > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'delete project success',
+                request: {
+                    type: 'DELETE',
+                }
             });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
         });
+    });
 });
 
 router.post('/search', (req, res, next) => {

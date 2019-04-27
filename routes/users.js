@@ -8,6 +8,7 @@ const checkAuth = require('../middleware/checkAuth');
 const libFunction = require('../lib/function');
 const User = require('../models/userModel');
 const Project = require('../models/projectModel');
+const SavedProject = require('../models/savedProjectModel');
 
 var { generateToken, sendToken } = require('./../middleware/token.utils');
 var passport = require('passport');
@@ -46,22 +47,22 @@ router.post('/signup', (req, res, next) => {
             statusAccount: 0,
           });
           user
-            .save()
-            .then(result => {
-              res.status(201).json({
-                status: 201,
-                message: 'user created',
-                email: result.email,
-                // id: result._id,
-              })
+          .save()
+          .then(result => {
+            res.status(201).json({
+              status: 201,
+              message: 'user created',
+              email: result.email,
+              // id: result._id,
             })
-            .catch(err => {
-              console.log(err);
-              res.status(500).json({
-                status: 500,
-                error: err
-              });
+          })
+          .catch(err => {
+            console.log(err);
+            res.status(500).json({
+              status: 500,
+              error: err
             });
+          });
         }
       });
     }
@@ -98,8 +99,8 @@ router.post('/login', (req, res, next) => {
           totalProject: user[0].totalProject,
           statusAccount: user[0].statusAccount,
         }, 'shhhhh', {
-          expiresIn: "2h"
-        });
+            expiresIn: "2h"
+          });
         return res.status(200).json({
           status: 200,
           message: 'successful',
@@ -131,29 +132,29 @@ router.post('/login', (req, res, next) => {
 
 router.get('/info', checkAuth, (req, res, next) => {
   const id = req.userData.id;
-    User.findById(id)
-    .exec()
-    .then(result => {
-      res.status(200).json({
-        status: 200,
-        message: 'successful',
-        id: result._id,
-        email: result.email,
-        fullname: result.fullname,
-        address: result.address,
-        phone: result.phone,
-        description: result.description,
-        totalProject: result.totalProject,
-        statusAccount: result.statusAccount,
-      });
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            status: 500,
-            error: err
-        });
+  User.findById(id)
+  .exec()
+  .then(result => {
+    res.status(200).json({
+      status: 200,
+      message: 'successful',
+      id: result._id,
+      email: result.email,
+      fullname: result.fullname,
+      address: result.address,
+      phone: result.phone,
+      description: result.description,
+      totalProject: result.totalProject,
+      statusAccount: result.statusAccount,
     });
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({
+      status: 500,
+      error: err
+    });
+  });
 });
 
 router.post('/edit', checkAuth, (req, res, next) => {
@@ -217,39 +218,152 @@ router.post('/edit', checkAuth, (req, res, next) => {
 
 router.get('/dansachproject', checkAuth, (req, res, next) => {
   Project.find({
-      ownerid: req.userData.id
-    })
-    .select()
-    .exec()
-    .then(results => {
-      if (results.length >= 0) {
-        res.status(200).json({
-          status: 200,
-          count: results.length,
-          projects: results,
-        });
-      } else {
-        res.status(404).json({
-          status: 404,
-          message: 'No valid entry found',
-        })
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({
-        status: 500,
-        error: err
+    ownerid: req.userData.id
+  })
+  .select()
+  .exec()
+  .then(results => {
+    if (results.length >= 0) {
+      res.status(200).json({
+        status: 200,
+        count: results.length,
+        projects: results,
       });
+    } else {
+      res.status(404).json({
+        status: 404,
+        message: 'No valid entry found',
+      })
+    }
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({
+      status: 500,
+      error: err
     });
+  });
 });
 
-router.post('/auth/google',passport.authenticate('google-token', {session: false}), function(req, res, next) {
+router.post('/listSaved', checkAuth, (req, res, next) => {
+  SavedProject.find({
+    userid: req.userData.id,
+  })
+  .aggregate
+      .lookup({
+        from: 'Projects',
+        localField: 'projectid',
+        foreignField: '_id',
+        as: 'result'
+    })
+  .exec()
+  .then(result => {
+    console.log(result)
+    if (result > 0) {
+      res.status(200).json({
+        status: 200,
+        message: 'delete from list saved project success',
+      });
+    } else {
+      res.status(404).json({
+        status: 404,
+        message: 'No valid entry found',
+        result: result,
+      })
+    }
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({
+      status: 500,
+      error: err
+    });
+  });
+})
+
+router.post('/follow', checkAuth, (req, res, next) => {
+  SavedProject.find({
+    userid: req.userData.id,
+    projectid: req.body.projectid,
+  })
+  .exec()
+  .then(result => {
+    if (result.length >= 1) {
+      return res.status(409).json({
+        status: 409,
+        message: 'user has followed this project',
+      });
+    } else {
+      const savedproject = new SavedProject({
+        _id: new mongoose.Types.ObjectId(),
+        userid: req.userData.id,
+        fullname: req.body.fullname,
+        projectid: req.body.projectid,
+        projectName: req.body.projectName,
+        createTime: req.body.createTime,
+      })
+      savedproject
+      .save()
+      .then(result => {
+        res.status(201).json({
+          status: 201,
+          message: 'add to list saved project success',
+          savedproject: result,
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json({
+          status: 500,
+          error: err,
+        });
+      });
+    }
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({
+      status: 500,
+      error: err,
+    });
+  });
+})
+
+router.post('/unfollow', checkAuth, (req, res, next) => {
+  SavedProject.remove({
+    userid: req.userData.id,
+    projectid: req.body.projectid,
+  })
+  .exec()
+  .then(result => {
+    if (result.n > 0) {
+      res.status(200).json({
+        status: 200,
+        message: 'delete from list saved project success',
+      });
+    } else {
+      res.status(404).json({
+        status: 404,
+        message: 'No valid entry found',
+        result: result,
+      })
+    }
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({
+      status: 500,
+      error: err
+    });
+  });
+})
+
+router.post('/auth/google', passport.authenticate('google-token', { session: false }), function (req, res, next) {
   if (!req.user) {
-      return res.send(401, 'User Not Authenticated');
+    return res.send(401, 'User Not Authenticated');
   }
   req.auth = {
-      id: req.user.id
+    id: req.user.id
   };
 
   next();

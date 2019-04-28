@@ -11,18 +11,18 @@ var projectSchema = new Schema({
         type: String,
         required: false,
     },
-    projectid: {
-        type: String,
-        required: true,
-    },
-    projectName: {
-        type: String,
-        required: false,
-    },
-    createTime: {
-        type: Number,
-        required: true,
-    },
+    projects: [{
+        project: {
+            type: String,
+            ref: 'Project',
+            required: false,
+        },
+        createTime: {
+            type: Number,
+            required: true,
+        },
+    }]
+    
 });
 
 // Export the model

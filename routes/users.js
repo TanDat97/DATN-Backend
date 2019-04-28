@@ -245,30 +245,23 @@ router.get('/dansachproject', checkAuth, (req, res, next) => {
   });
 });
 
-router.post('/listSaved', checkAuth, (req, res, next) => {
+router.get('/listSaved', checkAuth, (req, res, next) => {
   SavedProject.find({
     userid: req.userData.id,
   })
-  .aggregate
-      .lookup({
-        from: 'Projects',
-        localField: 'projectid',
-        foreignField: '_id',
-        as: 'result'
-    })
-  .exec()
+  .populate({path:'projects.project'})
   .then(result => {
-    console.log(result)
-    if (result > 0) {
+    if (result.length > 0) {
       res.status(200).json({
         status: 200,
-        message: 'delete from list saved project success',
+        message: 'success',
+        count: result[0].projects.length,
+        result: result[0],
       });
     } else {
       res.status(404).json({
         status: 404,
         message: 'No valid entry found',
-        result: result,
       })
     }
   })
@@ -284,40 +277,64 @@ router.post('/listSaved', checkAuth, (req, res, next) => {
 router.post('/follow', checkAuth, (req, res, next) => {
   SavedProject.find({
     userid: req.userData.id,
-    projectid: req.body.projectid,
   })
   .exec()
   .then(result => {
-    if (result.length >= 1) {
+    const isInArray = result[0].projects.some(temp => {
+      return temp.project === req.body.projectid;
+    })
+    if (result.length >= 1 && isInArray) {
       return res.status(409).json({
         status: 409,
         message: 'user has followed this project',
-      });
-    } else {
-      const savedproject = new SavedProject({
-        _id: new mongoose.Types.ObjectId(),
-        userid: req.userData.id,
-        fullname: req.body.fullname,
-        projectid: req.body.projectid,
-        projectName: req.body.projectName,
-        createTime: req.body.createTime,
       })
-      savedproject
-      .save()
-      .then(result => {
+    } else if (result.length >= 1 && !isInArray) {
+      const project = {
+        project: req.body.projectid,
+        createTime: req.body.createTime,
+      }
+      SavedProject.findOneAndUpdate({userid: req.userData.id}, {$push: {projects: project}})
+      .exec()
+      .then(ex => {
         res.status(201).json({
           status: 201,
           message: 'add to list saved project success',
-          savedproject: result,
-        });
+          result: project,  
+        })
       })
       .catch(err => {
         console.log(err);
         res.status(500).json({
           status: 500,
           error: err,
-        });
-      });
+        })
+      })
+    } else {
+      const savedproject = new SavedProject({
+        _id: new mongoose.Types.ObjectId(),
+        userid: req.userData.id,
+        fullname: req.body.fullname,
+        project:[{
+          project: req.body.projectid,
+          createTime: req.body.createTime,
+        }],
+      })
+      savedproject
+      .save()
+      .then(result => {
+        res.status(201).json({
+          status: 201,
+          message: 'create new list saved project success',
+          result: result,
+        })
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json({
+          status: 500,
+          error: err,
+        })
+      })
     }
   })
   .catch(err => {
@@ -330,22 +347,34 @@ router.post('/follow', checkAuth, (req, res, next) => {
 })
 
 router.post('/unfollow', checkAuth, (req, res, next) => {
-  SavedProject.remove({
+  SavedProject.find({
     userid: req.userData.id,
-    projectid: req.body.projectid,
   })
   .exec()
   .then(result => {
-    if (result.n > 0) {
-      res.status(200).json({
-        status: 200,
-        message: 'delete from list saved project success',
-      });
+    const isInArray = result[0].projects.some(temp => {
+      return temp.project === req.body.projectid;
+    })
+    if (result.length >= 1 && isInArray) {
+      SavedProject.findOneAndUpdate({userid: req.userData.id}, {$pull: {projects: {project: req.body.projectid}}})
+      .exec()
+      .then(ex => {
+        res.status(201).json({
+          status: 201,
+          message: 'delete from list saved project success',
+        })
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json({
+          status: 500,
+          error: err,
+        })
+      })
     } else {
       res.status(404).json({
         status: 404,
         message: 'No valid entry found',
-        result: result,
       })
     }
   })

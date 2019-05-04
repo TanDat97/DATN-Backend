@@ -240,7 +240,46 @@ router.post('/search', (req, res, next) => {
     const priceParam = libFunction.convertData(req.body.price);    
     // console.log(`.*${addressParam}.*`)
     Project.find({
-        statusProject: req.body.type,
+        statusProject: req.body.status,
+        area: {$gte: areaParam.start, $lte: areaParam.end},
+        price: {$gte: priceParam.start, $lte: priceParam.end},
+        address: {$regex:`.*${addressParam}.*`},
+    })
+    .select()
+    .exec()
+    .then(results => {
+        if (results.length >= 0) {
+            res.status(200).json({
+                status: 200,
+                count: results.length,
+                projects: results,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+});
+
+router.post('/searchStatus', (req, res, next) => {
+    const typeParam = req.body.type
+    const statusParam = req.body.status
+    const addressParam =  req.body.address
+    const areaParam = libFunction.convertData(req.body.area);
+    const priceParam = libFunction.convertData(req.body.price);    
+    // console.log(`.*${addressParam}.*`)
+    Project.find({
+        type: typeParam,
+        statusProject: statusParam,
         area: {$gte: areaParam.start, $lte: areaParam.end},
         price: {$gte: priceParam.start, $lte: priceParam.end},
         address: {$regex:`.*${addressParam}.*`},

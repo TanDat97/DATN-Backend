@@ -207,13 +207,13 @@ router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
+    const projectid = req.params.id;
     Project.remove({
         _id: id
     })
     .exec()
     .then(result => {
-        Comment.remove({projectid: req.params.id}).exec().then(result => console.log('delete comment success'))
+        Comment.remove({projectid: projectid}).exec().then(result => console.log('delete comment success'))
         if (result.n > 0) {
             res.status(200).json({
                 status: 200,

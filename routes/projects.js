@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const checkAuth = require('../middleware/checkAuth');
 const libFunction = require('../lib/function');
 const Project = require('../models/projectModel');
+const Comment = require('../models/commentModel');
 
 const numItem = 30;
 
@@ -203,14 +204,15 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
 });
 
 router.delete('/:id', checkAuth, (req, res, next) => {
-    const id = req.params.id;
+    const projectid = req.params.id;
     Project.remove({
-        _id: id,
+        _id: projectid,
         ownerid: req.userData.id,
     })
     .exec()
     .then(result => {
         if (result.n > 0) {
+            Comment.remove({projectid: projectid}).exec().then(result => console.log('delete comment success'))
             res.status(200).json({
                 status: 200,
                 message: 'delete project success',

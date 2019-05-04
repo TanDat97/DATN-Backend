@@ -9,6 +9,7 @@ const libFunction = require('../../lib/function');
 const User = require('../../models/userModel');
 const Project = require('../../models/projectModel');
 const Comment = require('../../models/commentModel');
+const SavedProject = require('../../models/savedProjectModel');
 
 const numItem = 30
 
@@ -134,6 +135,7 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     .then(result => {
         Project.remove({ownerid: req.params.id}).exec().then(result => console.log('delete project success'))
         Comment.remove({userid: req.params.id}).exec().then(result => console.log('delete comment success'))
+        SavedProject.remove({userid: req.params.id}).exec().then(result => console.log('delete saved project success'))
         if(result.n > 0) {
             res.status(200).json({
                 status: 200,

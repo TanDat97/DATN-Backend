@@ -6,6 +6,9 @@ const jwt = require('jsonwebtoken');
 
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
 const Admin = require('../../models/adminModel');
+const User = require('../../models/userModel');
+const Project = require('../../models/projectModel');
+const News = require('../../models/newsModel');
 
 router.post('/signup', checkAuthAdmin, (req, res, next) => {
     Admin.find({
@@ -311,6 +314,54 @@ router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
             error: err
         });
     });
+})
+
+function countAccount(){
+    return new Promise((resolve,reject) => {
+        User.count({}, (err, count) => {
+            if(err)
+                reject(err)
+            resolve(count)
+        })
+    })
+}
+function countProject(){
+    return new Promise((resolve,reject) => {
+        Project.count({}, (err, count) => {
+            if(err)
+                reject(err)
+            resolve(count)
+        })
+    })
+}
+function countNews(){
+    return new Promise((resolve,reject) => {
+        News.count({}, (err, count) => {
+            if(err)
+                reject(err)
+            resolve(count)
+        })
+    })
+}
+
+router.post('/statisticdata', checkAuthAdmin, (req, res, next) => {
+    Promise.all([countAccount(),countProject(),countNews()])
+    .then(function(arrayOfResults) {
+        const [account, project, news] = arrayOfResults
+        res.status(200).json({
+            status: 200,
+            message: 'get data success',
+            countAccount: account,
+            countProject: project,
+            countNews: news,
+        });
+    })
+    .catch(err => {
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    })
 })
 
 module.exports = router;

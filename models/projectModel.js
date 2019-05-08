@@ -47,6 +47,18 @@ var projectSchema = new Schema({
         type: String,
         required: true,
     },
+    fullname: {
+        type: String,
+        required: false,
+    },
+    phone: {
+        type: String,
+        required: false,
+    },
+    email: {
+        type: String,
+        required: true,
+    },
     statusProject:{
         type: Number,
         required: true,

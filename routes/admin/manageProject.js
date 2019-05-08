@@ -71,6 +71,9 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         lat: req.body.lat,
         long: req.body.long,
         ownerid: req.body.ownerid,
+        fullname: req.body.fullname,
+        phone: req.body.phone,
+        email: req.body.email,
         statusProject: req.body.statusProject,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
@@ -109,6 +112,9 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     const lat = req.body.lat;
     const long = req.body.long;
     const ownerid = req.body.ownerid;
+    const fullname = req.body.fullname;
+    const phone = req.body.phone;
+    const email = req.body.email;
     const statusProject = req.body.statusProject;
     const createTime = req.body.createTime;
     const updateTime = req.body.updateTime;
@@ -127,6 +133,9 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
             lat: lat,
             long: long,
             ownerid: ownerid,
+            fullname: fullname,
+            phone: phone,
+            email: email,
             statusProject: statusProject,
             updateTime: updateTime,
         }
@@ -150,6 +159,9 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                     lat: lat,
                     long: long,
                     ownerid: ownerid,
+                    fullname: fullname,
+                    phone: phone,
+                    email: email,
                     statusProject: statusProject,
                     createTime: createTime,
                     updateTime: updateTime,

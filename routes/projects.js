@@ -115,7 +115,7 @@ router.post('/', checkAuth, (req, res, next) => {
         updateTime: req.body.updateTime,
         allowComment: true,
         url: req.body.url,
-        publicId: req.body.publicId
+        publicId: req.body.publicId,
     });
     project
     .save()
@@ -154,6 +154,8 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     const avatar = req.body.avatar;
     const statusProject = req.body.statusProject;
     const updateTime = req.body.updateTime;
+    const url = req.body.url;
+    const publicId = req.body.publicId;
     Project.update({
         _id: id,
         ownerid: req.userData.id
@@ -175,6 +177,8 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
             avatar: avatar,
             statusProject: statusProject,
             updateTime: updateTime,
+            url: url,
+            publicId: publicId,
         }
     })
     .exec()
@@ -202,6 +206,8 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
                     avatar: avatar,
                     statusProject: statusProject,
                     updateTime: updateTime,
+                    url: url,
+                    publicId: publicId,
                 },
             });
         } else {

@@ -109,6 +109,8 @@ router.post('/', checkAuth, (req, res, next) => {
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
         allowComment: true,
+        url: req.body.url,
+        publicId: req.body.publicId
     });
     project
     .save()

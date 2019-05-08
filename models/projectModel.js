@@ -62,7 +62,16 @@ var projectSchema = new Schema({
     allowComment : {
         type: Boolean,
         required: true,
+    },
+    url:{
+        type: String,
+        required: true
+    },
+    publicId:{
+        type: String,
+        required: true
     }
+    
 });
 
 // Export the model

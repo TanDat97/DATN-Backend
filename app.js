@@ -40,8 +40,8 @@ app.use(sessions({
 }));
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'jade');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -66,7 +66,7 @@ mongoose.connect(url,{
 });
 mongoose.Promise = global.Promise;
 
-// app.use('/', indexRouter);
+app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/projects', projectsRouter);
 app.use('/news', newsRouter);

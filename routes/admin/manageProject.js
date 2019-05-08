@@ -74,12 +74,12 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         fullname: req.body.fullname,
         phone: req.body.phone,
         email: req.body.email,
+        avatar: req.body.avatar,
         statusProject: req.body.statusProject,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
         allowComment: true,
     });
-    // console.log(project)
     project
         .save()
         .then(result => {
@@ -115,6 +115,7 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     const fullname = req.body.fullname;
     const phone = req.body.phone;
     const email = req.body.email;
+    const avatar = req.body.avatar;
     const statusProject = req.body.statusProject;
     const createTime = req.body.createTime;
     const updateTime = req.body.updateTime;
@@ -136,6 +137,7 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
             fullname: fullname,
             phone: phone,
             email: email,
+            // avatar: avatar,
             statusProject: statusProject,
             updateTime: updateTime,
         }
@@ -162,6 +164,7 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                     fullname: fullname,
                     phone: phone,
                     email: email,
+                    avatar: avatar,
                     statusProject: statusProject,
                     createTime: createTime,
                     updateTime: updateTime,

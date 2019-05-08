@@ -174,6 +174,38 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     });
 });
 
+router.delete('/:id', checkAuthAdmin, (req, res, next) => {
+    const projectid = req.params.id;
+    Project.remove({
+        _id: id
+    })
+    .exec()
+    .then(result => {
+        Comment.remove({projectid: projectid}).exec().then(result => console.log('delete comment success'))
+        if (result.n > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'delete project success',
+                request: {
+                    type: 'DELETE',
+                }
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            });
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+});
+
 router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
     Project.update({
         _id: req.params.id,
@@ -206,52 +238,37 @@ router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
     });
 })
 
-router.delete('/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
-    Project.remove({
-        _id: id
-    })
-    .exec()
-    .then(result => {
-        Comment.remove({projectid: req.params.id}).exec().then(result => console.log('delete comment success'))
-        if (result.n > 0) {
-            res.status(200).json({
-                status: 200,
-                message: 'delete project success',
-                request: {
-                    type: 'DELETE',
-                }
-            });
-        } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found'
-            });
-        }
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            status: 500,
-            error: err
-        });
-    });
-});
-
 router.get('/allcomment/:id', checkAuthAdmin, (req, res, next) => {
     const projectid = req.params.id
     Comment.find({
         projectid: projectid,
     })
+    .populate({path:'user'})
     .sort({'createTime': -1})
     .select()
     .exec()
     .then(results => {
         if (results.length > 0) {
+            const temp = results.map(element=>{
+                return {
+                    _id: element._id,
+                    user: {
+                        id: element.user._id,
+                        email: element.user.email,
+                        fullname: element.user.fullname,
+                        avatar: element.user.avatar,
+                    },
+                    updateTime: element.updateTime,
+                    createTime: element.createTime,
+                    projectid: element.projectid,
+                    content: element.content,
+                    star: element.star,
+                }
+            })
             res.status(200).json({
                 status: 200,
-                count: results.length,
-                comments: results,
+                count: temp.length,
+                comments: temp,
             });
         } else {
             res.status(404).json({

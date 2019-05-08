@@ -216,7 +216,7 @@ router.post('/edit', checkAuth, (req, res, next) => {
   });
 });
 
-router.get('/dansachproject', checkAuth, (req, res, next) => {
+router.get('/danhsachproject', checkAuth, (req, res, next) => {
   Project.find({
     ownerid: req.userData.id
   })

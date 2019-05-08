@@ -43,10 +43,17 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
     Project.findById(id)
     .exec()
     .then(result => {
-        res.status(200).json({
-            status: 200,
-            project: result,
-        });
+        if(result!=null){
+            res.status(200).json({
+                status: 200,
+                project: result,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
     })
     .catch(err => {
         console.log(err);
@@ -79,6 +86,8 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
         allowComment: true,
+        url: req.body.url,
+        publicId: req.body.publicId,
     });
     project
         .save()
@@ -119,6 +128,8 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
     const statusProject = req.body.statusProject;
     const createTime = req.body.createTime;
     const updateTime = req.body.updateTime;
+    const url = req.body.url;
+    const publicId = req.body.publicId;
     Project.update({
         _id: id,
     }, {
@@ -140,6 +151,8 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
             // avatar: avatar,
             statusProject: statusProject,
             updateTime: updateTime,
+            // url: url,
+            // publicId: publicId,
         }
     })
     .exec()
@@ -168,6 +181,8 @@ router.patch('/:id', checkAuthAdmin, (req, res, next) => {
                     statusProject: statusProject,
                     createTime: createTime,
                     updateTime: updateTime,
+                    url: url,
+                    publicId: publicId,
                 },
                 request: {
                     type: 'PATCH',

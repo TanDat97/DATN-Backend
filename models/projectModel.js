@@ -53,11 +53,15 @@ var projectSchema = new Schema({
     },
     phone: {
         type: String,
-        required: false,
+        required: true,
     },
     email: {
         type: String,
         required: true,
+    },
+    avatar: {
+        type: String,
+        required: false,
     },
     statusProject:{
         type: Number,
@@ -75,14 +79,14 @@ var projectSchema = new Schema({
         type: Boolean,
         required: true,
     },
-    url:{
+    url : [{
         type: String,
         required: true
-    },
-    publicId:{
+    }],
+    publicId : [{
         type: String,
         required: true
-    }
+    }]
     
 });
 

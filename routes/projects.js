@@ -10,7 +10,7 @@ const Comment = require('../models/commentModel');
 const numItem = 30;
 
 router.get('/all/:page', (req, res, next) => {
-    const page = req.params.page - 1
+    const page = parseInt(req.params.page) - 1
     Project.find().sort({'createTime': -1}).skip(page).limit(numItem)
     .select()
     .exec()

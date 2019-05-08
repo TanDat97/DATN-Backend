@@ -106,6 +106,9 @@ router.post('/', checkAuth, (req, res, next) => {
         lat: req.body.lat,
         long: req.body.long,
         ownerid: req.userData.id,
+        fullname: req.body.fullname,
+        phone: req.body.phone,
+        email: req.body.email,
         statusProject: req.body.statusProject,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
@@ -144,8 +147,10 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     const lat = req.body.lat;
     const long = req.body.long;
     const ownerid = req.userData.id;
+    const fullname = req.body.fullname;
+    const phone = req.body.phone;
+    const email = req.body.email;
     const statusProject = req.body.statusProject;
-    const createTime = req.body.createTime;
     const updateTime = req.body.updateTime;
     Project.update({
         _id: id,
@@ -162,6 +167,9 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
             info: info,
             lat: lat,
             long: long,
+            fullname: fullname,
+            phone: phone,
+            email: email,
             statusProject: statusProject,
             updateTime: updateTime,
         }
@@ -185,6 +193,9 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
                     lat: lat,
                     long: long,
                     ownerid: ownerid,
+                    fullname: fullname,
+                    phone: phone,
+                    email: email,
                     statusProject: statusProject,
                     updateTime: updateTime,
                 },
@@ -238,13 +249,13 @@ router.delete('/:id', checkAuth, (req, res, next) => {
     });
 });
 
-router.post('/search', (req, res, next) => {
+router.post('/searchstatus', (req, res, next) => {
+    const statusParam = req.body.status
     const addressParam =  req.body.address
     const areaParam = libFunction.convertData(req.body.area);
-    const priceParam = libFunction.convertData(req.body.price);    
-    // console.log(`.*${addressParam}.*`)
+    const priceParam = libFunction.convertData(req.body.price);
     Project.find({
-        statusProject: req.body.status,
+        statusProject: statusParam,
         area: {$gte: areaParam.start, $lte: areaParam.end},
         price: {$gte: priceParam.start, $lte: priceParam.end},
         address: {$regex:`.*${addressParam}.*`},
@@ -274,13 +285,12 @@ router.post('/search', (req, res, next) => {
     });
 });
 
-router.post('/searchStatus', (req, res, next) => {
+router.post('/searchtype', (req, res, next) => {
     const typeParam = req.body.type
     const statusParam = req.body.status
     const addressParam =  req.body.address
     const areaParam = libFunction.convertData(req.body.area);
-    const priceParam = libFunction.convertData(req.body.price);    
-    // console.log(`.*${addressParam}.*`)
+    const priceParam = libFunction.convertData(req.body.price);
     Project.find({
         type: typeParam,
         statusProject: statusParam,
@@ -313,11 +323,10 @@ router.post('/searchStatus', (req, res, next) => {
     });
 });
 
-router.post('/searchAddress', (req, res, next) => {
+router.post('/searchaddress', (req, res, next) => {
     const addressParam = req.body.address
     const areaParam = libFunction.convertData(req.body.area);
-    const priceParam = libFunction.convertData(req.body.price);    
-    // console.log(`.*${addressParam}.*`)
+    const priceParam = libFunction.convertData(req.body.price);
     Project.find({
         area: {$gte: areaParam.start, $lte: areaParam.end},
         price: {$gte: priceParam.start, $lte: priceParam.end},

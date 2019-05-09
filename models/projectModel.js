@@ -9,7 +9,7 @@ var projectSchema = new Schema({
     },
     investor: {
         type: String,
-        required: false,
+        required: true,
     },
     price: {
         type: Number,
@@ -33,7 +33,7 @@ var projectSchema = new Schema({
     },
     info: {
         type: String,
-        required: false,
+        required: true,
     },
     lat: {
         type: Number,
@@ -49,7 +49,7 @@ var projectSchema = new Schema({
     },
     fullname: {
         type: String,
-        required: false,
+        required: true,
     },
     phone: {
         type: String,
@@ -61,7 +61,7 @@ var projectSchema = new Schema({
     },
     avatar: {
         type: String,
-        required: false,
+        required: true,
     },
     statusProject:{
         type: Number,
@@ -69,11 +69,11 @@ var projectSchema = new Schema({
     },
     createTime: {
         type: Number,
-        required: false,
+        required: true,
     },
     updateTime: {
         type: Number,
-        required: false,
+        required: true,
     },
     allowComment : {
         type: Boolean,

@@ -99,7 +99,7 @@ router.post('/login', (req, res, next) => {
           totalProject: user[0].totalProject,
           statusAccount: user[0].statusAccount,
         }, 'shhhhh', {
-            expiresIn: "2h"
+            expiresIn: "5h"
           });
         return res.status(200).json({
           status: 200,

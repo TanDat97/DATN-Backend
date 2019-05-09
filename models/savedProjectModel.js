@@ -9,13 +9,13 @@ var projectSchema = new Schema({
     },
     fullname: {
         type: String,
-        required: false,
+        required: true,
     },
     projects: [{
         project: {
             type: String,
             ref: 'Project',
-            required: false,
+            required: true,
         },
         createTime: {
             type: Number,

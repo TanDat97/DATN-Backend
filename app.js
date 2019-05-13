@@ -9,6 +9,7 @@ var sessions = require('express-session');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+
 const url='mongodb+srv://tuan:tuan123@cluster0-mmyqj.mongodb.net/realestate?retryWrites=true'
 
 // const swaggerUi = require('swagger-ui-express');
@@ -38,6 +39,8 @@ app.use(sessions({
   resave: false,
   saveUninitialized: true
 }));
+
+
 
 // view engine setup
 // app.set('views', path.join(__dirname, 'views'));

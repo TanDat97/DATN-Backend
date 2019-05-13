@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+
 const checkAuth = require('../middleware/checkAuth');
 const libFunction = require('../lib/function');
 const User = require('../models/userModel');
@@ -15,6 +16,9 @@ var passport = require('passport');
 var config = require('./../middleware/config');
 var request = require('request');
 require('./../middleware/passport')();
+
+
+
 
 router.post('/signup', (req, res, next) => {
   User.find({
@@ -158,7 +162,10 @@ router.get('/info', checkAuth, (req, res, next) => {
 });
 
 router.post('/edit', checkAuth, (req, res, next) => {
+  
+  console.log(req.body)
   const id = req.userData.id;
+  const email= req.userData.email;
   const fullname = req.body.fullname;
   const address = req.body.address;
   const phone = req.body.phone;
@@ -166,10 +173,12 @@ router.post('/edit', checkAuth, (req, res, next) => {
   const statusAccount = req.body.statusAccount;
   const avatar = req.body.avatar;
   const description = req.body.description;
+  console.log(req.userData.email)
 
-  User.update({
+
+  User.updateMany({
     _id: id,
-    email: req.userData.email,
+    email: email
   }, {
     $set: {
       fullname: fullname,
@@ -392,10 +401,18 @@ router.post('/auth/google', passport.authenticate('google-token', { session: fal
     return res.send(401, 'User Not Authenticated');
   }
   req.auth = {
-    id: req.user.id
+
+    id: req.user.id,
+    email: req.user.email
   };
 
   next();
 }, generateToken, sendToken);
+
+
+
+
+
+
 
 module.exports = router;

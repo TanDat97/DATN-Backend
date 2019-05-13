@@ -3,12 +3,21 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require("nodemailer");
 
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
 const Admin = require('../../models/adminModel');
 const User = require('../../models/userModel');
 const Project = require('../../models/projectModel');
 const News = require('../../models/newsModel');
+
+var transporter = nodemailer.createTransport({ // config mail server
+    service: 'Gmail',
+    auth: {
+        user: 'trandat.sgg@gmail.com',
+        pass: 'datdeptrai',
+    }
+});
 
 router.post('/signup', checkAuthAdmin, (req, res, next) => {
     Admin.find({
@@ -22,7 +31,7 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                 message: 'admin exists',
             });
         } else {
-            bcrypt.hash(req.body.password, 10, (err, hash) => {
+            bcrypt.hash('abcd@1234', 10, (err, hash) => {
                 if (err) {
                     return res.status(500).json({
                         status: 500,
@@ -36,24 +45,49 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                         address: req.body.address,
                         email: req.body.email,
                         phone: req.body.phone,
+                        createTime: req.body.createTime,
+                        verify: false,
                     });
-                    admin
-                    .save()
-                    .then(result => {
-                        res.status(201).json({
-                            status: 201,
-                            message: 'admin created',
-                            email: result.email,
-                            // id: result._id,
-                        })
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).json({
-                            status: 500,
-                            error: err
-                        });
+                    var link = "http://localhost:3000/verify/" + admin._id;
+                    var EmailModel = require('../../lib/emailModel');
+                    var emailModel = new EmailModel();
+                    emailModel.verifyMail(admin.email, link);
+                    transporter.sendMail(emailModel.mail, function (err, info) {
+                        if (err) {
+                            console.log('signup error, please try again ' + err);
+                            res.status(500).json({
+                                status: 500,
+                                message: 'signup error, please try again',
+                                error: err,
+                            });
+                        } else {
+                            console.log(info);
+                            res.status(201).json({
+                                status: 201,
+                                message: 'admin created',
+                                email: admin.email,
+                                info: info.response,
+                            })
+                        }
                     });
+
+                    // admin
+                    // .save()
+                    // .then(result => {
+                    //     res.status(201).json({
+                    //         status: 201,
+                    //         message: 'admin created',
+                    //         email: result.email,
+                    //         // id: result._id,
+                    //     })
+                    // })
+                    // .catch(err => {
+                    //     console.log(err);
+                    //     res.status(500).json({
+                    //         status: 500,
+                    //         error: err
+                    //     });
+                    // });
                 }
             });
         }

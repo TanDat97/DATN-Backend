@@ -24,6 +24,14 @@ const Schema = mongoose.Schema({
     },
     avatar: {
         type: String,
+        required: false,
+    },
+    verify: {
+        type: Boolean,
+        required: true,
+    },
+    createTime: {
+        type: Number,
         required: true,
     }
 });

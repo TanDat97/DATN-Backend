@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-    userid: {
+    user: {
         type: String,
-        required: true
+        required: true,
+        ref: 'User',
     },
-    fullname: {
+    projectid: {
         type: String,
-        required: true
+        required: true,
     },
     createTime: {
         type: Number,
@@ -25,14 +26,6 @@ const Schema = mongoose.Schema({
         type: Number,
         required: true
     }, 
-    projectid: {
-        type: String,
-        required: true,
-    },
-    avatar: {
-        type: String,
-        required: false,
-    },
 });
 
 // Export the model

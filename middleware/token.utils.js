@@ -1,10 +1,11 @@
 var jwt= require("jsonwebtoken") 
 var createToken = function(auth) {
     return jwt.sign({
-            id: auth.id
+            id: auth.id,
+            email: auth.email
         }, 'shhhhh',
         {
-            expiresIn: 60 * 120
+            expiresIn:"1h"
         });
 };
 

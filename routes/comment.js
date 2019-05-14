@@ -12,15 +12,32 @@ router.get('/all/:id', (req, res, next) => {
     Comment.find({
         projectid: projectid,
     })
+    .populate({path:'user'})
     .sort({'createTime': -1})
     .select()
     .exec()
     .then(results => {
         if (results.length > 0) {
+            const temp = results.map(element=>{
+                return {
+                    _id: element._id,
+                    user: {
+                        id: element.user._id,
+                        email: element.user.email,
+                        fullname: element.user.fullname,
+                        avatar: element.user.avatar,
+                    },
+                    updateTime: element.updateTime,
+                    createTime: element.createTime,
+                    projectid: element.projectid,
+                    content: element.content,
+                    star: element.star,
+                }
+            })
             res.status(200).json({
                 status: 200,
-                count: results.length,
-                comments: results,
+                count: temp.length,
+                comments: temp,
             });
         } else {
             res.status(404).json({
@@ -44,14 +61,12 @@ router.post('/', checkAuth, (req, res, next) => {
     .then(user => {
         const comment = Comment({
             _id: new mongoose.Types.ObjectId(),
-            userid: req.userData.id,
-            fullname: req.body.fullname,
+            user: req.userData.id,
+            projectid: req.body.projectid,
             createTime: req.body.createTime,
             updateTime: req.body.updateTime,
             content: req.body.content,
             star: req.body.star,
-            projectid: req.body.projectid,
-            avatar: req.body.avatar,
         });
         comment
         .save()
@@ -83,7 +98,6 @@ router.post('/', checkAuth, (req, res, next) => {
 router.post('/edit/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     const userid = req.userData.id;
-    const fullname = req.body.fullname;
     const createTime = req.body.createTime;
     const updateTime = req.body.updateTime;
     const content = req.body.content;
@@ -92,10 +106,9 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
 
     Comment.update({
         _id: id,
-        userid: userid,
+        user: userid,
     }, {
         $set: {
-            fullname: fullname,
             updateTime: updateTime,
             content: content,
             star: star,
@@ -106,16 +119,15 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
         if (result.nModified > 0) {
             res.status(200).json({
                 status: 200,
-                message: 'update comment success',
+                message: 'edit comment success',
                 comment: {
                     _id: id,
-                    userid: userid,
-                    fullname: fullname,
+                    user: userid,
+                    projectid: projectid,
                     createTime: createTime,
                     updateTime: updateTime,
                     content: content,
                     star: star,
-                    projectid: projectid,
                 },
             });
         } else {
@@ -138,7 +150,7 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
 router.delete('/:id', checkAuth, (req, res, next) => {
     Comment.remove({
         _id: req.params.id,
-        userid: req.userData.id,
+        user: req.userData.id,
     })
     .exec()
     .then(result => {

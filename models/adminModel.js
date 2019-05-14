@@ -25,7 +25,23 @@ const Schema = mongoose.Schema({
     avatar: {
         type: String,
         required: false,
-    }
+    },
+    verify: {
+        type: Boolean,
+        required: true,
+    },
+    createBy: {
+        type: String,
+        required: true,
+    },
+    createTime: {
+        type: Number,
+        required: true,
+    },
+    hash: {
+        type: Number,
+        required: true,
+    },
 });
 
 // Export the model

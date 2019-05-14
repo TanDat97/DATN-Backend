@@ -99,7 +99,7 @@ router.post('/login', (req, res, next) => {
           totalProject: user[0].totalProject,
           statusAccount: user[0].statusAccount,
         }, 'shhhhh', {
-            expiresIn: "2h"
+            expiresIn: "5h"
           });
         return res.status(200).json({
           status: 200,
@@ -158,7 +158,10 @@ router.get('/info', checkAuth, (req, res, next) => {
 });
 
 router.post('/edit', checkAuth, (req, res, next) => {
+  
+  console.log(req.body)
   const id = req.userData.id;
+  const email= req.userData.email;
   const fullname = req.body.fullname;
   const address = req.body.address;
   const phone = req.body.phone;
@@ -166,10 +169,11 @@ router.post('/edit', checkAuth, (req, res, next) => {
   const statusAccount = req.body.statusAccount;
   const avatar = req.body.avatar;
   const description = req.body.description;
+  console.log(req.userData.email)
 
-  User.update({
+  User.updateMany({
     _id: id,
-    email: req.userData.email,
+    email: email
   }, {
     $set: {
       fullname: fullname,
@@ -216,7 +220,7 @@ router.post('/edit', checkAuth, (req, res, next) => {
   });
 });
 
-router.get('/dansachproject', checkAuth, (req, res, next) => {
+router.get('/danhsachproject', checkAuth, (req, res, next) => {
   Project.find({
     ownerid: req.userData.id
   })
@@ -280,35 +284,37 @@ router.post('/follow', checkAuth, (req, res, next) => {
   })
   .exec()
   .then(result => {
-    const isInArray = result[0].projects.some(temp => {
-      return temp.project === req.body.projectid;
-    })
-    if (result.length >= 1 && isInArray) {
-      return res.status(409).json({
-        status: 409,
-        message: 'user has followed this project',
+    if(result.length >= 1) {
+      const isInArray = result[0].projects.some(temp => {
+        return temp.project === req.body.projectid;
       })
-    } else if (result.length >= 1 && !isInArray) {
-      const project = {
-        project: req.body.projectid,
-        createTime: req.body.createTime,
+      if (isInArray) {
+        return res.status(409).json({
+          status: 409,
+          message: 'user has followed this project',
+        })
+      } else if (!isInArray) {
+        const project = {
+          project: req.body.projectid,
+          createTime: req.body.createTime,
+        }
+        SavedProject.findOneAndUpdate({userid: req.userData.id}, {$push: {projects: project}})
+        .exec()
+        .then(ex => {
+          res.status(201).json({
+            status: 201,
+            message: 'add to list saved project success',
+            result: project,  
+          })
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({
+            status: 500,
+            error: err,
+          })
+        })
       }
-      SavedProject.findOneAndUpdate({userid: req.userData.id}, {$push: {projects: project}})
-      .exec()
-      .then(ex => {
-        res.status(201).json({
-          status: 201,
-          message: 'add to list saved project success',
-          result: project,  
-        })
-      })
-      .catch(err => {
-        console.log(err);
-        res.status(500).json({
-          status: 500,
-          error: err,
-        })
-      })
     } else {
       const savedproject = new SavedProject({
         _id: new mongoose.Types.ObjectId(),
@@ -392,7 +398,8 @@ router.post('/auth/google', passport.authenticate('google-token', { session: fal
     return res.send(401, 'User Not Authenticated');
   }
   req.auth = {
-    id: req.user.id
+    id: req.user.id,
+    email: req.user.email
   };
 
   next();

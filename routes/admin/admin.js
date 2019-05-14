@@ -3,9 +3,22 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require("nodemailer");
 
+const libFunction = require('../../lib/function');
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
 const Admin = require('../../models/adminModel');
+const User = require('../../models/userModel');
+const Project = require('../../models/projectModel');
+const News = require('../../models/newsModel');
+
+var transporter = nodemailer.createTransport({ // config mail server
+    service: 'Gmail',
+    auth: {
+        user: 'trandat.sgg@gmail.com',
+        pass: 'datdeptrai',
+    }
+});
 
 router.post('/signup', checkAuthAdmin, (req, res, next) => {
     Admin.find({
@@ -19,48 +32,104 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                 message: 'admin exists',
             });
         } else {
-            bcrypt.hash(req.body.password, 10, (err, hash) => {
+            bcrypt.hash('abcd@1234', 10, (err, hash) => {
                 if (err) {
                     return res.status(500).json({
                         status: 500,
                         error: err,
                     });
                 } else {
-                    const admin = Admin({
+                    var admin = Admin({
                         _id: new mongoose.Types.ObjectId(),
                         password: hash,
                         fullname: req.body.fullname,
                         address: req.body.address,
                         email: req.body.email,
                         phone: req.body.phone,
-                    });
-                    admin
-                    .save()
-                    .then(result => {
-                        res.status(201).json({
-                            status: 201,
-                            message: 'admin created',
-                            email: result.email,
-                            // id: result._id,
-                        })
+                        createBy: req.userData.id,
+                        createTime: req.body.createTime,
+                        verify: false,
+                        hash: 0,
                     })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).json({
-                            status: 500,
-                            error: err
-                        });
-                    });
+                    admin.hash = libFunction.hashString(admin._id.toString())
+                    var link = "http://localhost:3000/verify/" + admin._id + "/" + admin.hash;
+                    var EmailModel = require('../../lib/emailModel');
+                    var emailModel = new EmailModel();
+                    emailModel.verifyMail(admin.email, link);
+                    transporter.sendMail(emailModel.mail, function (err, info) {
+                        if (err) {
+                            console.log('signup error, please try again ' + err);
+                            res.status(500).json({
+                                status: 500,
+                                message: 'signup error, please try again',
+                                error: err,
+                            });
+                        } else {
+                            admin
+                            .save()
+                            .then(result => {
+                                res.status(201).json({
+                                    status: 201,
+                                    message: 'admin created, check email to verify account',
+                                    email: admin.email,
+                                    info: info.response,
+                                })
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).json({
+                                    status: 500,
+                                    error: err
+                                });
+                            });
+                        }
+                    })                 
                 }
-            });
+            })
         }
     })
     .catch();
 });
 
+router.post('/verify', (req, res, next) => {
+    const id = req.body.id
+    const hash = req.body.hash
+    Admin.update({
+        _id: id,
+        hash: hash,
+        verify: false,
+    }, {
+        $set: {
+            verify: true,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'verify admin success, please login again',
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+})
+
 router.post('/login', (req, res, next) => {
     Admin.find({
-        email: req.body.email
+        email: req.body.email,
+        verify: true,
     })
     .exec()
     .then(admin => {
@@ -86,7 +155,7 @@ router.post('/login', (req, res, next) => {
                     address: admin[0].address,
                     status: 'adminaccount',
                 }, 'HS256', {
-                    expiresIn: "2h"
+                    expiresIn: "5h"
                 });
                 return res.status(200).json({
                     status: 200,
@@ -112,7 +181,7 @@ router.post('/login', (req, res, next) => {
         return res.status(401).json({
             status: 401,
             message: 'Auth failed',
-            error: err
+            error: err,
         });
     });
 });
@@ -138,7 +207,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         console.log(err);
         res.status(500).json({
             status: 500,
-            error: err
+            error: err,
         });
     });
 });
@@ -182,7 +251,7 @@ router.patch('/', checkAuthAdmin, (req, res, next) => {
         } else {
             res.status(404).json({
                 status: 404,
-                message: 'No valid entry found'
+                message: 'No valid entry found',
             })
         }
     })
@@ -190,7 +259,7 @@ router.patch('/', checkAuthAdmin, (req, res, next) => {
         console.log(err);
         res.status(500).json({
             status: 500,
-            error: err
+            error: err,
         });
     });
 });
@@ -311,6 +380,54 @@ router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
             error: err
         });
     });
+})
+
+function countAccount(){
+    return new Promise((resolve,reject) => {
+        User.count({}, (err, count) => {
+            if(err)
+                reject(err)
+            resolve(count)
+        })
+    })
+}
+function countProject(){
+    return new Promise((resolve,reject) => {
+        Project.count({}, (err, count) => {
+            if(err)
+                reject(err)
+            resolve(count)
+        })
+    })
+}
+function countNews(){
+    return new Promise((resolve,reject) => {
+        News.count({}, (err, count) => {
+            if(err)
+                reject(err)
+            resolve(count)
+        })
+    })
+}
+
+router.post('/statisticdata', checkAuthAdmin, (req, res, next) => {
+    Promise.all([countAccount(),countProject(),countNews()])
+    .then(function(arrayOfResults) {
+        const [account, project, news] = arrayOfResults
+        res.status(200).json({
+            status: 200,
+            message: 'get data success',
+            countAccount: account,
+            countProject: project,
+            countNews: news,
+        });
+    })
+    .catch(err => {
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    })
 })
 
 module.exports = router;

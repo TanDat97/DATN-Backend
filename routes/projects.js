@@ -181,7 +181,7 @@ router.post('/edit/:id', (req, res, next) => {
     const statusProject = req.body.statusProject;
     const updateTime = req.body.updateTime;
     const url = req.body.url;
-
+    const publicId = req.body.publicId;
 
     Project.find({
         _id: id,
@@ -190,7 +190,6 @@ router.post('/edit/:id', (req, res, next) => {
         .exec()
         .then(doc => {
             if (doc.length > 0) {
-                const publicId = req.body.publicId;
                 console.log(typeof (publicId));
                 publicIdInDataBase = doc[0].publicId;
                 console.log(typeof (publicIdInDataBase));
@@ -202,8 +201,8 @@ router.post('/edit/:id', (req, res, next) => {
                         function (error, result) { console.log(result); });
                 }
             }
-
         })
+
     Project.update({
         _id: id,
         ownerid: req.userData.id
@@ -415,15 +414,11 @@ router.post('/searchaddress', (req, res, next) => {
         });
 });
 router.post('/deleteImages', (req, res, next) => {
-
     console.log(req.body);
     publicId = req.body.publicId
     console.log(publicId)
     cloudinary.v2.uploader.destroy(publicId,
         function (error, result) { console.log(result, error) });
-
-
-
 })
 
 module.exports = router;

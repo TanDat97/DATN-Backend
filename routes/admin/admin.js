@@ -39,7 +39,7 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                         error: err,
                     });
                 } else {
-                    const admin = Admin({
+                    var admin = Admin({
                         _id: new mongoose.Types.ObjectId(),
                         password: hash,
                         fullname: req.body.fullname,
@@ -49,8 +49,9 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                         createBy: req.userData.id,
                         createTime: req.body.createTime,
                         verify: false,
-                        hash: admin._id.toString(),
-                    });
+                        hash: 0,
+                    })
+                    admin.hash = libFunction.hashString(admin._id.toString())
                     var link = "http://localhost:3000/verify/" + admin._id + "/" + admin.hash;
                     var EmailModel = require('../../lib/emailModel');
                     var emailModel = new EmailModel();

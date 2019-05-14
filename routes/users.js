@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-
 const checkAuth = require('../middleware/checkAuth');
 const libFunction = require('../lib/function');
 const User = require('../models/userModel');
@@ -16,9 +15,6 @@ var passport = require('passport');
 var config = require('./../middleware/config');
 var request = require('request');
 require('./../middleware/passport')();
-
-
-
 
 router.post('/signup', (req, res, next) => {
   User.find({
@@ -175,7 +171,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
   const description = req.body.description;
   console.log(req.userData.email)
 
-
   User.updateMany({
     _id: id,
     email: email
@@ -289,35 +284,37 @@ router.post('/follow', checkAuth, (req, res, next) => {
   })
   .exec()
   .then(result => {
-    const isInArray = result[0].projects.some(temp => {
-      return temp.project === req.body.projectid;
-    })
-    if (result.length >= 1 && isInArray) {
-      return res.status(409).json({
-        status: 409,
-        message: 'user has followed this project',
+    if(result.length >= 1) {
+      const isInArray = result[0].projects.some(temp => {
+        return temp.project === req.body.projectid;
       })
-    } else if (result.length >= 1 && !isInArray) {
-      const project = {
-        project: req.body.projectid,
-        createTime: req.body.createTime,
+      if (isInArray) {
+        return res.status(409).json({
+          status: 409,
+          message: 'user has followed this project',
+        })
+      } else if (!isInArray) {
+        const project = {
+          project: req.body.projectid,
+          createTime: req.body.createTime,
+        }
+        SavedProject.findOneAndUpdate({userid: req.userData.id}, {$push: {projects: project}})
+        .exec()
+        .then(ex => {
+          res.status(201).json({
+            status: 201,
+            message: 'add to list saved project success',
+            result: project,  
+          })
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({
+            status: 500,
+            error: err,
+          })
+        })
       }
-      SavedProject.findOneAndUpdate({userid: req.userData.id}, {$push: {projects: project}})
-      .exec()
-      .then(ex => {
-        res.status(201).json({
-          status: 201,
-          message: 'add to list saved project success',
-          result: project,  
-        })
-      })
-      .catch(err => {
-        console.log(err);
-        res.status(500).json({
-          status: 500,
-          error: err,
-        })
-      })
     } else {
       const savedproject = new SavedProject({
         _id: new mongoose.Types.ObjectId(),
@@ -401,18 +398,11 @@ router.post('/auth/google', passport.authenticate('google-token', { session: fal
     return res.send(401, 'User Not Authenticated');
   }
   req.auth = {
-
     id: req.user.id,
     email: req.user.email
   };
 
   next();
 }, generateToken, sendToken);
-
-
-
-
-
-
 
 module.exports = router;

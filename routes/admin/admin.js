@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require("nodemailer");
 
+const libFunction = require('../../lib/function');
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
 const Admin = require('../../models/adminModel');
 const User = require('../../models/userModel');
@@ -45,10 +46,12 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                         address: req.body.address,
                         email: req.body.email,
                         phone: req.body.phone,
+                        createBy: req.userData.id,
                         createTime: req.body.createTime,
                         verify: false,
+                        hash: admin._id.toString(),
                     });
-                    var link = "http://localhost:3000/verify/" + admin._id;
+                    var link = "http://localhost:3000/verify/" + admin._id + "/" + admin.hash;
                     var EmailModel = require('../../lib/emailModel');
                     var emailModel = new EmailModel();
                     emailModel.verifyMail(admin.email, link);
@@ -61,43 +64,71 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                                 error: err,
                             });
                         } else {
-                            console.log(info);
-                            res.status(201).json({
-                                status: 201,
-                                message: 'admin created',
-                                email: admin.email,
-                                info: info.response,
+                            admin
+                            .save()
+                            .then(result => {
+                                res.status(201).json({
+                                    status: 201,
+                                    message: 'admin created, check email to verify account',
+                                    email: admin.email,
+                                    info: info.response,
+                                })
                             })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).json({
+                                    status: 500,
+                                    error: err
+                                });
+                            });
                         }
-                    });
-
-                    // admin
-                    // .save()
-                    // .then(result => {
-                    //     res.status(201).json({
-                    //         status: 201,
-                    //         message: 'admin created',
-                    //         email: result.email,
-                    //         // id: result._id,
-                    //     })
-                    // })
-                    // .catch(err => {
-                    //     console.log(err);
-                    //     res.status(500).json({
-                    //         status: 500,
-                    //         error: err
-                    //     });
-                    // });
+                    })                 
                 }
-            });
+            })
         }
     })
     .catch();
 });
 
+router.post('/verify', (req, res, next) => {
+    const id = req.body.id
+    const hash = req.body.hash
+    Admin.update({
+        _id: id,
+        hash: hash,
+        verify: false,
+    }, {
+        $set: {
+            verify: true,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'verify admin success, please login again',
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+})
+
 router.post('/login', (req, res, next) => {
     Admin.find({
-        email: req.body.email
+        email: req.body.email,
+        verify: true,
     })
     .exec()
     .then(admin => {
@@ -149,7 +180,7 @@ router.post('/login', (req, res, next) => {
         return res.status(401).json({
             status: 401,
             message: 'Auth failed',
-            error: err
+            error: err,
         });
     });
 });
@@ -175,7 +206,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         console.log(err);
         res.status(500).json({
             status: 500,
-            error: err
+            error: err,
         });
     });
 });
@@ -219,7 +250,7 @@ router.patch('/', checkAuthAdmin, (req, res, next) => {
         } else {
             res.status(404).json({
                 status: 404,
-                message: 'No valid entry found'
+                message: 'No valid entry found',
             })
         }
     })
@@ -227,7 +258,7 @@ router.patch('/', checkAuthAdmin, (req, res, next) => {
         console.log(err);
         res.status(500).json({
             status: 500,
-            error: err
+            error: err,
         });
     });
 });

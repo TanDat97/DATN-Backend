@@ -32,7 +32,8 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                 message: 'admin exists',
             });
         } else {
-            bcrypt.hash('abcd@1234', 10, (err, hash) => {
+            const pass = libFunction.randomPassword(6)
+            bcrypt.hash(pass, 10, (err, hash) => {
                 if (err) {
                     return res.status(500).json({
                         status: 500,
@@ -53,9 +54,9 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                     })
                     admin.hash = libFunction.hashString(admin._id.toString())
                     var link = "http://localhost:3000/verify/" + admin._id + "/" + admin.hash;
-                    var EmailModel = require('../../lib/emailModel');
-                    var emailModel = new EmailModel();
-                    emailModel.verifyMail(admin.email, link);
+                    var EmailAdminModel = require('../../lib/emailAdminModel');
+                    var emailModel = new EmailAdminModel();
+                    emailModel.verifyMail(admin.email, link, pass);
                     transporter.sendMail(emailModel.mail, function (err, info) {
                         if (err) {
                             console.log('signup error, please try again ' + err);
@@ -88,7 +89,13 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
             })
         }
     })
-    .catch();
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
 });
 
 router.post('/verify', (req, res, next) => {
@@ -212,7 +219,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
     });
 });
 
-router.patch('/', checkAuthAdmin, (req, res, next) => {
+router.post('/edit', checkAuthAdmin, (req, res, next) => {
     const id = req.userData.id;
     const fullname = req.body.fullname;
     const address = req.body.address;

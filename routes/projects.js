@@ -190,12 +190,11 @@ router.post('/edit/:id', (req, res, next) => {
         .exec()
         .then(doc => {
             if (doc.length > 0) {
-                console.log(typeof (publicId));
+                // console.log(typeof (publicId));
                 publicIdInDataBase = doc[0].publicId;
-                console.log(typeof (publicIdInDataBase));
-                console.log('hahaha');
+                // console.log(typeof (publicIdInDataBase));
                 publicIdDelete = compare(publicIdInDataBase, publicId);
-                console.log(publicIdDelete);
+                // console.log(publicIdDelete);
                 if (publicIdDelete.length > 0) {
                     cloudinary.v2.api.delete_resources(publicIdDelete, { invalidate: true },
                         function (error, result) { console.log(result); });
@@ -413,6 +412,7 @@ router.post('/searchaddress', (req, res, next) => {
             });
         });
 });
+
 router.post('/deleteImages', (req, res, next) => {
     console.log(req.body);
     publicId = req.body.publicId

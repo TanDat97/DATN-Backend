@@ -67,7 +67,13 @@ router.post('/signup', (req, res, next) => {
       });
     }
   })
-  .catch();
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({
+        status: 500,
+        error: err
+    });
+});
 });
 
 router.post('/login', (req, res, next) => {

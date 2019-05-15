@@ -90,25 +90,24 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         publicId: req.body.publicId,
     });
     project
-        .save()
-        .then(result => {
-            res.status(201).json({
-                status: 201,
-                message: 'add project success',
-                project: result,
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                error: err,
-            });
+    .save()
+    .then(result => {
+        res.status(201).json({
+            status: 201,
+            message: 'add project success',
+            project: result,
         });
-
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err,
+        });
+    });
 });
 
-router.patch('/:id', checkAuthAdmin, (req, res, next) => {
+router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
     const name = req.body.name;
     const investor = req.body.investor;

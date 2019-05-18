@@ -68,7 +68,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
     });
 });
 
-router.patch('/:id', checkAuthAdmin, (req, res, next) => {
+router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
     const fullname = req.body.fullname;
     const address = req.body.address;

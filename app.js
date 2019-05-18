@@ -5,9 +5,9 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
-var sessions = require('express-session');
 const mongoose = require('mongoose');
 const cors = require('cors');
+var sessions = require('express-session');
 
 const url='mongodb+srv://tuan:tuan123@cluster0-mmyqj.mongodb.net/realestate?retryWrites=true'
 
@@ -32,6 +32,7 @@ const adminRouter = require('./routes/admin/admin');
 const manageAccountRouter = require('./routes/admin/manageAccount');
 const manageProjectRouter = require('./routes/admin/manageProject');
 const manageNewsRouter = require('./routes/admin/manageNews');
+const manageCompanyRouter = require('./routes/admin/manageCompany');
 
 app.use(sessions({
   secret: '(!)*#(!JE)WJEqw09ej12',
@@ -76,6 +77,7 @@ app.use('/admin', adminRouter);
 app.use('/manageAccount', manageAccountRouter);
 app.use('/manageProject', manageProjectRouter);
 app.use('/manageNews', manageNewsRouter);
+app.use('/manageCompany', manageCompanyRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

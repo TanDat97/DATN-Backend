@@ -5,26 +5,19 @@ const Schema = mongoose.Schema({
         type: String,
         required: false,
     },
-    fullname: {
+    companyname: {
         type: String,
         required: true,
     },
     address: {
         type: String,
-        required: false,
+        required: false
     },
     email: {
         type: String,
         required: true,
         trim: true, unique: true,
         match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-    },
-    googleProvider: {
-        type: {
-            id: String,
-            token: String
-        },
-        select: false,
     },
     phone: {
         type: String,
@@ -34,7 +27,11 @@ const Schema = mongoose.Schema({
         type: Number,
         required: true,
     },
-    statusAccount: {
+    totalEmployees: {
+        type: Number,
+        required: true,
+    },
+    status: {
         type: Number,
         required: true,
     },
@@ -46,11 +43,15 @@ const Schema = mongoose.Schema({
         type: String,
         required: false,
     },
-    commpany: {
-        type: String,
+    verify: {
+        type: Boolean,
         required: true,
-    }
+    },
+    hash: {
+        type: Number,
+        required: true,
+    },
 });
 
 // Export the model
-module.exports = mongoose.model('User', Schema);
+module.exports = mongoose.model('Company', Schema);

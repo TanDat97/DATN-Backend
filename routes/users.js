@@ -67,7 +67,13 @@ router.post('/signup', (req, res, next) => {
       });
     }
   })
-  .catch();
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({
+        status: 500,
+        error: err
+    });
+});
 });
 
 router.post('/login', (req, res, next) => {
@@ -158,8 +164,6 @@ router.get('/info', checkAuth, (req, res, next) => {
 });
 
 router.post('/edit', checkAuth, (req, res, next) => {
-  
-  console.log(req.body)
   const id = req.userData.id;
   const email= req.userData.email;
   const fullname = req.body.fullname;

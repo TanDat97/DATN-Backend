@@ -164,8 +164,6 @@ router.get('/info', checkAuth, (req, res, next) => {
 });
 
 router.post('/edit', checkAuth, (req, res, next) => {
-  
-  console.log(req.body)
   const id = req.userData.id;
   const email= req.userData.email;
   const fullname = req.body.fullname;

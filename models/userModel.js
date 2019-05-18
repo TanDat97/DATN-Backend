@@ -11,7 +11,7 @@ const Schema = mongoose.Schema({
     },
     address: {
         type: String,
-        required: false
+        required: false,
     },
     email: {
         type: String,
@@ -24,7 +24,7 @@ const Schema = mongoose.Schema({
             id: String,
             token: String
         },
-        select: false
+        select: false,
     },
     phone: {
         type: String,
@@ -45,6 +45,10 @@ const Schema = mongoose.Schema({
     description: {
         type: String,
         required: false,
+    },
+    commpany: {
+        type: String,
+        required: true,
     }
 });
 

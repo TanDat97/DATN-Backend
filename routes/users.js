@@ -10,10 +10,10 @@ const User = require('../models/userModel');
 const Project = require('../models/projectModel');
 const SavedProject = require('../models/savedProjectModel');
 
-var { generateToken, sendToken } = require('./../middleware/token.utils');
-var passport = require('passport');
-var config = require('./../middleware/config');
 var request = require('request');
+var passport = require('passport');
+var { generateToken, sendToken } = require('./../middleware/token.utils');
+var config = require('./../middleware/config');
 require('./../middleware/passport')();
 
 router.post('/signup', (req, res, next) => {
@@ -45,6 +45,7 @@ router.post('/signup', (req, res, next) => {
             description: req.body.description,
             totalProject: 0,
             statusAccount: 0,
+            company: '0',
           });
           user
           .save()
@@ -104,7 +105,7 @@ router.post('/login', (req, res, next) => {
           phone: user[0].phone,
           totalProject: user[0].totalProject,
           statusAccount: user[0].statusAccount,
-        }, 'shhhhh', {
+          }, 'shhhhh', {
             expiresIn: "5h"
           });
         return res.status(200).json({
@@ -173,7 +174,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
   const statusAccount = req.body.statusAccount;
   const avatar = req.body.avatar;
   const description = req.body.description;
-  console.log(req.userData.email)
 
   User.updateMany({
     _id: id,

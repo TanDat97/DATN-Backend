@@ -134,7 +134,7 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
             if (result.nModified > 0) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update user success',
+                    message: 'update company success',
                     user: {
                         _id: id,
                         email: email,

@@ -43,20 +43,31 @@ router.post('/login', (req, res, next) => {
                     }, 'shhhhh', {
                             expiresIn: "5h"
                         });
-                    return res.status(200).json({
-                        status: 200,
-                        message: 'successful',
-                        id: company[0]._id,
-                        email: company[0].email,
-                        fullname: company[0].fullname,
-                        address: company[0].address,
-                        description: company[0].description,
-                        totalProject: company[0].totalProject,
-                        employess: company[0].employess,
-                        status: company[0].status,
-                        verify: company[0].verify,
-                        token: token,
-                    })
+
+                    if(company[0].lock === true) {
+                        return res.status(500).json({
+                            status: 500,
+                            message: 'this account company has been locked',
+                        })
+                    } else {
+                        return res.status(200).json({
+                            status: 200,
+                            message: 'successful',
+                            id: company[0]._id,
+                            email: company[0].email,
+                            companyname: company[0].companyname,
+                            address: company[0].address,
+                            totalProject: company[0].totalProject,
+                            status: company[0].status,
+                            avatar: company[0].avatar,
+                            employess: company[0].employess,
+                            description: company[0].description,
+                            createTime: company[0].createTime,
+                            updateTime: company[0].updateTime,
+                            verify: company[0].verify,
+                            token: token,
+                        })
+                    }
                 }
                 return res.status(401).json({
                     status: 401,
@@ -80,20 +91,29 @@ router.get('/info', checkAuthCompany, (req, res, next) => {
         .populate({path:'employees.employee'})
         .exec()
         .then(result => {
-            res.status(200).json({
-                status: 200,
-                message: 'successful',
-                id: result._id,
-                email: result.email,
-                fullname: result.fullname,
-                address: result.address,
-                phone: result.phone,
-                totalProject: result.totalProject,
-                employees: result.employees,
-                status: result.status,
-                avatar: result.avatar,
-                description: result.description,
-            });
+            if(result.lock === true) {
+                return res.status(500).json({
+                    status: 500,
+                    message: 'this account company has been locked',
+                })
+            } else {
+                res.status(200).json({
+                    status: 200,
+                    message: 'successful',
+                    id: result._id,
+                    email: result.email,
+                    fullname: result.fullname,
+                    address: result.address,
+                    phone: result.phone,
+                    totalProject: result.totalProject,
+                    employees: result.employees,
+                    status: result.status,
+                    avatar: result.avatar,
+                    description: result.description,
+                    createTime: result.createTime,
+                    updateTime: result.updateTime,
+                });
+            }        
         })
         .catch(err => {
             console.log(err);
@@ -114,8 +134,10 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
     const status = req.body.status;
     const avatar = req.body.avatar;
     const description = req.body.description;
+    const createTime = req.body.createTime;
+    const updateTime = req.body.updateTime;
 
-    Company.updateMany({
+    Company.update({
         _id: id,
         email: email
     }, {
@@ -127,6 +149,7 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
                 status: status,
                 avatar: avatar,
                 description: description,
+                updateTime: updateTime,
             }
         })
         .exec()
@@ -145,6 +168,8 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
                         statusAccount: statusAccount,
                         avatar: avatar,
                         description: description,
+                        createTime: createTime,
+                        updateTime: updateTime,
                     },
                 });
             } else {

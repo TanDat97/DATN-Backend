@@ -11,7 +11,7 @@ const numItem = 30
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    Project.find().sort({'createTime': -1}).skip(page).limit(numItem)
+    Project.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
     .select()
     .exec()
     .then(results => {

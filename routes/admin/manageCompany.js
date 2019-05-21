@@ -15,7 +15,7 @@ const numItem = 30
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    Company.find().skip(page).limit(numItem)
+    Company.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
     .select()
     .exec()
     .then(results => {
@@ -101,6 +101,9 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                         status: 0,
                         avatar: req.body.avatar,
                         description: req.body.description,
+                        createTime: req.body.createTime,
+                        updateTime: req.body.updateTIme,
+                        lock: false,
                         verify: false,
                         hash: 0,
                     });
@@ -173,9 +176,10 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const email = req.body.email;
     const phone = req.body.phone;
     const totalProject = req.body.totalProject;
-    const totalEmployees = req.body.totalEmployees;
     const status = req.body.status;
     const description = req.body.description;
+    const createTime = req.body.createTime;
+    const updateTime= req.body.updateTime;
     Company.update({
         _id: id,
         email: email,
@@ -184,9 +188,9 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
             companyname: companyname,
             address: address,
             phone: phone,
-            totalProject: totalProject,
             status: status,
             description: description,
+            updateTime: updateTime,
         }
     })
     .exec()
@@ -203,6 +207,8 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                     totalProject: totalProject,
                     status: status,
                     description: description,
+                    createTime: createTime,
+                    updateTime: updateTime,
                 },
                 request: {
                     type: 'PATCH',
@@ -231,6 +237,7 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     .exec()
     .then(result => {
         // Project.remove({ownerid: req.params.id}).exec().then(result => console.log('delete project success'))
+        // User.remove({company: req.params.id}).exec().then(result => console.log('delete user success'))
         if(result.n > 0) {
             res.status(200).json({
                 status: 200,
@@ -252,5 +259,37 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
         });
     });
 });
+
+router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
+    Company.update({
+        _id: req.params.id,
+    }, {
+        $set: {
+            lock: req.body.lock,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'change account state success',
+                lock: req.body.lock,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+})
 
 module.exports = router;

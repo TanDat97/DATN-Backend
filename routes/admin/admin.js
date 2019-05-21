@@ -161,7 +161,7 @@ router.post('/login', (req, res, next) => {
                     fullname: admin[0].fullname,
                     address: admin[0].address,
                     status: 'adminaccount',
-                }, 'HS256', {
+                    }, 'HS256', {
                     expiresIn: "5h"
                 });
                 return res.status(200).json({
@@ -180,8 +180,8 @@ router.post('/login', (req, res, next) => {
             return res.status(401).json({
                 status: 401,
                 message: 'Auth failed'
-            });
-        });
+            })
+        })
     })
     .catch(err => {
         console.log(err);
@@ -189,9 +189,9 @@ router.post('/login', (req, res, next) => {
             status: 401,
             message: 'Auth failed',
             error: err,
-        });
-    });
-});
+        })
+    })
+})
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;

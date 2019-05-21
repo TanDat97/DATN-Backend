@@ -27,10 +27,17 @@ const Schema = mongoose.Schema({
         type: Number,
         required: true,
     },
-    totalEmployees: {
-        type: Number,
-        required: true,
-    },
+    employees: [{
+        employee: {
+            type: String,
+            ref: 'User',
+            required: true,
+        },
+        createTime: {
+            type: Number,
+            required: true,
+        },
+    }],
     status: {
         type: Number,
         required: true,

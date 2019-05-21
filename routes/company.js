@@ -9,7 +9,6 @@ const libFunction = require('../lib/function');
 const Company = require('../models/companyModel');
 const User = require('../models/userModel');
 const Project = require('../models/projectModel');
-const SavedProject = require('../models/savedProjectModel');
 
 router.post('/login', (req, res, next) => {
     Company.find({
@@ -127,7 +126,7 @@ router.get('/info', checkAuthCompany, (req, res, next) => {
 router.post('/edit', checkAuthCompany, (req, res, next) => {
     const id = req.companyData.id;
     const email = req.companyData.email;
-    const fullname = req.body.fullname;
+    const companyname = req.body.companyname;
     const address = req.body.address;
     const phone = req.body.phone;
     const totalProject = req.body.totalProject;
@@ -142,7 +141,7 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
         email: email
     }, {
             $set: {
-                fullname: fullname,
+                companyname: companyname,
                 address: address,
                 phone: phone,
                 totalProject: totalProject,
@@ -161,7 +160,7 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
                     user: {
                         _id: id,
                         email: email,
-                        fullname: fullname,
+                        companyname: companyname,
                         address: address,
                         phone: phone,
                         totalProject: totalProject,

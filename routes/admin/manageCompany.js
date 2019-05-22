@@ -69,6 +69,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
 });
 
 router.post('/', checkAuthAdmin, (req, res, next) => {
+    console.log(req.body.updateTime)
     Company.find({
         email: req.body.email,
     })
@@ -102,10 +103,11 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                         avatar: req.body.avatar,
                         description: req.body.description,
                         createTime: req.body.createTime,
-                        updateTime: req.body.updateTIme,
+                        updateTime: req.body.updateTime,
                         lock: false,
                         verify: false,
                         hash: 0,
+                        createBy: req.adminData.id
                     });
                     company.hash = libFunction.hashString(company._id.toString())
                     company

@@ -70,6 +70,10 @@ const Schema = mongoose.Schema({
         type: Number,
         required: true,
     },
+    createBy: {
+        type: String,
+        required: true,
+    }
 });
 
 // Export the model

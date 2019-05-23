@@ -45,7 +45,9 @@ router.post('/signup', (req, res, next) => {
             description: req.body.description,
             totalProject: 0,
             statusAccount: 0,
+            avatar: 'ssssssssssss',
             company: '0',
+            lock: false,
           });
           user
           .save()
@@ -83,7 +85,7 @@ router.post('/login', (req, res, next) => {
   })
   .exec()
   .then(user => {
-    if (user.length < 0) {
+    if (user.length <= 0) {
       return res.status(401).json({
         status: 401,
         message: 'Auth failed email,'
@@ -107,19 +109,26 @@ router.post('/login', (req, res, next) => {
           statusAccount: user[0].statusAccount,
           }, 'shhhhh', {
             expiresIn: "5h"
-          });
-        return res.status(200).json({
-          status: 200,
-          message: 'successful',
-          id: user[0]._id,
-          email: user[0].email,
-          fullname: user[0].fullname,
-          address: user[0].address,
-          description: user[0].description,
-          totalProject: user[0].totalProject,
-          statusAccount: user[0].statusAccount,
-          token: token,
-        })
+        });
+        if(user[0].lock === true) {
+          return res.status(500).json({
+              status: 500,
+              message: 'this account user has been locked',
+          })
+        } else {
+          return res.status(200).json({
+            status: 200,
+            message: 'successful',
+            id: user[0]._id,
+            email: user[0].email,
+            fullname: user[0].fullname,
+            address: user[0].address,
+            description: user[0].description,
+            totalProject: user[0].totalProject,
+            statusAccount: user[0].statusAccount,
+            token: token,
+          })
+        }
       }
       return res.status(401).json({
         status: 401,

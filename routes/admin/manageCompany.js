@@ -69,7 +69,6 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
 });
 
 router.post('/', checkAuthAdmin, (req, res, next) => {
-    console.log(req.body.updateTime)
     Company.find({
         email: req.body.email,
     })
@@ -81,7 +80,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                 message: 'company exists',
             });
         } else {
-            const pass = libFunction.randomPassword(6)
+            const pass = libFunction.randomPassword(10)
             bcrypt.hash(pass, 10, (err, hash) => {
                 if (err) {
                     return res.status(500).json({

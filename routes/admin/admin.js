@@ -32,7 +32,7 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                 message: 'admin exists',
             });
         } else {
-            const pass = libFunction.randomPassword(6)
+            const pass = libFunction.randomPassword(10)
             bcrypt.hash(pass, 10, (err, hash) => {
                 if (err) {
                     return res.status(500).json({

@@ -16,7 +16,7 @@ router.post('/login', (req, res, next) => {
     })
         .exec()
         .then(company => {
-            if (company.length < 0) {
+            if (company.length <= 0) {
                 return res.status(401).json({
                     status: 401,
                     message: 'Auth failed email,'

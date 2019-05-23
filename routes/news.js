@@ -13,7 +13,7 @@ router.get('/all/:type/:page', (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     News.find({
         type: type,
-    }).sort({'createTime': -1}).skip(page).limit(numItem)
+    }).sort({'createTime': -1}).skip(page*numItem).limit(numItem)
     .select()
     .exec()
     .then(results => {

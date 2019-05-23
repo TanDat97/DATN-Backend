@@ -11,7 +11,7 @@ const numItem = 30
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    Project.find().sort({'createTime': -1}).skip(page).limit(numItem)
+    Project.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
     .select()
     .exec()
     .then(results => {
@@ -83,8 +83,10 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         email: req.body.email,
         avatar: req.body.avatar,
         statusProject: req.body.statusProject,
+        amount: req.body.type === 1 ? req.body.amount: 1,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
+        verify: false,
         allowComment: true,
         url: req.body.url,
         publicId: req.body.publicId,
@@ -149,6 +151,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
             email: email,
             // avatar: avatar,
             statusProject: statusProject,
+            amount: req.body.type === 1 ? req.body.amount: 1,
             updateTime: updateTime,
             // url: url,
             // publicId: publicId,
@@ -250,6 +253,38 @@ router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 message: 'change allow comment success',
                 allowComment: req.body.allowComment,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+})
+
+router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
+    Project.update({
+        _id: req.params.id,
+    }, {
+        $set: {
+            verify: req.body.verify,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'change verify success',
+                verify: req.body.verify,
             });
         } else {
             res.status(404).json({

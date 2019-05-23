@@ -67,12 +67,20 @@ var projectSchema = new Schema({
         type: Number,
         required: true,
     },
+    amount:{
+        type: Number,
+        required: true,
+    },
     createTime: {
         type: Number,
         required: true,
     },
     updateTime: {
         type: Number,
+        required: true,
+    },
+    verify: {
+        type: Boolean,
         required: true,
     },
     allowComment : {

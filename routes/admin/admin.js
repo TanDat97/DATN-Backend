@@ -32,7 +32,7 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                 message: 'admin exists',
             });
         } else {
-            const pass = libFunction.randomPassword(6)
+            const pass = libFunction.randomPassword(10)
             bcrypt.hash(pass, 10, (err, hash) => {
                 if (err) {
                     return res.status(500).json({
@@ -47,7 +47,7 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                         address: req.body.address,
                         email: req.body.email,
                         phone: req.body.phone,
-                        createBy: req.userData.id,
+                        createBy: req.adminData.id,
                         createTime: req.body.createTime,
                         verify: false,
                         hash: 0,
@@ -220,7 +220,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
 });
 
 router.post('/edit', checkAuthAdmin, (req, res, next) => {
-    const id = req.userData.id;
+    const id = req.adminData.id;
     const fullname = req.body.fullname;
     const address = req.body.address;
     const email = req.body.email;
@@ -273,8 +273,8 @@ router.post('/edit', checkAuthAdmin, (req, res, next) => {
 
 router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
     Admin.find({
-        email: req.userData.email,
-        _id: req.userData.id,
+        email: req.adminData.email,
+        _id: req.adminData.id,
     })
     .exec()
     .then(admin => {
@@ -300,8 +300,8 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
                         });
                     } else {
                         Admin.update({
-                            email: req.userData.email,
-                            _id: req.userData.id,
+                            email: req.adminData.email,
+                            _id: req.adminData.id,
                         }, {
                             $set: {
                                 password: hash
@@ -313,8 +313,8 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
                                 res.status(200).json({
                                     status: 200,
                                     message: 'Change password success',
-                                    email: req.userData.email,
-                                    _id: req.userData.id,
+                                    email: req.adminData.email,
+                                    _id: req.adminData.id,
                                 });
                             } else {
                                 res.status(404).json({
@@ -352,7 +352,7 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
 });
 
 router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
-    const id = req.userData.id;
+    const id = req.adminData.id;
     const avatar = req.body.avatar;
 
     Admin.update({

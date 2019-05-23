@@ -14,6 +14,7 @@ exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
                 fullname: profile.displayName,
                 address: '',
                 phone:'',
+                description: '',
                 email: profile.emails[0].value,
                 googleProvider: {
                     id: profile.id,
@@ -21,7 +22,9 @@ exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
                 },
                 totalProject:0,
                 statusAccount:0,
-                avatar:profile._json['picture']
+                avatar:profile._json['picture'],
+                company: '0',
+                lock: false,
             });
 
             newUser.save(function(error, savedUser) {

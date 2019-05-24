@@ -58,7 +58,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 mongoose.connect(url,{
-  useNewUrlParser: true
+  useNewUrlParser: true, useFindAndModify: false 
 },function(err){
   if (err) 
     throw err

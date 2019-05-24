@@ -46,8 +46,12 @@ const Schema = mongoose.Schema({
         type: String,
         required: false,
     },
-    commpany: {
+    company: {
         type: String,
+        required: true,
+    },
+    lock: {
+        type: Boolean,
         required: true,
     }
 });

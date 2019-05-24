@@ -50,6 +50,18 @@ const Schema = mongoose.Schema({
         type: String,
         required: false,
     },
+    lock: {
+        type: Boolean,
+        required: true,
+    },
+    createTime: {
+        type: Number,
+        required: true,
+    },
+    updateTime: {
+        type: Number,
+        required: true,
+    },
     verify: {
         type: Boolean,
         required: true,
@@ -58,6 +70,10 @@ const Schema = mongoose.Schema({
         type: Number,
         required: true,
     },
+    createBy: {
+        type: String,
+        required: true,
+    }
 });
 
 // Export the model

@@ -17,7 +17,9 @@ cloudinary.config({
 })
 router.get('/all/:page', (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    Project.find().sort({ 'createTime': -1 }).skip(page).limit(numItem)
+    Project.find({
+        verify: true,
+    }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
         .select()
         .exec()
         .then(results => {
@@ -45,7 +47,9 @@ router.get('/all/:page', (req, res, next) => {
 })
 
 router.post('/home', (req, res, next) => {
-    Project.find()
+    Project.find({
+        verify: true,
+    })
         .select()
         .exec()
         .then(temp => {
@@ -79,6 +83,7 @@ router.post('/searchmap', (req, res, next) => {
     const priceParam = libFunction.convertData(req.body.price)
 
     Project.find({
+        verify: true,
         type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
         statusProject: statusParam,
         area: { $gte: areaParam.start, $lte: areaParam.end },
@@ -155,8 +160,10 @@ router.post('/', checkAuth, (req, res, next) => {
         email: req.body.email,
         avatar: req.body.avatar,
         statusProject: req.body.statusProject,
+        amount: req.body.type === 1 ? req.body.amount: 1,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
+        verify: false,
         allowComment: true,
         url: req.body.url,
         publicId: req.body.publicId,
@@ -198,9 +205,7 @@ const compare = function (arr1, arr2) {
     return finalarray
 }
 router.post('/edit/:id', (req, res, next) => {
-    console.log('ok')
     const id = req.params.id
-    console.log(id)
     const name = req.body.name
     const investor = req.body.investor
     const price = req.body.price
@@ -223,7 +228,8 @@ router.post('/edit/:id', (req, res, next) => {
 
     Project.find({
         _id: id,
-        ownerid: req.userData.id
+        ownerid: req.userData.id,
+        verify: true,
     })
         .exec()
         .then(doc => {
@@ -260,6 +266,7 @@ router.post('/edit/:id', (req, res, next) => {
                 email: email,
                 avatar: avatar,
                 statusProject: statusProject,
+                amount: req.body.type === 1 ? req.body.amount: 1,
                 updateTime: updateTime,
                 url: url,
                 publicId: publicId,
@@ -351,6 +358,7 @@ router.post('/searchprojects', (req, res, next) => {
     const areaParam = libFunction.convertData(req.body.area)
     const priceParam = libFunction.convertData(req.body.price)
     Project.find({
+        verify: true,
         type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
         statusProject: statusParam,
         area: { $gte: areaParam.start, $lte: areaParam.end },
@@ -387,6 +395,7 @@ router.post('/searchaddress', (req, res, next) => {
     const areaParam = libFunction.convertData(req.body.area)
     const priceParam = libFunction.convertData(req.body.price)
     Project.find({
+        verify: true,
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
         address: { $regex: `.*${addressParam}.*` },

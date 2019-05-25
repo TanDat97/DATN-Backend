@@ -425,7 +425,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                         totalProject: 0,
                         statusAccount: 1,
                         avatar: req.body.avatar,
-                        commpany: req.companyData.id,
+                        company: req.companyData.id,
                         lock: false,
                         verify: false,
                         hash: 0,
@@ -437,7 +437,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                     }
                     user.hash = libFunction.hashString(user._id.toString())
                     var link = "http://localhost:3000/verifyemployee/" + user.company + "/" + user._id + "/" + user.hash;
-                    var EmailEmployeeModel = require('../../lib/emailEmployeeModel')
+                    var EmailEmployeeModel = require('../lib/emailEmployeeModel')
                     var emailModel = new EmailEmployeeModel()
                     emailModel.verifyMail(user.email, link, pass)
                     user

@@ -25,6 +25,7 @@ exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
                 avatar:profile._json['picture'],
                 company: '0',
                 lock: false,
+                verify: true,
             });
 
             newUser.save(function(error, savedUser) {

@@ -53,6 +53,14 @@ const Schema = mongoose.Schema({
     lock: {
         type: Boolean,
         required: true,
+    },
+    verify: {
+        type: Boolean,
+        required: true,
+    },
+    hash: {
+        type: Number,
+        required: false,
     }
 });
 

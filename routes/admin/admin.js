@@ -49,42 +49,45 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                         phone: req.body.phone,
                         createBy: req.adminData.id,
                         createTime: req.body.createTime,
+                        avatar: req.body.avatar,
                         verify: false,
-                        hash: 0,
+                        hash: 0,    
                     })
                     admin.hash = libFunction.hashString(admin._id.toString())
                     var link = "http://localhost:3000/verify/" + admin._id + "/" + admin.hash
                     var EmailAdminModel = require('../../lib/emailAdminModel')
                     var emailModel = new EmailAdminModel()
                     emailModel.verifyMail(admin.email, link, pass)
-                    transporter.sendMail(emailModel.mail, function (err, info) {
-                        if (err) {
-                            console.log('signup error, please try again ' + err)
-                            res.status(500).json({
-                                status: 500,
-                                message: 'signup error, please try again',
-                                error: err,
-                            });
-                        } else {
-                            admin
-                            .save()
-                            .then(result => {
+                    admin
+                    .save()
+                    .then(result => {
+                        transporter.sendMail(emailModel.mail, function (err, info) {
+                            if (err) {
+                                console.log('send email error ' + err)
+                                res.status(500).json({
+                                    status: 500,
+                                    message: 'send email error',
+                                    email: admin.email,
+                                    error: err,
+                                })
+                            } else {
                                 res.status(201).json({
                                     status: 201,
                                     message: 'admin created, check email to verify account',
                                     email: admin.email,
                                     info: info.response,
                                 })
-                            })
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).json({
-                                    status: 500,
-                                    error: err
-                                });
-                            });
-                        }
-                    })                 
+                            }
+                        })
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({
+                            status: 500,
+                            error: err
+                        });
+                    });
+                                    
                 }
             })
         }

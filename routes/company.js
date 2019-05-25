@@ -79,45 +79,45 @@ router.post('/resetpassword', (req, res, next) => {
                     var EmailCompanyModel = require('../lib/emailCompanyModel')
                     var emailModel = new EmailCompanyModel()
                     emailModel.resetMail(email, pass)
-                    transporter.sendMail(emailModel.mail, function (err, info) {
-                        if (err) {
-                            console.log('reset error, please try again ' + err)
-                            res.status(500).json({
-                                status: 500,
-                                message: 'reset email error, please try again',
-                                error: err,
-                            });
-                        } else {
-                            Company.update({
-                                email: email
-                            }, {
-                                $set: {
-                                    password: hash,
-                                }
-                            })
-                            .then(result => {
-                                if (result.nModified > 0) {
+                    Company.update({
+                        email: email
+                    }, {
+                        $set: {
+                            password: hash,
+                        }
+                    })
+                    .then(result => {
+                        if (result.nModified > 0) {
+                            transporter.sendMail(emailModel.mail, function (err, info) {
+                                if (err) {
+                                    console.log('send email error ' + err)
+                                    res.status(500).json({
+                                        status: 500,
+                                        message: 'send email error',
+                                        error: err,
+                                    })
+                                } else {
                                     res.status(200).json({
                                         status: 200,
                                         message: 'mail reset password has send, check your email to get new password',
                                         email: email,
                                     })
-                                } else {
-                                    res.status(404).json({
-                                        status: 404,
-                                        message: 'No valid entry found',
-                                    })
                                 }
                             })
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).json({
-                                    status: 500,
-                                    error: err
-                                });
-                            });
+                        } else {
+                            res.status(404).json({
+                                status: 404,
+                                message: 'No valid entry found',
+                            })
                         }
-                    })                 
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({
+                            status: 500,
+                            error: err
+                        })
+                    });              
                 }
             })
         }
@@ -136,115 +136,115 @@ router.post('/login', (req, res, next) => {
         email: req.body.email,
         verify: true,
     })
-        .exec()
-        .then(company => {
-            if (company.length <= 0) {
+    .exec()
+    .then(company => {
+        if (company.length <= 0) {
+            return res.status(401).json({
+                status: 401,
+                message: 'Auth failed email,'
+            });
+        }
+        bcrypt.compare(req.body.password, company[0].password, (err, result) => {
+            if (err) {
                 return res.status(401).json({
                     status: 401,
-                    message: 'Auth failed email,'
+                    message: 'Auth failed password'
                 });
             }
-            bcrypt.compare(req.body.password, company[0].password, (err, result) => {
-                if (err) {
-                    return res.status(401).json({
-                        status: 401,
-                        message: 'Auth failed password'
+            if (result) {
+                const token = jwt.sign({
+                    id: company[0]._id,
+                    email: company[0].email,
+                    companyname: company[0].companyname,
+                    address: company[0].address,
+                    phone: company[0].phone,
+                    totalProject: company[0].totalProject,
+                    employess: company[0].employess,
+                    status: company[0].status,
+                }, 'shhhhh', {
+                        expiresIn: "5h"
                     });
-                }
-                if (result) {
-                    const token = jwt.sign({
+
+                if(company[0].lock === true) {
+                    return res.status(500).json({
+                        status: 500,
+                        message: 'this account company has been locked',
+                    })
+                } else {
+                    return res.status(200).json({
+                        status: 200,
+                        message: 'successful',
                         id: company[0]._id,
                         email: company[0].email,
                         companyname: company[0].companyname,
                         address: company[0].address,
-                        phone: company[0].phone,
                         totalProject: company[0].totalProject,
-                        employess: company[0].employess,
                         status: company[0].status,
-                    }, 'shhhhh', {
-                            expiresIn: "5h"
-                        });
-
-                    if(company[0].lock === true) {
-                        return res.status(500).json({
-                            status: 500,
-                            message: 'this account company has been locked',
-                        })
-                    } else {
-                        return res.status(200).json({
-                            status: 200,
-                            message: 'successful',
-                            id: company[0]._id,
-                            email: company[0].email,
-                            companyname: company[0].companyname,
-                            address: company[0].address,
-                            totalProject: company[0].totalProject,
-                            status: company[0].status,
-                            avatar: company[0].avatar,
-                            employess: company[0].employess,
-                            description: company[0].description,
-                            createTime: company[0].createTime,
-                            updateTime: company[0].updateTime,
-                            verify: company[0].verify,
-                            token: token,
-                        })
-                    }
+                        avatar: company[0].avatar,
+                        employess: company[0].employess,
+                        description: company[0].description,
+                        createTime: company[0].createTime,
+                        updateTime: company[0].updateTime,
+                        verify: company[0].verify,
+                        token: token,
+                    })
                 }
-                return res.status(401).json({
-                    status: 401,
-                    message: 'Auth failed'
-                });
-            });
-        })
-        .catch(err => {
-            console.log(err);
+            }
             return res.status(401).json({
                 status: 401,
-                message: 'Auth failed',
-                error: err
+                message: 'Auth failed'
             });
         });
+    })
+    .catch(err => {
+        console.log(err);
+        return res.status(401).json({
+            status: 401,
+            message: 'Auth failed',
+            error: err
+        });
+    });
 });
 
 router.get('/info', checkAuthCompany, (req, res, next) => {
     const id = req.companyData.id;
     Company.findById(id)
-        .populate({
-            path: 'employees.employee'
-        })
-        .exec()
-        .then(result => {
-            if(result.lock === true) {
-                return res.status(500).json({
-                    status: 500,
-                    message: 'this account company has been locked',
-                })
-            } else {
-                res.status(200).json({
-                    status: 200,
-                    message: 'successful',
-                    id: result._id,
-                    email: result.email,
-                    fullname: result.fullname,
-                    address: result.address,
-                    phone: result.phone,
-                    totalProject: result.totalProject,
-                    employees: result.employees,
-                    status: result.status,
-                    avatar: result.avatar,
-                    description: result.description,
-                    createTime: result.createTime,
-                    updateTime: result.updateTime,
-                });
-            }        
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
+    .populate({
+        path: 'employees.employee'
+    })
+    .exec()
+    .then(result => {
+        if(result.lock === true) {
+            return res.status(500).json({
                 status: 500,
-                error: err
+                message: 'this account company has been locked',
+            })
+        } else {
+            res.status(200).json({
+                status: 200,
+                message: 'successful',
+                id: result._id,
+                email: result.email,
+                companyname: result.companyname,
+                address: result.address,
+                phone: result.phone,
+                totalProject: result.totalProject,
+                employees: result.employees,
+                status: result.status,
+                avatar: result.avatar,
+                description: result.description,
+                createTime: result.createTime,
+                updateTime: result.updateTime,
             });
+        }        
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
         });
+    });
 });
 
 router.post('/edit', checkAuthCompany, (req, res, next) => {
@@ -265,192 +265,194 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
         email: email,
         verify: true,
     }, {
-            $set: {
-                companyname: companyname,
-                address: address,
-                phone: phone,
-                totalProject: totalProject,
-                status: status,
-                avatar: avatar,
-                description: description,
-                updateTime: updateTime,
-            }
-        })
-        .exec()
-        .then(result => {
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: 'update company success',
-                    user: {
-                        _id: id,
-                        email: email,
-                        companyname: companyname,
-                        address: address,
-                        phone: phone,
-                        totalProject: totalProject,
-                        statusAccount: statusAccount,
-                        avatar: avatar,
-                        description: description,
-                        createTime: createTime,
-                        updateTime: updateTime,
-                    },
-                });
+        $set: {
+            companyname: companyname,
+            address: address,
+            phone: phone,
+            totalProject: totalProject,
+            status: status,
+            avatar: avatar,
+            description: description,
+            updateTime: updateTime,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'update company success',
+                user: {
+                    _id: id,
+                    email: email,
+                    companyname: companyname,
+                    address: address,
+                    phone: phone,
+                    totalProject: totalProject,
+                    statusAccount: statusAccount,
+                    avatar: avatar,
+                    description: description,
+                    createTime: createTime,
+                    updateTime: updateTime,
+                },
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+                result: result,
+            });
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+});
+
+router.post('/addemployee', checkAuthCompany, (req, res, next) => {
+    User.find({
+        email: req.body.email,
+    })
+    .exec()
+    .then(user => {
+        if (user.length >= 1) {
+            return res.status(409).json({
+                status: 409,
+                message: 'user exists',
+            })
+        } else {
+            const pass = libFunction.randomPassword(10)
+            bcrypt.hash(pass, 10, (err, hash) => {
+                if (err) {
+                    return res.status(500).json({
+                        status: 500,
+                        error: err,
+                    })
+                } else {
+                    const user = User({
+                        _id: new mongoose.Types.ObjectId(),
+                        password: hash,
+                        fullname: req.body.fullname,
+                        address: req.body.address,
+                        phone: req.body.phone,
+                        description: req.body.description,
+                        email: req.body.email,
+                        totalProject: 0,
+                        statusAccount: 1,
+                        avatar: req.body.avatar,
+                        commpany: req.companyData.id,
+                        lock: false,
+                        verify: false,
+                        hash: 0,
+
+                    });
+                    const employeeTemp = {
+                        employee: user._id,
+                        createTime: req.body.createTime
+                    }
+                    user.hash = libFunction.hashString(user._id.toString())
+                    var link = "http://localhost:3000/verifyemployee/" + user.company + "/" + user._id + "/" + user.hash;
+                    var EmailEmployeeModel = require('../../lib/emailEmployeeModel')
+                    var emailModel = new EmailEmployeeModel()
+                    emailModel.verifyMail(user.email, link, pass)
+                    user
+                    .save()
+                    .then(result => {
+                        Company.findOneAndUpdate({ _id: req.companyData.id }, { $push: { employees: employeeTemp }})
+                        .exec()
+                        .then(resultUpdate => {
+                            transporter.sendMail(emailModel.mail, function (err, info) {
+                                if (err) {
+                                    console.log('send email error ' + err)
+                                    res.status(500).json({
+                                        status: 500,
+                                        message: 'send email error',
+                                        employee: user,
+                                        error: err,
+                                    })
+                                } else {
+                                    res.status(201).json({
+                                        status: 201,
+                                        message: 'employee created in company',
+                                        employee: user,
+                                        info: info.response,
+                                    }) 
+                                }
+                            })
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).json({
+                                status: 500,
+                                message: 'Update Company Error',
+                                error: err
+                            });
+                        })
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({
+                            status: 500,
+                            message: 'Insert User Error',
+                            error: err
+                        });
+                    })
+                }
+            })
+        }
+    })
+});
+
+router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
+    Company.find({
+        _id: req.companyData.id,
+        email: req.companyData.email,
+        verify: true,
+    })
+    .exec()
+    .then(datacompany => {
+        if (datacompany.length > 0) {
+            const found = datacompany[0].employees.some(element => {
+                return element.employee === req.body.idEmployee;
+            });
+            if (found === true) {
+                Company.findOneAndUpdate({ _id: req.companyData.id }, { $pull: { employees: { employee: req.body.idEmployee }}})
+                .exec()
+                .then(
+                    User.findByIdAndRemove({
+                        _id: req.body.idEmployee
+                    })
+                    .exec()
+                    .then(
+                        res.status(201).json({
+                            status: 201,
+                            message: 'employee has been deleted',
+                        })
+                    )
+                )
             } else {
                 res.status(404).json({
                     status: 404,
-                    message: 'No valid entry found',
-                    result: result,
-                });
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                error: err
-            });
-        });
-});
-router.post('/addEmployee', checkAuthCompany, (req, res, next) => {
-    console.log(req.body.emailEmployee)
-    User.find({
-        email: req.body.emailEmployee,
-    })
-        .exec()
-        .then(user => {
-            if (user.length >= 1) {
-                return res.status(409).json({
-                    status: 409,
-                    message: 'user exists',
-                })
-            } else {
-                bcrypt.hash(req.body.password, 10, (err, hash) => {
-                    if (err) {
-                        return res.status(500).json({
-                            status: 500,
-                            error: err,
-                        })
-                    } else {
-                        const user = User({
-                            _id: new mongoose.Types.ObjectId(),
-                            password: hash,
-                            fullname: req.body.fullname,
-                            address: req.body.address,
-                            email: req.body.emailEmployee,
-                            phone: req.body.phone,
-                            description: req.body.description,
-                            totalProject: 0,
-                            statusAccount: 1,
-                            commpany: req.companyData.id
-                        });
-                        const employeeTemp = {
-                            employee: user._id,
-                            createTime: req.body.createTime
-                        }
-                        console.log(employeeTemp)
-                        user
-                            .save()
-                            .then(result => {
-
-                                Company.findOneAndUpdate({
-                                    _id: req.companyData.id
-                                }, {
-                                        $push: {
-                                            employees: employeeTemp
-                                        }
-                                    })
-                                    .exec()
-                                    .then(resultUpdate => {
-                                        res.status(201).json({
-                                            status: 201,
-                                            message: 'employee created in company',
-                                            // email: result.email,
-                                            // // id: result._id,
-                                        })
-                                    })
-                                    .catch(err => {
-                                        console.log(err);
-                                        res.status(500).json({
-                                            status: 500,
-                                            message: 'Update Company Error',
-                                            error: err
-                                        });
-                                    })
-                            })
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).json({
-                                    status: 500,
-                                    message: 'Insert User Error',
-                                    error: err
-                                });
-                            })
-                    }
+                    message: 'Employee does not exist'
                 })
             }
-        })
-});
-router.post('/deleteEmployee', checkAuthCompany, (req, res, next) => {
-    console.log(req.body.idEmployee);
-    // console.log(req.companyData);
-    Company.find({
-        _id: req.companyData.id,
-        email: req.companyData.email
+        }
     })
-        .exec()
-        .then(datacompany => {
-            // console.log(datacompany[0].employees[1])
-            if (datacompany.length > 0) {
-                const found = datacompany[0].employees.some(element => {
-                    return element.employee === req.body.idEmployee;
-                });
-                console.log(found);
-                if (found === true) {
-                    Company.findOneAndUpdate({
-                        _id: req.companyData.id
-                    }, {
-                            $pull: {
-                                employees: {
-                                    employee: req.body.idEmployee
-                                }
-                            }
-                        })
-                        .exec()
-                        .then(
-                            User.findByIdAndRemove({
-                                _id: req.body.idEmployee
-                            })
-                                .exec()
-                                .then(
-                                    res.status(201).json({
-                                        status: 201,
-                                        message: 'employee has been deleted',
-                                        // email: result.email,
-                                        // // id: result._id,
-                                    })
-                                )
-
-                        )
-                } else {
-                    res.status(204).json({
-                        status: 204,
-                        message: 'Employee does not exist'
-                    })
-                }
-            }
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            message: 'Delete Employee Error'
         })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                message: 'Delete Employee Error'
-            })
-        })
+    })
 });
-router.post('/editEmployee', checkAuthCompany, (req, res, next) => {
-    console.log(req.body.idEmployee);
-    const id = req.body.idEmployee;
+
+router.post('/editemployee', checkAuthCompany, (req, res, next) => {
+    const id = req.body.id;
     const email= req.body.email;
     const fullname = req.body.fullname;
     const address = req.body.address;
@@ -459,52 +461,79 @@ router.post('/editEmployee', checkAuthCompany, (req, res, next) => {
     const statusAccount = req.body.statusAccount;
     const avatar = req.body.avatar;
     const description = req.body.description;
-    bcrypt.hash(req.body.password, 10, (err, hash) => {
-        if (err) {
-            return res.status(500).json({
-                status: 500,
-                error: err,
-            })
-        }
-        else{ const password = hash}
-    })
-
-    // console.log(req.companyData);
     User.updateMany({
         _id: id,
-    },{$set :{
         email: email,
-        fullname: fullname,
-        address: address,
-        phone: phone,
-        totalProject: totalProject,
-        statusAccount: statusAccount,
-        avatar: avatar,
-        description: description,
-        password: password,
-    }})
-        .exec()
-        .then(result=>{
-            if(result.nModified>0){
-                res.status(200).json({
-                    status:200,
-                    message:'update employee success'
-                });
-            }
-            else{
-                res.status(404).json({
-                    status:404,
-                    message:'No valid entry found'
-                });
-            }
+    },{
+        $set :{
+            fullname: fullname,
+            address: address,
+            phone: phone,
+            totalProject: totalProject,
+            statusAccount: statusAccount,
+            avatar: avatar,
+            description: description,
+        }
+    })
+    .exec()
+    .then(result => {
+        if(result.nModified>0){
+            res.status(200).json({
+                status:200,
+                message:'update employee success'
+            });
+        }
+        else{
+            res.status(404).json({
+                status:404,
+                message:'No valid entry found'
+            });
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            message: 'Edit Employee Error'
         })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                message: 'Edit Employee Error'
+    })
+})
+
+router.post('/verifyemloyee', (req, res, next) => {
+    const id = req.body.id
+    const company = req.body.company
+    const hash = req.body.hash
+    Company.update({
+        _id: id,
+        hash: hash,
+        company: company,
+        verify: false,
+    }, {
+        $set: {
+            verify: true,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'verify employee account success, please login',
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
             })
-        })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
 })
 
 module.exports = router;

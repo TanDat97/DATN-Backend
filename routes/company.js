@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require("nodemailer");
 
 const checkAuthCompany = require('../middleware/checkAuthCompany');
 const libFunction = require('../lib/function');
@@ -10,9 +11,130 @@ const Company = require('../models/companyModel');
 const User = require('../models/userModel');
 const Project = require('../models/projectModel');
 
+var transporter = nodemailer.createTransport({ // config mail server
+    service: 'Gmail',
+    auth: {
+        user: 'trandat.sgg@gmail.com',
+        pass: 'datdeptrai',
+    }
+});
+
+router.post('/verifycompany', (req, res, next) => {
+    const id = req.body.id
+    const hash = req.body.hash
+    Company.update({
+        _id: id,
+        hash: hash,
+        verify: false,
+    }, {
+        $set: {
+            verify: true,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'verify company account success, please login',
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+})
+
+router.post('/resetpassword', (req, res, next) => {
+    const email = req.body.email
+    Company.find({
+        email: email,
+        verify: true,
+    })
+    .exec()
+    .then(company=>{
+        if (company.length <= 0) {
+            return res.status(404).json({
+                status: 404,
+                message: 'your account does not exists',
+            });
+        } else {
+            const pass = libFunction.randomPassword(10)
+            bcrypt.hash(pass, 10, (err, hash) => {
+                if (err) {
+                    return res.status(500).json({
+                        status: 500,
+                        error: err,
+                    });
+                } else {
+                    var EmailCompanyModel = require('../lib/emailCompanyModel')
+                    var emailModel = new EmailCompanyModel()
+                    emailModel.resetMail(email, pass)
+                    transporter.sendMail(emailModel.mail, function (err, info) {
+                        if (err) {
+                            console.log('reset error, please try again ' + err)
+                            res.status(500).json({
+                                status: 500,
+                                message: 'reset email error, please try again',
+                                error: err,
+                            });
+                        } else {
+                            Company.update({
+                                email: email
+                            }, {
+                                $set: {
+                                    password: hash,
+                                }
+                            })
+                            .then(result => {
+                                if (result.nModified > 0) {
+                                    res.status(200).json({
+                                        status: 200,
+                                        message: 'mail reset password has send, check your email to get new password',
+                                        email: email,
+                                    })
+                                } else {
+                                    res.status(404).json({
+                                        status: 404,
+                                        message: 'No valid entry found',
+                                    })
+                                }
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).json({
+                                    status: 500,
+                                    error: err
+                                });
+                            });
+                        }
+                    })                 
+                }
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    })
+})
+
 router.post('/login', (req, res, next) => {
     Company.find({
-        email: req.body.email
+        email: req.body.email,
+        verify: true,
     })
         .exec()
         .then(company => {
@@ -138,7 +260,8 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
 
     Company.update({
         _id: id,
-        email: email
+        email: email,
+        verify: true,
     }, {
             $set: {
                 companyname: companyname,

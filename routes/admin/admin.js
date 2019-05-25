@@ -53,13 +53,13 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                         hash: 0,
                     })
                     admin.hash = libFunction.hashString(admin._id.toString())
-                    var link = "http://localhost:3000/verify/" + admin._id + "/" + admin.hash;
-                    var EmailAdminModel = require('../../lib/emailAdminModel');
-                    var emailModel = new EmailAdminModel();
-                    emailModel.verifyMail(admin.email, link, pass);
+                    var link = "http://localhost:3000/verify/" + admin._id + "/" + admin.hash
+                    var EmailAdminModel = require('../../lib/emailAdminModel')
+                    var emailModel = new EmailAdminModel()
+                    emailModel.verifyMail(admin.email, link, pass)
                     transporter.sendMail(emailModel.mail, function (err, info) {
                         if (err) {
-                            console.log('signup error, please try again ' + err);
+                            console.log('signup error, please try again ' + err)
                             res.status(500).json({
                                 status: 500,
                                 message: 'signup error, please try again',
@@ -230,6 +230,7 @@ router.post('/edit', checkAuthAdmin, (req, res, next) => {
     Admin.update({
         _id: id,
         email:email,
+        verify: true,
     }, {
         $set: {
             fullname: fullname,
@@ -275,6 +276,7 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
     Admin.find({
         email: req.adminData.email,
         _id: req.adminData.id,
+        verify: true,
     })
     .exec()
     .then(admin => {
@@ -357,6 +359,7 @@ router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
 
     Admin.update({
         _id: id,
+        verify: true,
     }, {
         $set: {
             avatar: avatar,

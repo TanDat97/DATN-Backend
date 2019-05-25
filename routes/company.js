@@ -209,7 +209,9 @@ router.post('/login', (req, res, next) => {
 router.get('/info', checkAuthCompany, (req, res, next) => {
     const id = req.companyData.id;
     Company.findById(id)
-        .populate({path:'employees.employee'})
+        .populate({
+            path: 'employees.employee'
+        })
         .exec()
         .then(result => {
             if(result.lock === true) {
@@ -310,5 +312,199 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
             });
         });
 });
+router.post('/addEmployee', checkAuthCompany, (req, res, next) => {
+    console.log(req.body.emailEmployee)
+    User.find({
+        email: req.body.emailEmployee,
+    })
+        .exec()
+        .then(user => {
+            if (user.length >= 1) {
+                return res.status(409).json({
+                    status: 409,
+                    message: 'user exists',
+                })
+            } else {
+                bcrypt.hash(req.body.password, 10, (err, hash) => {
+                    if (err) {
+                        return res.status(500).json({
+                            status: 500,
+                            error: err,
+                        })
+                    } else {
+                        const user = User({
+                            _id: new mongoose.Types.ObjectId(),
+                            password: hash,
+                            fullname: req.body.fullname,
+                            address: req.body.address,
+                            email: req.body.emailEmployee,
+                            phone: req.body.phone,
+                            description: req.body.description,
+                            totalProject: 0,
+                            statusAccount: 1,
+                            commpany: req.companyData.id
+                        });
+                        const employeeTemp = {
+                            employee: user._id,
+                            createTime: req.body.createTime
+                        }
+                        console.log(employeeTemp)
+                        user
+                            .save()
+                            .then(result => {
+
+                                Company.findOneAndUpdate({
+                                    _id: req.companyData.id
+                                }, {
+                                        $push: {
+                                            employees: employeeTemp
+                                        }
+                                    })
+                                    .exec()
+                                    .then(resultUpdate => {
+                                        res.status(201).json({
+                                            status: 201,
+                                            message: 'employee created in company',
+                                            // email: result.email,
+                                            // // id: result._id,
+                                        })
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                        res.status(500).json({
+                                            status: 500,
+                                            message: 'Update Company Error',
+                                            error: err
+                                        });
+                                    })
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).json({
+                                    status: 500,
+                                    message: 'Insert User Error',
+                                    error: err
+                                });
+                            })
+                    }
+                })
+            }
+        })
+});
+router.post('/deleteEmployee', checkAuthCompany, (req, res, next) => {
+    console.log(req.body.idEmployee);
+    // console.log(req.companyData);
+    Company.find({
+        _id: req.companyData.id,
+        email: req.companyData.email
+    })
+        .exec()
+        .then(datacompany => {
+            // console.log(datacompany[0].employees[1])
+            if (datacompany.length > 0) {
+                const found = datacompany[0].employees.some(element => {
+                    return element.employee === req.body.idEmployee;
+                });
+                console.log(found);
+                if (found === true) {
+                    Company.findOneAndUpdate({
+                        _id: req.companyData.id
+                    }, {
+                            $pull: {
+                                employees: {
+                                    employee: req.body.idEmployee
+                                }
+                            }
+                        })
+                        .exec()
+                        .then(
+                            User.findByIdAndRemove({
+                                _id: req.body.idEmployee
+                            })
+                                .exec()
+                                .then(
+                                    res.status(201).json({
+                                        status: 201,
+                                        message: 'employee has been deleted',
+                                        // email: result.email,
+                                        // // id: result._id,
+                                    })
+                                )
+
+                        )
+                } else {
+                    res.status(204).json({
+                        status: 204,
+                        message: 'Employee does not exist'
+                    })
+                }
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                status: 500,
+                message: 'Delete Employee Error'
+            })
+        })
+});
+router.post('/editEmployee', checkAuthCompany, (req, res, next) => {
+    console.log(req.body.idEmployee);
+    const id = req.body.idEmployee;
+    const email= req.body.email;
+    const fullname = req.body.fullname;
+    const address = req.body.address;
+    const phone = req.body.phone;
+    const totalProject = req.body.totalProject;
+    const statusAccount = req.body.statusAccount;
+    const avatar = req.body.avatar;
+    const description = req.body.description;
+    bcrypt.hash(req.body.password, 10, (err, hash) => {
+        if (err) {
+            return res.status(500).json({
+                status: 500,
+                error: err,
+            })
+        }
+        else{ const password = hash}
+    })
+
+    // console.log(req.companyData);
+    User.updateMany({
+        _id: id,
+    },{$set :{
+        email: email,
+        fullname: fullname,
+        address: address,
+        phone: phone,
+        totalProject: totalProject,
+        statusAccount: statusAccount,
+        avatar: avatar,
+        description: description,
+        password: password,
+    }})
+        .exec()
+        .then(result=>{
+            if(result.nModified>0){
+                res.status(200).json({
+                    status:200,
+                    message:'update employee success'
+                });
+            }
+            else{
+                res.status(404).json({
+                    status:404,
+                    message:'No valid entry found'
+                });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                status: 500,
+                message: 'Edit Employee Error'
+            })
+        })
+})
 
 module.exports = router;

@@ -489,6 +489,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
 });
 
 router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
+    const id = req.body.id
     Company.find({
         _id: req.companyData.id,
         email: req.companyData.email,
@@ -498,19 +499,19 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
     .then(datacompany => {
         if (datacompany.length > 0) {
             const found = datacompany[0].employees.some(element => {
-                return element.employee === req.body.idEmployee;
+                return element.employee === id;
             });
             if (found === true) {
-                Company.findOneAndUpdate({ _id: req.companyData.id }, { $pull: { employees: { employee: req.body.idEmployee }}})
+                Company.findOneAndUpdate({ _id: req.companyData.id }, { $pull: { employees: { employee: id }}})
                 .exec()
                 .then(
                     User.findByIdAndRemove({
-                        _id: req.body.idEmployee
+                        _id: id
                     })
                     .exec()
                     .then(
-                        res.status(201).json({
-                            status: 201,
+                        res.status(200).json({
+                            status: 200,
                             message: 'employee has been deleted',
                         })
                     )

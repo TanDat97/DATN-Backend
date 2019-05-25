@@ -78,7 +78,7 @@ router.post('/resetpassword', (req, res, next) => {
                         error: err,
                     });
                 } else {
-                    var EmailEmployeeModel = require('../../lib/emailEmployeeModel')
+                    var EmailEmployeeModel = require('../lib/emailEmployeeModel')
                     var emailModel = new EmailEmployeeModel()
                     emailModel.resetMail(email, pass)
                     User.update({

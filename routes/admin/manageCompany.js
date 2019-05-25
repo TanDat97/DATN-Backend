@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const nodemailer = require("nodemailer");
 
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
 const libFunction = require('../../lib/function');
@@ -12,6 +12,13 @@ const Project = require('../../models/projectModel');
 const Comment = require('../../models/commentModel');
 
 const numItem = 30
+var transporter = nodemailer.createTransport({ // config mail server
+    service: 'Gmail',
+    auth: {
+        user: 'trandat.sgg@gmail.com',
+        pass: 'datdeptrai',
+    }
+});
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
@@ -97,66 +104,51 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                         email: req.body.email,
                         phone: req.body.phone,
                         totalProject: 0,
-                        totalEmployees: [],
                         status: 0,
                         avatar: req.body.avatar,
                         description: req.body.description,
                         createTime: req.body.createTime,
                         updateTime: req.body.updateTime,
+                        createBy: req.adminData.id,
                         lock: false,
                         verify: false,
                         hash: 0,
-                        createBy: req.adminData.id
+                        employees: [],
                     });
                     company.hash = libFunction.hashString(company._id.toString())
+                    var link = "http://localhost:3000/verifycompany/" + company._id + "/" + company.hash;
+                    var EmailCompanyModel = require('../../lib/emailCompanyModel')
+                    var emailModel = new EmailCompanyModel()
+                    emailModel.verifyMail(company.email, link, pass)
                     company
                     .save()
                     .then(result => {
-                        res.status(201).json({
-                            status: 201,
-                            message: 'add company success',
-                            company: result,
-                        });
+                        transporter.sendMail(emailModel.mail, function (err, info) {
+                            if (err) {
+                                console.log('send email error ' + err)
+                                res.status(500).json({
+                                    status: 500,
+                                    message: 'send email error',
+                                    email: company.email,
+                                    error: err,
+                                })
+                            } else {
+                                res.status(201).json({
+                                    status: 201,
+                                    message: 'company created, check email to verify account',
+                                    email: company.email,
+                                    info: info.response,
+                                }) 
+                            }
+                        })
                     })
                     .catch(err => {
                         console.log(err);
                         res.status(500).json({
                             status: 500,
-                            error: err,
+                            error: err
                         });
-                    });
-                    // var link = "http://localhost:3000/verifycompany/" + company._id + "/" + company.hash;
-                    // var EmailCompanyModel = require('../../lib/emailCompanyModel');
-                    // var emailModel = new EmailCompanyModel();
-                    // emailModel.verifyMail(admin.email, link);
-                    // transporter.sendMail(emailModel.mail, function (err, info) {
-                    //     if (err) {
-                    //         console.log('signup error, please try again ' + err);
-                    //         res.status(500).json({
-                    //             status: 500,
-                    //             message: 'signup error, please try again',
-                    //             error: err,
-                    //         });
-                    //     } else {
-                    //         company
-                    //         .save()
-                    //         .then(result => {
-                    //             res.status(201).json({
-                    //                 status: 201,
-                    //                 message: 'company created, check email to verify account',
-                    //                 email: company.email,
-                    //                 info: info.response,
-                    //             })
-                    //         })
-                    //         .catch(err => {
-                    //             console.log(err);
-                    //             res.status(500).json({
-                    //                 status: 500,
-                    //                 error: err
-                    //             });
-                    //         });
-                    //     }
-                    // })                 
+                    });                
                 }
             })
         }

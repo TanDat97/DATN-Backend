@@ -40,14 +40,15 @@ router.post('/signup', (req, res, next) => {
             password: hash,
             fullname: req.body.fullname,
             address: req.body.address,
-            email: req.body.email,
             phone: req.body.phone,
             description: req.body.description,
+            email: req.body.email,
             totalProject: 0,
             statusAccount: 0,
             avatar: 'ssssssssssss',
             company: '0',
             lock: false,
+            verify: true,
           });
           user
           .save()
@@ -81,7 +82,8 @@ router.post('/signup', (req, res, next) => {
 
 router.post('/login', (req, res, next) => {
   User.find({
-    email: req.body.email
+    email: req.body.email,
+    verify: true,
   })
   .exec()
   .then(user => {
@@ -183,10 +185,10 @@ router.post('/edit', checkAuth, (req, res, next) => {
   const statusAccount = req.body.statusAccount;
   const avatar = req.body.avatar;
   const description = req.body.description;
-
   User.updateMany({
     _id: id,
-    email: email
+    email: email,
+    verify: true,
   }, {
     $set: {
       fullname: fullname,

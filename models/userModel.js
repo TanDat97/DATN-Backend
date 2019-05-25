@@ -40,7 +40,7 @@ const Schema = mongoose.Schema({
     },
     avatar: {
         type: String,
-        required: true,
+        required: false,
     },
     description: {
         type: String,
@@ -53,6 +53,14 @@ const Schema = mongoose.Schema({
     lock: {
         type: Boolean,
         required: true,
+    },
+    verify: {
+        type: Boolean,
+        required: true,
+    },
+    hash: {
+        type: Number,
+        required: false,
     }
 });
 

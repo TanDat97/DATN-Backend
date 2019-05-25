@@ -158,4 +158,36 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     });
 });
 
+router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
+    User.update({
+        _id: req.params.id,
+    }, {
+        $set: {
+            lock: req.body.lock,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'change account state success',
+                lock: req.body.lock,
+            });
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        });
+    });
+})
+
 module.exports = router;

@@ -131,6 +131,87 @@ router.post('/resetpassword', (req, res, next) => {
     })
 })
 
+router.post('/changepassword', checkAuthCompany, (req, res, next) => {
+    Company.find({
+        email: req.companyData.email,
+        _id: req.companyData.id,
+        verify: true,
+    })
+    .exec()
+    .then(company => {
+        if (company.length <= 0) {
+            return res.status(401).json({
+                status: 401,
+                message: 'Account not found'
+            });
+        }
+        bcrypt.compare(req.body.currentPassword, company[0].password, (err, result) => {
+            if (err) {
+                return res.status(40).json({
+                    status: 401,
+                    message: 'Change password failed 1',
+                });
+            }
+            if (result) {
+                bcrypt.hash(req.body.newPassword, 10, (err, hash) => {
+                    if (err) {
+                        return res.status(500).json({
+                            status: 500,
+                            error: err,
+                        });
+                    } else {
+                        Company.update({
+                            email: req.companyData.email,
+                            _id: req.companyData.id,
+                        }, {
+                            $set: {
+                                password: hash
+                            }
+                        })
+                        .exec()
+                        .then(result => {
+                            if (result.nModified > 0) {
+                                res.status(200).json({
+                                    status: 200,
+                                    message: 'Change password success',
+                                    email: req.companyData.email,
+                                    _id: req.companyData.id,
+                                });
+                            } else {
+                                res.status(404).json({
+                                    status: 404,
+                                    message: 'Change password failed 2'
+                                })
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).json({
+                                status: 500,
+                                error: err,
+                                message: 'Change password failed 3',
+                            });
+                        });     
+                    }
+                }) 
+            } else {
+                return res.status(401).json({
+                    status: 401,
+                    message: 'Change password failed 4',
+                });
+            }
+        });
+    })
+    .catch(err => {
+        console.log(err);
+        return res.status(401).json({
+            status: 401,
+            error: err,
+            message: 'Change password failed 5',
+        });
+    });
+});
+
 router.post('/login', (req, res, next) => {
     Company.find({
         email: req.body.email,
@@ -477,13 +558,12 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     })
     .exec()
     .then(result => {
-        if(result.nModified>0){
+        if(result.nModified > 0){
             res.status(200).json({
                 status:200,
                 message:'update employee success'
             });
-        }
-        else{
+        } else {
             res.status(404).json({
                 status:404,
                 message:'No valid entry found'
@@ -499,18 +579,12 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     })
 })
 
-router.post('/verifyemloyee', (req, res, next) => {
-    const id = req.body.id
-    const company = req.body.company
-    const hash = req.body.hash
-    Company.update({
-        _id: id,
-        hash: hash,
-        company: company,
-        verify: false,
+router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
+    User.update({
+        _id: req.body.id,
     }, {
         $set: {
-            verify: true,
+            lock: req.body.lock,
         }
     })
     .exec()
@@ -518,12 +592,13 @@ router.post('/verifyemloyee', (req, res, next) => {
         if (result.nModified > 0) {
             res.status(200).json({
                 status: 200,
-                message: 'verify employee account success, please login',
+                message: 'change account state success',
+                lock: req.body.lock,
             });
         } else {
             res.status(404).json({
                 status: 404,
-                message: 'No valid entry found',
+                message: 'No valid entry found'
             })
         }
     })

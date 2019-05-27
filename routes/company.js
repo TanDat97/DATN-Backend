@@ -142,7 +142,7 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
         if (company.length <= 0) {
             return res.status(401).json({
                 status: 401,
-                message: 'Account not found'
+                message: 'Account not found',
             });
         }
         bcrypt.compare(req.body.currentPassword, company[0].password, (err, result) => {
@@ -566,8 +566,8 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
             });
         } else {
             res.status(404).json({
-                status:404,
-                message:'No valid entry found'
+                status: 404,
+                message:'No valid entry found',
             });
         }
     })
@@ -599,7 +599,7 @@ router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
         } else {
             res.status(404).json({
                 status: 404,
-                message: 'No valid entry found'
+                message: 'No valid entry found',
             })
         }
     })

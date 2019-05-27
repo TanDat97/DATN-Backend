@@ -304,12 +304,12 @@ router.post('/edit/:id', (req, res, next) => {
             } else {
                 res.status(404).json({
                     status: 404,
-                    message: 'No valid entry found'
+                    message: 'No valid entry found',
                 })
             }
         })
         .catch(err => {
-            // console.log(err)
+            console.log(err)
             res.status(500).json({
                 status: 500,
                 error: err
@@ -337,7 +337,7 @@ router.delete('/:id', checkAuth, (req, res, next) => {
             } else {
                 res.status(404).json({
                     status: 404,
-                    message: 'No valid entry found'
+                    message: 'No valid entry found',
                 })
             }
         })

@@ -144,7 +144,7 @@ router.post('/changepassword', checkAuth, (req, res, next) => {
         if (user.length <= 0) {
             return res.status(401).json({
                 status: 401,
-                message: 'Account not found'
+                message: 'Account not found',
             });
         }
         bcrypt.compare(req.body.currentPassword, user[0].password, (err, result) => {

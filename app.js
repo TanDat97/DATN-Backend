@@ -29,6 +29,7 @@ const employeeRouter = require('./routes/employee');
 const projectsRouter = require('./routes/projects');
 const newsRouter = require('./routes/news');
 const commentRouter = require('./routes/comment');
+const transactionRouter = require('./routes/transaction/transaction');
 
 const adminRouter = require('./routes/admin/admin');
 const manageAccountRouter = require('./routes/admin/manageAccount');
@@ -76,6 +77,7 @@ app.use('/employee', employeeRouter);
 app.use('/projects', projectsRouter);
 app.use('/news', newsRouter);
 app.use('/comment', commentRouter);
+app.use('/transaction', transactionRouter);
 
 app.use('/admin', adminRouter);
 app.use('/manageAccount', manageAccountRouter);

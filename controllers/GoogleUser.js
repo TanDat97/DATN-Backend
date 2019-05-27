@@ -12,6 +12,7 @@ exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
             var newUser = new UserGG({
                 _id: new mongoose.Types.ObjectId(),
                 fullname: profile.displayName,
+                identify: '',
                 address: '',
                 phone:'',
                 description: '',

@@ -9,6 +9,10 @@ const Schema = mongoose.Schema({
         type: String,
         required: true,
     },
+    identify: {
+        type: String,
+        default: 0,
+    },
     address: {
         type: String,
         required: false,

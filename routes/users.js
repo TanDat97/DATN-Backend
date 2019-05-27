@@ -105,6 +105,7 @@ router.post('/login', (req, res, next) => {
           id: user[0]._id,
           email: user[0].email,
           fullname: user[0].fullname,
+          identify: user[0].identify,
           address: user[0].address,
           phone: user[0].phone,
           totalProject: user[0].totalProject,
@@ -124,6 +125,7 @@ router.post('/login', (req, res, next) => {
             id: user[0]._id,
             email: user[0].email,
             fullname: user[0].fullname,
+            identify: user[0].identify,
             address: user[0].address,
             description: user[0].description,
             totalProject: user[0].totalProject,
@@ -159,6 +161,7 @@ router.get('/info', checkAuth, (req, res, next) => {
       id: result._id,
       email: result.email,
       fullname: result.fullname,
+      identify: result.identify,
       address: result.address,
       phone: result.phone,
       description: result.description,
@@ -179,6 +182,7 @@ router.post('/edit', checkAuth, (req, res, next) => {
   const id = req.userData.id;
   const email= req.userData.email;
   const fullname = req.body.fullname;
+  const identify  = req.body.identify;
   const address = req.body.address;
   const phone = req.body.phone;
   const totalProject = req.body.totalProject;
@@ -192,6 +196,7 @@ router.post('/edit', checkAuth, (req, res, next) => {
   }, {
     $set: {
       fullname: fullname,
+      identify: identify,
       address: address,
       phone: phone,
       totalProject: totalProject,

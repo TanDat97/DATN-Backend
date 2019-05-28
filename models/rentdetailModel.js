@@ -6,6 +6,22 @@ const Schema = mongoose.Schema({
         ref: 'Transaction',
         default: '0',
     },
+    
+    seller: {
+        type: String,
+        ref: 'User',
+        default: '0',
+    },
+    buyer: {
+        type: String,
+        ref: 'User',
+        default: '0',
+    },
+    transactionid: {
+        type: String,
+        ref: 'Transaction',
+        default: '0',
+    },
     deal: {
         total: {
             type: Number,
@@ -19,17 +35,13 @@ const Schema = mongoose.Schema({
             type: Number,
             default: 0,
         },
-        numofpay: {
-            type: Number,
-            default: 0,
-        },
         datedeal: {
             type: Number,
             default: 0,
         },
         description: {
             type: String,
-            default: 'no',
+            default: '0',
         },
         complete: {
             type: Boolean,
@@ -37,18 +49,18 @@ const Schema = mongoose.Schema({
         },
     },
     legality: {
-        government: {
-            type: String,
-            default: 'no',
-        },
-        certificate: {
-            type: String,
-            default: 'no',
-        },
-        contract: {
-            type: String,
-            default: 'no',
-        },
+        government: [{
+            url: String,
+            id: String,
+        }],
+        certificate: [{
+            url: String,
+            id: String,
+        }],
+        contract: [{
+            url: String,
+            id: String,
+        }],
         complete: {
             type: Boolean,
             default: false,
@@ -56,15 +68,9 @@ const Schema = mongoose.Schema({
     },
     deposit: {
         detail: [{
-            ratio: {
-                type: Number,
-            },
-            description: {
-                type: String,
-            },
-            createTime: {
-                type: Number,
-            },
+            ratio: Number,
+            description: String,
+            createTime: Number
         }],
         rest: {
             type: String,
@@ -84,12 +90,9 @@ const Schema = mongoose.Schema({
             type: String,
             default: '0',
         },
-        company:{
-            type: String,
-            default: '0',
-        },
         contractImage: [{
-            type: String,
+            url: String,
+            id: String,
         }],
         complete: {
             type: Boolean,
@@ -97,10 +100,10 @@ const Schema = mongoose.Schema({
         },
     },
     confirmation: {
-        url: {
-            type: Boolean,
-            default: false,
-        },
+        image: [{
+            url: String,
+            id: String,
+        }],
         complete: {
             type: Boolean,
             default: false,
@@ -114,7 +117,7 @@ const Schema = mongoose.Schema({
             },
             place: {
                 type: String,
-                default: 'no',
+                default: '0',
             },
             amountmoney: {
                 type: Number,
@@ -132,7 +135,7 @@ const Schema = mongoose.Schema({
             },
             place: {
                 type: String,
-                default: 'no',
+                default: '0',
             },
             amountmoney: {
                 type: Number,
@@ -174,10 +177,10 @@ const Schema = mongoose.Schema({
             default: false,
         },
     },
-    transfer: {
-        type: String,
-        default: 'no',
-    }
+    transfer: [{
+        url: String,
+        id: String,
+    }],
 });
 
 // Export the model

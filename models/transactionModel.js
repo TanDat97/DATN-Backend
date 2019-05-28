@@ -26,12 +26,12 @@ const Schema = mongoose.Schema({
         ref: 'Project',
         required: true,
     },
-    buyer: {
+    seller: {
         type: String,
         ref: 'User',
         required: true,
     },
-    seller: {
+    buyer: {
         type: String,
         ref: 'User',
         required: true,
@@ -45,6 +45,10 @@ const Schema = mongoose.Schema({
         type: Number,
         required: true,
     },
+    updateTime: {
+        type: Number,
+        required: true,
+    },
     selldetail: {
         type: String,
         ref: 'SellDetail',
@@ -54,7 +58,7 @@ const Schema = mongoose.Schema({
         type: String,
         ref: 'RentDetail',
         required: true,
-    }
+    },
 });
 
 // Export the model

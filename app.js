@@ -30,6 +30,7 @@ const projectsRouter = require('./routes/projects');
 const newsRouter = require('./routes/news');
 const commentRouter = require('./routes/comment');
 const transactionRouter = require('./routes/transaction/transaction');
+const selldetailRouter = require('./routes/transaction/selldetail');
 
 const adminRouter = require('./routes/admin/admin');
 const manageAccountRouter = require('./routes/admin/manageAccount');
@@ -78,6 +79,7 @@ app.use('/projects', projectsRouter);
 app.use('/news', newsRouter);
 app.use('/comment', commentRouter);
 app.use('/transaction', transactionRouter);
+app.use('/selldetail', selldetailRouter);
 
 app.use('/admin', adminRouter);
 app.use('/manageAccount', manageAccountRouter);

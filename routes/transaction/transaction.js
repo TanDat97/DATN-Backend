@@ -12,7 +12,7 @@ const SellDetail = require('../../models/selldetailModel');
 const RentDetail = require('../../models/rentdetailModel');
 
 
-router.post('/create', (req, res, next) => {
+router.post('/create', checkAuth, (req, res, next) => {
     const transaction = Transaction({
         _id: new mongoose.Types.ObjectId(),
         active: true,
@@ -21,17 +21,19 @@ router.post('/create', (req, res, next) => {
         typeproject: req.body.typeproject,
         typetransaction: req.body.typetransaction,
         project: req.body.project,
+        seller: req.userData.id,
         buyer: req.body.buyer,
-        seller: req.body.seller,
         company: req.body.company,
         createTime: req.body.createTime,
+        updateTime: req.body.updateTime,
         selldetail: '0',
         rentdetail: '0',
     })
-    
     if(transaction.typetransaction === 1) {
         const transactiondetail = SellDetail({
             _id: new mongoose.Types.ObjectId(),
+            seller: req.userData.id,
+            buyer: req.body.buyer,
             transactionid: transaction._id,
         })
         transactiondetail
@@ -106,12 +108,12 @@ router.post('/create', (req, res, next) => {
     
 })
 
-router.post('/changestatus', (req, res, next) => {
+router.post('/changestatus', checkAuth, (req, res, next) => {
     const transactionid = req.body.id
     const active = req.body.active
     Transaction.update({
         _id: transactionid,
-        // seller: req.userData.id,
+        seller: req.userData.id,
     },{
         $set: {
             active: active,

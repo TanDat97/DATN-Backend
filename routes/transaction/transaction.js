@@ -11,6 +11,7 @@ const Transaction = require('../../models/transactionModel');
 const SellDetail = require('../../models/selldetailModel');
 const RentDetail = require('../../models/rentdetailModel');
 
+const numItem = 30
 
 router.post('/create', checkAuth, (req, res, next) => {
     const transaction = Transaction({
@@ -141,7 +142,60 @@ router.post('/changestatus', checkAuth, (req, res, next) => {
             error: err
         })
     })
-    
+})
+
+router.get('/history/:page', checkAuth, (req, res, next) => {
+    const userid = req.userData.id
+    const page = parseInt(req.params.page) - 1
+    Transaction.find({
+        $or: [{seller: userid},{buyer: userid}]
+    }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+    .populate({
+        path: 'project'
+    })
+    .exec()
+    .then(result => {
+        res.status(200).json({
+            status: 200,
+            message: 'get history transaction success',
+            history: result,
+        })
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
+router.get('/detail/:id/:type', checkAuth, (req, res, next) => {
+    const id = req.params.id
+    const type = Number(req.params.type)
+    const userid = req.userData.id
+    Transaction.findOne({
+        _id: id,
+        $or: [{seller: userid},{buyer: userid}],
+    })
+    .populate({
+        path: type === 1 ? 'project selldetail' : 'project rentdetail',
+    })
+    .exec()
+    .then(result => {
+        res.status(200).json({
+            status: 200,
+            message: 'get detail transaction success',
+            transaction: result,
+        })
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
 })
 
 module.exports = router;

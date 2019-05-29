@@ -19,6 +19,8 @@ var transporter = nodemailer.createTransport({ // config mail server
     }
 });
 
+const numItem = 30
+
 router.post('/verifyemloyee', (req, res, next) => {
     const id = req.body.id
     const company = req.body.company

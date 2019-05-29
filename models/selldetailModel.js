@@ -84,7 +84,7 @@ const Schema = mongoose.Schema({
             type: String,
             default: '0',
         },
-        contractImage: [{
+        image: [{
             url: String,
             id: String,
         }],
@@ -117,10 +117,6 @@ const Schema = mongoose.Schema({
                 type: Number,
                 default: 0,
             },
-            complete: {
-                type: Boolean,
-                default: false,
-            },
         },
         buyer: {
             datepay: {
@@ -134,10 +130,6 @@ const Schema = mongoose.Schema({
             amountmoney: {
                 type: Number,
                 default: 0,
-            },
-            complete: {
-                type: Boolean,
-                default: false,
             },
         },
         complete: {
@@ -180,7 +172,7 @@ const Schema = mongoose.Schema({
             type: Boolean,
             default: false,
         },
-    }
+    },
 });
 
 // Export the model

@@ -300,7 +300,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
     const contract = {
         datesign: req.body.datesign,
         number: req.body.number,
-        contractImage: req.body.contractImage,
+        image: req.body.image,
         complete: JSON.parse(req.body.complete),
     }
     Transaction.findOneAndUpdate({
@@ -360,7 +360,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
             if (result) {
                 contract.datesign = result.contract.datesign
                 contract.number = result.contract.number
-                contract.contractImage = result.contract.contractImage
+                contract.image = result.contract.image
                 res.status(200).json({
                     status: 200,
                     message: 'update contract complete: false',
@@ -389,5 +389,386 @@ router.post('/contract', checkAuth, (req, res, next) => {
     }
 })
 
+router.post('/confirmation', checkAuth, (req, res, next) => {
+    const id = req.body.id
+    const confirmation = {
+        image: req.body.image,
+        complete: JSON.parse(req.body.complete),
+    }
+    Transaction.findOneAndUpdate({
+        _id: req.body.transactionid,
+        seller: req.userData.id,
+    },{
+        $set: {
+            updateTime: req.body.updateTime,
+        }
+    })
+    .exec()
+    .then(result => console.log(req.body.updateTime))
+    .catch(err  => console.log(err))
+    if(confirmation.complete === true) {
+        SellDetail.findOneAndUpdate({
+            _id: id,
+            seller: req.userData.id,
+        },{
+            $set: {
+                confirmation: confirmation,
+            }
+        })
+        .exec()
+        .then(result => {
+            if (result) {
+                res.status(200).json({
+                    status: 200,
+                    message: 'update confirmation complete: true',
+                    confirmation: confirmation,
+                    prev: result,
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+    } else if(confirmation.complete === false) {
+        SellDetail.findOneAndUpdate({
+            _id: id,
+            seller: req.userData.id,
+        },{
+            $set: {
+                'confirmation.complete': confirmation.complete,
+            }
+        })
+        .exec()
+        .then(result => {
+            if (result) {
+                confirmation.image = result.confirmation.image
+                res.status(200).json({
+                    status: 200,
+                    message: 'update confirmation complete: false',
+                    confirmation: confirmation,
+                    prev: result,
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+    } else {
+        res.status(409).json({
+            status: 409,
+            error: 'request fail',
+        })
+    }
+})
+
+router.post('/tax', checkAuth, (req, res, next) => {
+    const id = req.body.id
+    const tax = {
+        seller: {
+            datepay: req.body.datepay1,
+            place: req.body.place1,
+            amountmoney: req.body.amountmoney1,
+        },
+        buyer: {
+            datepay: req.body.datepay2,
+            place: req.body.place2,
+            amountmoney: req.body.amountmoney2,
+        },
+        complete: JSON.parse(req.body.complete),
+    }
+    Transaction.findOneAndUpdate({
+        _id: req.body.transactionid,
+        seller: req.userData.id,
+    },{
+        $set: {
+            updateTime: req.body.updateTime,
+        }
+    })
+    .exec()
+    .then(result => console.log(req.body.updateTime))
+    .catch(err  => console.log(err))
+    if(tax.complete === true) {
+        SellDetail.findOneAndUpdate({
+            _id: id,
+            seller: req.userData.id,
+        },{
+            $set: {
+                tax: tax,
+            }
+        })
+        .exec()
+        .then(result => {
+            if (result) {
+                res.status(200).json({
+                    status: 200,
+                    message: 'update tax complete: true',
+                    tax: tax,
+                    prev: result,
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+    } else if(tax.complete === false) {
+        SellDetail.findOneAndUpdate({
+            _id: id,
+            seller: req.userData.id,
+        },{
+            $set: {
+                'tax.complete': tax.complete,
+            }
+        })
+        .exec()
+        .then(result => {
+            if (result) {
+                tax.seller.datepay = result.tax.seller.datepay
+                tax.seller.place = result.tax.seller.place
+                tax.seller.amountmoney = result.tax.seller.amountmoney
+                tax.buyer.datepay = result.tax.buyer.datepay
+                tax.buyer.place = result.tax.buyer.place
+                tax.buyer.amountmoney = result.tax.buyer.amountmoney
+                res.status(200).json({
+                    status: 200,
+                    message: 'update tax complete: false',
+                    tax: tax,
+                    prev: result,
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+    } else {
+        res.status(409).json({
+            status: 409,
+            error: 'request fail',
+        })
+    }
+})
+
+router.post('/delivery', checkAuth, (req, res, next) => {
+    const id = req.body.id
+    const delivery = {
+        datecomplete: req.body.datecomplete,
+        apartmentcode: req.body.apartmentcode,
+        room: req.body.room,
+        datein: req.body.datein,
+        tax: req.body.tax,
+        complete: JSON.parse(req.body.complete),
+    }
+    Transaction.findOneAndUpdate({
+        _id: req.body.transactionid,
+        seller: req.userData.id,
+    },{
+        $set: {
+            updateTime: req.body.updateTime,
+        }
+    })
+    .exec()
+    .then(result => console.log(req.body.updateTime))
+    .catch(err  => console.log(err))
+    if(delivery.complete === true) {
+        SellDetail.findOneAndUpdate({
+            _id: id,
+            seller: req.userData.id,
+        },{
+            $set: {
+                delivery: delivery,
+            }
+        })
+        .exec()
+        .then(result => {
+            if (result) {
+                res.status(200).json({
+                    status: 200,
+                    message: 'update delivery complete: true',
+                    delivery: delivery,
+                    prev: result,
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+    } else if(delivery.complete === false) {
+        SellDetail.findOneAndUpdate({
+            _id: id,
+            seller: req.userData.id,
+        },{
+            $set: {
+                'delivery.complete': delivery.complete,
+            }
+        })
+        .exec()
+        .then(result => {
+            if (result) {
+                delivery.datecomplete = result.delivery.datecomplete
+                delivery.apartmentcode = result.delivery.apartmentcode
+                delivery.room = result.delivery.room
+                delivery.datein = result.delivery.datein
+                delivery.tax = result.delivery.tax
+                res.status(200).json({
+                    status: 200,
+                    message: 'update tax complete: false',
+                    delivery: delivery,
+                    prev: result,
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+    } else {
+        res.status(409).json({
+            status: 409,
+            error: 'request fail',
+        })
+    }
+})
+
+router.post('/transfer', checkAuth, (req, res, next) => {
+    const id = req.body.id
+    const transfer = {
+        image: req.body.image,
+        complete: JSON.parse(req.body.complete),
+    }
+    Transaction.findOneAndUpdate({
+        _id: req.body.transactionid,
+        seller: req.userData.id,
+    },{
+        $set: {
+            updateTime: req.body.updateTime,
+        }
+    })
+    .exec()
+    .then(result => console.log(req.body.updateTime))
+    .catch(err  => console.log(err))
+    if(transfer.complete === true) {
+        SellDetail.findOneAndUpdate({
+            _id: id,
+            seller: req.userData.id,
+        },{
+            $set: {
+                transfer: transfer,
+            }
+        })
+        .exec()
+        .then(result => {
+            if (result) {
+                res.status(200).json({
+                    status: 200,
+                    message: 'update transfer complete: true',
+                    transfer: transfer,
+                    prev: result,
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+    } else if(transfer.complete === false) {
+        SellDetail.findOneAndUpdate({
+            _id: id,
+            seller: req.userData.id,
+        },{
+            $set: {
+                'transfer.complete': transfer.complete,
+            }
+        })
+        .exec()
+        .then(result => {
+            if (result) {
+                transfer.image = result.transfer.image
+                res.status(200).json({
+                    status: 200,
+                    message: 'update transfer complete: false',
+                    transfer: transfer,
+                    prev: result,
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+    } else {
+        res.status(409).json({
+            status: 409,
+            error: 'request fail',
+        })
+    }
+})
 
 module.exports = router;

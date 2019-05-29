@@ -1,12 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-    transactionid: {
-        type: String,
-        ref: 'Transaction',
-        default: '0',
-    },
-    
     seller: {
         type: String,
         ref: 'User',
@@ -90,7 +84,7 @@ const Schema = mongoose.Schema({
             type: String,
             default: '0',
         },
-        contractImage: [{
+        image: [{
             url: String,
             id: String,
         }],
@@ -123,10 +117,6 @@ const Schema = mongoose.Schema({
                 type: Number,
                 default: 0,
             },
-            complete: {
-                type: Boolean,
-                default: false,
-            },
         },
         buyer: {
             datepay: {
@@ -140,10 +130,6 @@ const Schema = mongoose.Schema({
             amountmoney: {
                 type: Number,
                 default: 0,
-            },
-            complete: {
-                type: Boolean,
-                default: false,
             },
         },
         complete: {
@@ -177,10 +163,16 @@ const Schema = mongoose.Schema({
             default: false,
         },
     },
-    transfer: [{
-        url: String,
-        id: String,
-    }],
+    transfer: {
+        image: [{
+            url: String,
+            id: String,
+        }],
+        complete: {
+            type: Boolean,
+            default: false,
+        },
+    },
 });
 
 // Export the model

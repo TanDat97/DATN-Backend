@@ -23,7 +23,7 @@ router.post('/verifyemloyee', (req, res, next) => {
     const id = req.body.id
     const company = req.body.company
     const hash = req.body.hash
-    Company.update({
+    User.update({
         _id: id,
         hash: hash,
         company: company,

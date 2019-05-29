@@ -19,6 +19,8 @@ var transporter = nodemailer.createTransport({ // config mail server
     }
 });
 
+const numItem = 30
+
 router.post('/verifycompany', (req, res, next) => {
     const id = req.body.id
     const hash = req.body.hash
@@ -74,7 +76,7 @@ router.post('/resetpassword', (req, res, next) => {
                     return res.status(500).json({
                         status: 500,
                         error: err,
-                    });
+                    })
                 } else {
                     var EmailCompanyModel = require('../lib/emailCompanyModel')
                     var emailModel = new EmailCompanyModel()
@@ -117,7 +119,7 @@ router.post('/resetpassword', (req, res, next) => {
                             status: 500,
                             error: err
                         })
-                    });              
+                    })             
                 }
             })
         }
@@ -127,7 +129,7 @@ router.post('/resetpassword', (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
+        })
     })
 })
 
@@ -143,14 +145,14 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
             return res.status(401).json({
                 status: 401,
                 message: 'Account not found',
-            });
+            })
         }
         bcrypt.compare(req.body.currentPassword, company[0].password, (err, result) => {
             if (err) {
                 return res.status(40).json({
                     status: 401,
                     message: 'Change password failed 1',
-                });
+                })
             }
             if (result) {
                 bcrypt.hash(req.body.newPassword, 10, (err, hash) => {
@@ -208,9 +210,9 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
             status: 401,
             error: err,
             message: 'Change password failed 5',
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/login', (req, res, next) => {
     Company.find({
@@ -274,8 +276,8 @@ router.post('/login', (req, res, next) => {
             return res.status(401).json({
                 status: 401,
                 message: 'Auth failed'
-            });
-        });
+            })
+        })
     })
     .catch(err => {
         console.log(err);
@@ -283,9 +285,9 @@ router.post('/login', (req, res, next) => {
             status: 401,
             message: 'Auth failed',
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.get('/info', checkAuthCompany, (req, res, next) => {
     const id = req.companyData.id;
@@ -316,7 +318,7 @@ router.get('/info', checkAuthCompany, (req, res, next) => {
                 description: result.description,
                 createTime: result.createTime,
                 updateTime: result.updateTime,
-            });
+            })
         }        
     })
     .catch(err => {
@@ -324,8 +326,8 @@ router.get('/info', checkAuthCompany, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 });
 
 router.post('/edit', checkAuthCompany, (req, res, next) => {
@@ -382,7 +384,7 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
                 status: 404,
                 message: 'No valid entry found',
                 result: result,
-            });
+            })
         }
     })
     .catch(err => {
@@ -390,9 +392,51 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
+
+router.get('/infoemployee/:id/:page', checkAuthCompany, (req, res, next) => {
+    const id = req.companyData.id
+    const employeeid = req.params.id
+    const page = parseInt(req.params.page) - 1
+    User.find({
+        _id: employeeid,
+        company: id,
+    })
+    .exec()
+    .then(result => {
+        Project.find({
+            ownerid: employeeid,
+            verify: true,
+        }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+        .select()
+        .exec()
+        .then(results => {
+            res.status(200).json({
+                status: 200,
+                message: 'successful',
+                info: result[0],
+                projects: results,
+                page: page + 1,
+            })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
 
 router.post('/addemployee', checkAuthCompany, (req, res, next) => {
     User.find({
@@ -471,7 +515,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                                 status: 500,
                                 message: 'Update Company Error',
                                 error: err
-                            });
+                            })
                         })
                     })
                     .catch(err => {
@@ -480,7 +524,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                             status: 500,
                             message: 'Insert User Error',
                             error: err
-                        });
+                        })
                     })
                 }
             })
@@ -568,7 +612,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
             res.status(404).json({
                 status: 404,
                 message:'No valid entry found',
-            });
+            })
         }
     })
     .catch(err => {
@@ -608,8 +652,8 @@ router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
 module.exports = router;

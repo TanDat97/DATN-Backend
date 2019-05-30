@@ -10,8 +10,176 @@ const Company = require('../../models/companyModel');
 const Transaction = require('../../models/transactionModel');
 const SellDetail = require('../../models/selldetailModel');
 const RentDetail = require('../../models/rentdetailModel');
+const Waiting = require('../../models/waitingModel');
 
 const numItem = 30
+
+router.get('/listrequest', checkAuth, (req, res, next) => {
+    const projectid = req.body.projectid
+    Waiting.find({
+        project: projectid,
+    })
+    .populate({path:'requests.user'})
+    .exec()
+    .then(result => {
+        res.status(200).json({
+            status: 200,
+            message: 'get list requests success',
+            result: result,
+        })
+        
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
+router.post('/addwaitingrequest', checkAuth, (req, res, next) => {
+    const projectid = req.body.projectid
+    const userid = req.userData.id
+    const createTime = req.body.createTime
+    const money = req.body.money
+    const description = req.body.description
+    Waiting.find({
+        project: projectid,
+    })
+    .exec()
+    .then(result => {
+        if (result[0].createdTransaction === true) {
+            res.status(203).json({
+                status: 203,
+                message: 'this project is now in transaction',
+            })
+        } else if (result.length >= 1) {
+            if(result[0].requests.length >= 20)  {
+                return res.status(204).json({
+                    status: 204,
+                    message: 'can not add more request transaction to this project',
+                })
+            }
+            const isInArray = result[0].requests.some(temp => {
+                return temp.user === userid;
+            })
+            if (isInArray) {
+                return res.status(409).json({
+                    status: 409,
+                    message: 'user has requested transaction to this project',
+                })
+            } else if (!isInArray) {
+                const request = {
+                    user: userid,
+                    createTime: createTime,
+                    money: money,
+                    description: description,
+                }
+                Waiting.findOneAndUpdate({ project: projectid }, { $push: { requests: request } })
+                .exec()
+                .then(ex => {
+                    res.status(201).json({
+                        status: 201,
+                        message: 'add to list request success',
+                        result: request,
+                    })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        status: 500,
+                        error: err,
+                    })
+                })
+            }
+        } else if (result.length === 0) {
+            const waiting = new Waiting({
+                _id: new mongoose.Types.ObjectId(),
+                project: projectid,
+                createdTransaction: false,
+                choosenone: '0',
+                requests: [{
+                    user: userid,
+                    createTime: createTime,
+                    money: money,
+                    description: description,
+                }],
+            })
+            waiting
+            .save()
+            .then(result => {
+                res.status(201).json({
+                    status: 201,
+                    message: 'create new list request project success',
+                    result: result,
+                })
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({
+                    status: 500,
+                    error: err,
+                })
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err,
+        })
+    })
+})
+
+router.post('/deletewaitingrequest', checkAuth, (req, res, next) => {
+    const projectid = req.body.projectid
+    const userid = req.userData.id
+    Waiting.find({
+        project: projectid,
+    })
+    .exec()
+    .then(result => {
+        const isInArray = result[0].requests.some(temp => {
+            return temp.user === userid;
+        })
+        if (result[0].createdTransaction === true) {
+            res.status(203).json({
+                status: 203,
+                message: 'this project is now in transaction',
+            })
+        } else if (result.length >= 1 && isInArray) {
+            Waiting.findOneAndUpdate({ project: projectid }, { $pull: { requests: { user: userid} } })
+            .exec()
+            .then(ex => {
+                res.status(201).json({
+                    status: 201,
+                    message: 'delete user from list requests success',
+                })
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({
+                    status: 500,
+                    error: err,
+                })
+            })
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
 
 router.post('/create', checkAuth, (req, res, next) => {
     const transaction = Transaction({

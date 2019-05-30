@@ -204,7 +204,7 @@ const compare = function (arr1, arr2) {
     }
     return finalarray
 }
-router.post('/edit/:id', (req, res, next) => {
+router.post('/edit/:id', checkAuth, (req, res, next) => {
     const id = req.params.id
     const name = req.body.name
     const investor = req.body.investor

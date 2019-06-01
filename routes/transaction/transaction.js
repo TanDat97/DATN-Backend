@@ -14,8 +14,8 @@ const Waiting = require('../../models/waitingModel');
 
 const numItem = require('../../lib/constant')
 
-router.get('/listrequest', checkAuth, (req, res, next) => {
-    const projectid = req.body.projectid
+router.get('/listrequest/:projectid', checkAuth, (req, res, next) => {
+    const projectid = req.params.projectid
     Waiting.find({
         project: projectid,
     })
@@ -27,7 +27,6 @@ router.get('/listrequest', checkAuth, (req, res, next) => {
             message: 'get list requests success',
             result: result,
         })
-        
     })
     .catch(err => {
         console.log(err);

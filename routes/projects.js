@@ -178,14 +178,14 @@ router.post('/', checkAuth, (req, res, next) => {
     .exec()
     .then(result => {
         if(result.statusAccount === 1 && totalProject >= 5) {
-            res.status(204).json({
-                status: 204,
+            res.status(203).json({
+                status: 203,
                 message: 'your account has maximum 5 project, upgrade your account for more',
             })
-        } else if(result.statusAccount === 2 && totalProject  >= 20) {
+        } else if(result.statusAccount === 2 && totalProject  >= 40) {
             res.status(204).json({
                 status: 204,
-                message: 'your account has maximum 20 project',
+                message: 'your account has maximum 40 project',
             })
         } else {
             project

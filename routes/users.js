@@ -16,6 +16,8 @@ var { generateToken, sendToken } = require('./../middleware/token.utils');
 var config = require('./../middleware/config');
 require('./../middleware/passport')();
 
+const numItem = 30
+
 router.post('/signup', (req, res, next) => {
   User.find({
     email: req.body.email,
@@ -39,12 +41,13 @@ router.post('/signup', (req, res, next) => {
             _id: new mongoose.Types.ObjectId(),
             password: hash,
             fullname: req.body.fullname,
+            identify: req.body.identify,
             address: req.body.address,
             phone: req.body.phone,
             description: req.body.description,
             email: req.body.email,
             totalProject: 0,
-            statusAccount: 0,
+            statusAccount: 1,
             avatar: 'ssssssssssss',
             company: '0',
             lock: false,
@@ -65,10 +68,10 @@ router.post('/signup', (req, res, next) => {
             res.status(500).json({
               status: 500,
               error: err
-            });
-          });
+            })
+          })
         }
-      });
+      })
     }
   })
   .catch(err => {
@@ -76,9 +79,79 @@ router.post('/signup', (req, res, next) => {
     res.status(500).json({
         status: 500,
         error: err
-    });
-});
-});
+    })
+  })
+})
+
+router.get('/allagent/:page', (req, res, next) => {
+  const page = parseInt(req.params.page) - 1
+  User.find({
+    verify: true,
+    lock: false,
+    $or: [{statusAccount: 2}]
+  }).skip(page*numItem).limit(numItem)
+  .select('_id email fullname identify address phone description totalProject statusAccount avatar company')
+  .exec()
+  .then(result => {
+      res.status(200).json({
+          status: 200,
+          message: 'successful',
+          page: page + 1,
+          count: result.length,
+          result: result,
+      })   
+  })
+  .catch(err => {
+      console.log(err);
+      res.status(500).json({
+          status: 500,
+          error: err
+      })
+  })
+})
+router.get('/infoagent/:id/:page', (req, res, next) => {
+  const id = req.params.id
+  const page = parseInt(req.params.page) - 1
+  User.find({
+      _id: id,
+      verify: true,
+      lock: false,
+      $or: [{statusAccount: 2}]
+  })
+  .select('_id email fullname identify address phone description totalProject statusAccount avatar company')
+  .exec()
+  .then(result => {
+      Project.find({
+          ownerid: id,
+          verify: true,
+      }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+      .select()
+      .exec()
+      .then(results => {
+          res.status(200).json({
+              status: 200,
+              message: 'successful',
+              page: page + 1,
+              info: result[0],
+              projects: results,
+          })
+      })
+      .catch(err => {
+          console.log(err);
+          res.status(500).json({
+              status: 500,
+              error: err
+          })
+      })
+  })
+  .catch(err => {
+      console.log(err);
+      res.status(500).json({
+          status: 500,
+          error: err
+      })
+  })
+})
 
 router.post('/login', (req, res, next) => {
   User.find({
@@ -167,9 +240,9 @@ router.get('/info', checkAuth, (req, res, next) => {
     res.status(500).json({
       status: 500,
       error: err
-    });
-  });
-});
+    })
+  })
+})
 
 router.post('/edit', checkAuth, (req, res, next) => {
   const id = req.userData.id;
@@ -179,7 +252,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
   const address = req.body.address;
   const phone = req.body.phone;
   const totalProject = req.body.totalProject;
-  const statusAccount = req.body.statusAccount;
   const avatar = req.body.avatar;
   const description = req.body.description;
   User.updateMany({
@@ -193,7 +265,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
       address: address,
       phone: phone,
       totalProject: totalProject,
-      statusAccount: statusAccount,
       avatar: avatar,
       description: description,
     }
@@ -211,7 +282,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
           address: address,
           phone: phone,
           totalProject: totalProject,
-          statusAccount: statusAccount,
           avatar: avatar,
           description: description,
         },
@@ -258,9 +328,9 @@ router.get('/danhsachproject', checkAuth, (req, res, next) => {
     res.status(500).json({
       status: 500,
       error: err
-    });
-  });
-});
+    })
+  })
+})
 
 router.get('/listSaved', checkAuth, (req, res, next) => {
   SavedProject.find({

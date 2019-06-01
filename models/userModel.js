@@ -52,6 +52,7 @@ const Schema = mongoose.Schema({
     },
     company: {
         type: String,
+        ref: 'Company',
         required: true,
     },
     lock: {

@@ -19,7 +19,7 @@ router.get('/listrequest', checkAuth, (req, res, next) => {
     Waiting.find({
         project: projectid,
     })
-    .populate({path:'requests.user'})
+    .populate({path:'project requests.user'})
     .exec()
     .then(result => {
         res.status(200).json({
@@ -198,6 +198,9 @@ router.post('/create', checkAuth, (req, res, next) => {
         selldetail: '0',
         rentdetail: '0',
     })
+    Waiting.findOneAndUpdate({ project: req.body.project }, { createdTransaction: true })
+    .exec()
+    .then(ex => console.log('change created transaction'))
     if(transaction.typetransaction === 1) {
         const transactiondetail = SellDetail({
             _id: new mongoose.Types.ObjectId(),

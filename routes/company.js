@@ -289,9 +289,36 @@ router.post('/login', (req, res, next) => {
     })
 })
 
-router.get('/info', checkAuthCompany, (req, res, next) => {
-    const id = req.companyData.id;
+router.get('/all/:page', (req, res, next) => {
+    const page = parseInt(req.params.page) - 1
+    Company.find({
+        verify: true,
+        lock: false,
+    }).sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    .select('_id email companyname address phone website totalProject employees status avatar description createTime updateTime')
+    .exec()
+    .then(result => {
+        res.status(200).json({
+            status: 200,
+            message: 'successful',
+            page: page + 1,
+            count: result.length,
+            result: result,
+        })   
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
+router.get('/info/:id', (req, res, next) => {
+    const id = req.params.id;
     Company.findById(id)
+    .select('_id email companyname address phone website totalProject employees status avatar description createTime updateTime')
     .populate({
         path: 'employees.employee'
     })
@@ -306,18 +333,7 @@ router.get('/info', checkAuthCompany, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'successful',
-                id: result._id,
-                email: result.email,
-                companyname: result.companyname,
-                address: result.address,
-                phone: result.phone,
-                totalProject: result.totalProject,
-                employees: result.employees,
-                status: result.status,
-                avatar: result.avatar,
-                description: result.description,
-                createTime: result.createTime,
-                updateTime: result.updateTime,
+                company: result,
             })
         }        
     })
@@ -328,7 +344,7 @@ router.get('/info', checkAuthCompany, (req, res, next) => {
             error: err
         })
     })
-});
+})
 
 router.post('/edit', checkAuthCompany, (req, res, next) => {
     const id = req.companyData.id;
@@ -336,13 +352,13 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
     const companyname = req.body.companyname;
     const address = req.body.address;
     const phone = req.body.phone;
+    const website = req.body.website;
     const totalProject = req.body.totalProject;
     const status = req.body.status;
     const avatar = req.body.avatar;
     const description = req.body.description;
     const createTime = req.body.createTime;
     const updateTime = req.body.updateTime;
-
     Company.update({
         _id: id,
         email: email,
@@ -352,6 +368,7 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
             companyname: companyname,
             address: address,
             phone: phone,
+            website: website,
             totalProject: totalProject,
             status: status,
             avatar: avatar,
@@ -365,14 +382,14 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'update company success',
-                user: {
+                company: {
                     _id: id,
                     email: email,
                     companyname: companyname,
                     address: address,
                     phone: phone,
                     totalProject: totalProject,
-                    statusAccount: statusAccount,
+                    status: status,
                     avatar: avatar,
                     description: description,
                     createTime: createTime,
@@ -408,7 +425,6 @@ router.get('/infoemployee/:id/:page', checkAuthCompany, (req, res, next) => {
     .then(result => {
         Project.find({
             ownerid: employeeid,
-            verify: true,
         }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
         .select()
         .exec()
@@ -416,9 +432,9 @@ router.get('/infoemployee/:id/:page', checkAuthCompany, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'successful',
+                page: page + 1,
                 info: result[0],
                 projects: results,
-                page: page + 1,
             })
         })
         .catch(err => {
@@ -462,12 +478,13 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                         _id: new mongoose.Types.ObjectId(),
                         password: hash,
                         fullname: req.body.fullname,
+                        identify: req.body.identify,
                         address: req.body.address,
                         phone: req.body.phone,
                         description: req.body.description,
                         email: req.body.email,
                         totalProject: 0,
-                        statusAccount: 1,
+                        statusAccount: 2,
                         avatar: req.body.avatar,
                         company: req.companyData.id,
                         lock: false,
@@ -581,6 +598,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     const id = req.body.id;
     const email= req.body.email;
     const fullname = req.body.fullname;
+    const identify = req.body.identify;
     const address = req.body.address;
     const phone = req.body.phone;
     const totalProject = req.body.totalProject;
@@ -593,6 +611,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     },{
         $set :{
             fullname: fullname,
+            identify: identify,
             address: address,
             phone: phone,
             totalProject: totalProject,

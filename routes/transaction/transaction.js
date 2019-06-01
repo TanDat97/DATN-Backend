@@ -198,7 +198,7 @@ router.post('/create', checkAuth, (req, res, next) => {
         selldetail: '0',
         rentdetail: '0',
     })
-    Waiting.findOneAndUpdate({ project: req.body.project }, { createdTransaction: true })
+    Waiting.findOneAndUpdate({ project: req.body.project }, { createdTransaction: true, choosenone: req.body.buyer })
     .exec()
     .then(ex => console.log('change created transaction'))
     if(transaction.typetransaction === 1) {

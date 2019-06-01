@@ -96,6 +96,7 @@ router.post('/searchmap', (req, res, next) => {
             if (results.length > 0) {
                 res.status(200).json({
                     status: 200,
+                    message: 'get list project success',
                     count: results.length,
                     projects: results,
                 })
@@ -123,6 +124,7 @@ router.get('/:id', (req, res, next) => {
             if (result != null) {
                 res.status(200).json({
                     status: 200,
+                    message: 'get info project success',
                     project: result,
                 })
             } else {
@@ -168,22 +170,49 @@ router.post('/', checkAuth, (req, res, next) => {
         url: req.body.url,
         publicId: req.body.publicId,
     })
-    project
-        .save()
-        .then(result => {
-            res.status(201).json({
-                status: 201,
-                message: 'add project success',
-                project: result,
+    User.find({
+        id: req.userData.id,
+        verify: true,
+    })
+    .exec()
+    .then(result => {
+        if(result.statusAccount === 1 && totalProject >= 5) {
+            res.status(204).json({
+                status: 204,
+                message: 'your account has maximum 5 project, upgrade your account for more',
             })
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                status: 500,
-                error: err,
+        } else if(result.statusAccount === 2 && totalProject  >= 20) {
+            res.status(204).json({
+                status: 204,
+                message: 'your account has maximum 20 project',
             })
+        } else {
+            project
+            .save()
+            .then(result => {
+                res.status(201).json({
+                    status: 201,
+                    message: 'add project success',
+                    project: result,
+                })
+            })
+            .catch(err => {
+                console.log(err)
+                res.status(500).json({
+                    status: 500,
+                    error: err,
+                })
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err,
         })
+    })
+
 })
 
 

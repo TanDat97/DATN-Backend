@@ -23,7 +23,7 @@ const Schema = mongoose.Schema({
         type: String,
         required: false,
     },
-    phone: {
+    website: {
         type: String,
         required: true,
     },

@@ -95,7 +95,7 @@ router.get('/allagent/:page', (req, res, next) => {
   .then(result => {
       res.status(200).json({
           status: 200,
-          message: 'successful',
+          message: 'get all agent successful',
           page: page + 1,
           count: result.length,
           result: result,
@@ -130,7 +130,7 @@ router.get('/infoagent/:id/:page', (req, res, next) => {
       .then(results => {
           res.status(200).json({
               status: 200,
-              message: 'successful',
+              message: 'get info agent successful',
               page: page + 1,
               info: result[0],
               projects: results,
@@ -223,7 +223,7 @@ router.get('/info', checkAuth, (req, res, next) => {
   .then(result => {
     res.status(200).json({
       status: 200,
-      message: 'successful',
+      message: 'get ino account successful',
       id: result._id,
       email: result.email,
       fullname: result.fullname,
@@ -274,7 +274,7 @@ router.post('/edit', checkAuth, (req, res, next) => {
     if (result.nModified > 0) {
       res.status(200).json({
         status: 200,
-        message: 'update user success',
+        message: 'update accont user success',
         user: {
           _id: id,
           email: email,
@@ -313,6 +313,7 @@ router.get('/danhsachproject', checkAuth, (req, res, next) => {
     if (results.length >= 0) {
       res.status(200).json({
         status: 200,
+        message: 'get all project list success',
         count: results.length,
         projects: results,
       });
@@ -341,7 +342,7 @@ router.get('/listSaved', checkAuth, (req, res, next) => {
     if (result.length > 0) {
       res.status(200).json({
         status: 200,
-        message: 'success',
+        message: 'get list project saved success',
         count: result[0].projects.length,
         result: result[0],
       });

@@ -61,13 +61,14 @@ router.post('/resetpassword', (req, res, next) => {
     Company.find({
         email: email,
         verify: true,
+        lock: false,
     })
     .exec()
     .then(company=>{
         if (company.length <= 0) {
             return res.status(404).json({
                 status: 404,
-                message: 'your account does not exists',
+                message: 'your account does not exists or has been locked',
             });
         } else {
             const pass = libFunction.randomPassword(10)
@@ -138,13 +139,14 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
         email: req.companyData.email,
         _id: req.companyData.id,
         verify: true,
+        lock: false,
     })
     .exec()
     .then(company => {
         if (company.length <= 0) {
             return res.status(401).json({
                 status: 401,
-                message: 'Account not found',
+                message: 'Account not found or has been locked',
             })
         }
         bcrypt.compare(req.body.currentPassword, company[0].password, (err, result) => {
@@ -363,6 +365,7 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
         _id: id,
         email: email,
         verify: true,
+        lock: false,
     }, {
         $set: {
             companyname: companyname,
@@ -555,6 +558,7 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
         _id: req.companyData.id,
         email: req.companyData.email,
         verify: true,
+        lock: false,
     })
     .exec()
     .then(datacompany => {

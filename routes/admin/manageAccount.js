@@ -11,7 +11,7 @@ const Project = require('../../models/projectModel');
 const Comment = require('../../models/commentModel');
 const SavedProject = require('../../models/savedProjectModel');
 
-const numItem = 30
+const numItem = require('../../lib/constant')
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1

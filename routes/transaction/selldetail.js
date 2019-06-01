@@ -11,6 +11,8 @@ const Transaction = require('../../models/transactionModel');
 const SellDetail = require('../../models/selldetailModel');
 const RentDetail = require('../../models/rentdetailModel');
 
+const numItem = require('../../lib/constant')
+
 router.post('/deal', checkAuth, (req, res, next) => {
     const id = req.body.id
     const deal = {

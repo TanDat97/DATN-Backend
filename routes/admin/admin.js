@@ -11,6 +11,7 @@ const Admin = require('../../models/adminModel');
 const User = require('../../models/userModel');
 const Project = require('../../models/projectModel');
 const News = require('../../models/newsModel');
+const Company = require('../../models/companyModel');
 
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
@@ -422,17 +423,27 @@ function countNews(){
         })
     })
 }
+function countCompany(){
+    return new Promise((resolve,reject) => {
+        Company.count({}, (err, count) => {
+            if(err)
+                reject(err)
+            resolve(count)
+        })
+    })
+}
 
 router.post('/statisticdata', checkAuthAdmin, (req, res, next) => {
-    Promise.all([countAccount(),countProject(),countNews()])
+    Promise.all([countAccount(),countProject(),countNews(),countCompany()])
     .then(function(arrayOfResults) {
-        const [account, project, news] = arrayOfResults
+        const [account, project, news, company] = arrayOfResults
         res.status(200).json({
             status: 200,
             message: 'get data success',
             countAccount: account,
             countProject: project,
             countNews: news,
+            countCompany: company,
         });
     })
     .catch(err => {

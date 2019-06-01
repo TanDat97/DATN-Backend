@@ -8,7 +8,7 @@ const libFunction = require('../lib/function')
 const Project = require('../models/projectModel')
 const Comment = require('../models/commentModel')
 
-const numItem = 30
+const numItem = require('../lib/constant')
 
 cloudinary.config({
     cloud_name: 'dne3aha8f',
@@ -16,6 +16,7 @@ cloudinary.config({
     api_secret: 'JdBsEVQDxp4_1jsZrT-qM7T8tns'
 })
 router.get('/all/:page', (req, res, next) => {
+    console.log(numItem)
     const page = parseInt(req.params.page) - 1
     Project.find({
         verify: true,

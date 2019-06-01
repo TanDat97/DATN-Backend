@@ -11,7 +11,8 @@ const User = require('../../models/userModel');
 const Project = require('../../models/projectModel');
 const Comment = require('../../models/commentModel');
 
-const numItem = 30
+const numItem = require('../../lib/constant')
+
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
     auth: {

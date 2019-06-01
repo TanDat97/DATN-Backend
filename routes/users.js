@@ -16,7 +16,7 @@ var { generateToken, sendToken } = require('./../middleware/token.utils');
 var config = require('./../middleware/config');
 require('./../middleware/passport')();
 
-const numItem = 30
+const numItem = require('../lib/constant')
 
 router.post('/signup', (req, res, next) => {
   User.find({
@@ -369,7 +369,7 @@ router.post('/follow', checkAuth, (req, res, next) => {
   .exec()
   .then(result => {
     if(result.length >= 1) {
-      if (result[0].requests.length >= 20) {
+      if (result[0].requests.length >= 10) {
         return res.status(204).json({
           status: 204,
           message: ' user can not follow more project',

@@ -12,7 +12,7 @@ const SellDetail = require('../../models/selldetailModel');
 const RentDetail = require('../../models/rentdetailModel');
 const Waiting = require('../../models/waitingModel');
 
-const numItem = 30
+const numItem = require('../../lib/constant')
 
 router.get('/listrequest', checkAuth, (req, res, next) => {
     const projectid = req.body.projectid
@@ -49,51 +49,7 @@ router.post('/addwaitingrequest', checkAuth, (req, res, next) => {
     })
     .exec()
     .then(result => {
-        if (result[0].createdTransaction === true) {
-            res.status(203).json({
-                status: 203,
-                message: 'this project is now in transaction',
-            })
-        } else if (result.length >= 1) {
-            if(result[0].requests.length >= 20)  {
-                return res.status(204).json({
-                    status: 204,
-                    message: 'can not add more request transaction to this project',
-                })
-            }
-            const isInArray = result[0].requests.some(temp => {
-                return temp.user === userid;
-            })
-            if (isInArray) {
-                return res.status(409).json({
-                    status: 409,
-                    message: 'user has requested transaction to this project',
-                })
-            } else if (!isInArray) {
-                const request = {
-                    user: userid,
-                    createTime: createTime,
-                    money: money,
-                    description: description,
-                }
-                Waiting.findOneAndUpdate({ project: projectid }, { $push: { requests: request } })
-                .exec()
-                .then(ex => {
-                    res.status(201).json({
-                        status: 201,
-                        message: 'add to list request success',
-                        result: request,
-                    })
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).json({
-                        status: 500,
-                        error: err,
-                    })
-                })
-            }
-        } else if (result.length === 0) {
+        if (result.length === 0) {
             const waiting = new Waiting({
                 _id: new mongoose.Types.ObjectId(),
                 project: projectid,
@@ -122,6 +78,50 @@ router.post('/addwaitingrequest', checkAuth, (req, res, next) => {
                     error: err,
                 })
             })
+        } else if (result[0].createdTransaction === true) {
+            res.status(203).json({
+                status: 203,
+                message: 'this project is now in transaction',
+            })
+        } else if (result.length >= 1) {
+            if(result[0].requests.length >= 10)  {
+                return res.status(204).json({
+                    status: 204,
+                    message: 'can not add more request transaction to this project',
+                })
+            }
+            const isInArray = result[0].requests.some(temp => {
+                return temp.user === userid;
+            })
+            if (isInArray) {
+                return res.status(206).json({
+                    status: 206,
+                    message: 'user has requested transaction to this project',
+                })
+            } else if (!isInArray) {
+                const request = {
+                    user: userid,
+                    createTime: createTime,
+                    money: money,
+                    description: description,
+                }
+                Waiting.findOneAndUpdate({ project: projectid }, { $push: { requests: request } })
+                .exec()
+                .then(ex => {
+                    res.status(201).json({
+                        status: 201,
+                        message: 'add to list request success',
+                        result: request,
+                    })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        status: 500,
+                        error: err,
+                    })
+                })
+            }
         }
     })
     .catch(err => {

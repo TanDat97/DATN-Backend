@@ -6,7 +6,7 @@ const checkAuth = require('../middleware/checkAuth');
 const libFunction = require('../lib/function');
 const News = require('../models/newsModel');
 
-const numItem = 30;
+const numItem = require('../lib/constant')
 
 router.get('/all/:type/:page', (req, res, next) => {
     const type = req.params.type

@@ -217,7 +217,6 @@ router.post('/edit/:id',checkAuth, (req, res, next) => {
     const lat = req.body.lat
     const long = req.body.long
     const ownerid = req.userData.id
-    console.log(ownerid)
     const fullname = req.body.fullname
     const phone = req.body.phone
     const email = req.body.email
@@ -234,7 +233,6 @@ router.post('/edit/:id',checkAuth, (req, res, next) => {
     })
         .exec()
         .then(doc => {
-            console.log(doc.length)
             if (doc.length > 0) { 
                 publicIdInDataBase = doc[0].publicId
                 // console.log(typeof (publicIdInDataBase))

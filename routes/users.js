@@ -221,7 +221,7 @@ router.post('/login', (req, res, next) => {
 router.get('/info', checkAuth, (req, res, next) => {
   const id = req.userData.id;
   User.findById(id)
-  .select('_id email fullname identify address phone description totalProject statusAccount avatar company')
+  .select('_id identify fullname address phone description email totalProject statusAccount avatar company verify')
   .exec()
   .then(result => {
     res.status(200).json({
@@ -490,15 +490,15 @@ router.post('/auth/google', passport.authenticate('google-token', { session: fal
   next();
 }, generateToken, sendToken);
 
-router.get('/logingoogle/:id_token', (req, res, next) => {
-  const id_token = req.params.id_token
+router.post('/login_google', (req, res, next) => {
+  const id_token = req.body.id_token
   axios.get('https://oauth2.googleapis.com/tokeninfo?id_token=' + id_token)
   .then(ex => {
     User.find({
       email: ex.data.email,
       verify: true,
     })
-    .select('_id identify fullname address phone description email totalProject statusAccount avatar commpany verify')
+    .select('_id identify fullname address phone description email totalProject statusAccount avatar company verify')
     .exec()
     .then(user => {
       if (user.length <= 0) {

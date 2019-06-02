@@ -517,7 +517,7 @@ router.post('/login_google', (req, res, next) => {
           lock: false,
           verify: true,
         });
-        user
+        temp
         .save()
         .then(result => {
           const token = jwt.sign({

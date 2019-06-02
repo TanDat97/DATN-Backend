@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 const checkAuth = require('../middleware/checkAuth');
 const libFunction = require('../lib/function');
@@ -52,6 +53,7 @@ router.post('/signup', (req, res, next) => {
             company: '0',
             lock: false,
             verify: true,
+            hash: 0,
           });
           user
           .save()
@@ -164,7 +166,7 @@ router.post('/login', (req, res, next) => {
       return res.status(401).json({
         status: 401,
         message: 'Auth failed email,'
-      });
+      })
     }
     bcrypt.compare(req.body.password, user[0].password, (err, result) => {
       if (err) {
@@ -203,8 +205,8 @@ router.post('/login', (req, res, next) => {
       return res.status(401).json({
         status: 401,
         message: 'Auth failed'
-      });
-    });
+      })
+    })
   })
   .catch(err => {
     console.log(err);
@@ -212,28 +214,21 @@ router.post('/login', (req, res, next) => {
       status: 401,
       message: 'Auth failed',
       error: err
-    });
-  });
-});
+    })
+  })
+})
 
 router.get('/info', checkAuth, (req, res, next) => {
   const id = req.userData.id;
   User.findById(id)
+  .select('_id email fullname identify address phone description totalProject statusAccount avatar company')
   .exec()
   .then(result => {
     res.status(200).json({
       status: 200,
       message: 'get ino account successful',
-      id: result._id,
-      email: result.email,
-      fullname: result.fullname,
-      identify: result.identify,
-      address: result.address,
-      phone: result.phone,
-      description: result.description,
-      totalProject: result.totalProject,
-      statusAccount: result.statusAccount,
-    });
+      user: result,
+    })
   })
   .catch(err => {
     console.log(err);
@@ -307,7 +302,7 @@ router.get('/danhsachproject', checkAuth, (req, res, next) => {
   Project.find({
     ownerid: req.userData.id
   })
-  .select()
+  .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
   .exec()
   .then(results => {
     if (results.length >= 0) {
@@ -494,5 +489,68 @@ router.post('/auth/google', passport.authenticate('google-token', { session: fal
 
   next();
 }, generateToken, sendToken);
+
+router.get('/logingoogle/:id_token', (req, res, next) => {
+  const id_token = req.params.id_token
+  axios.get('https://oauth2.googleapis.com/tokeninfo?id_token=' + id_token)
+  .then(ex => {
+    User.find({
+      email: ex.data.email,
+      verify: true,
+    })
+    .select('_id identify fullname address phone description email totalProject statusAccount avatar commpany verify')
+    .exec()
+    .then(user => {
+      if (user.length <= 0) {
+        return res.status(200).json({
+          status: 200,
+          message: 'login google not successful',
+        })
+      } else {
+        const token = jwt.sign({
+          id: user[0]._id,
+          email: user[0].email,
+          fullname: user[0].fullname,
+          identify: user[0].identify,
+          address: user[0].address,
+          phone: user[0].phone,
+          totalProject: user[0].totalProject,
+          statusAccount: user[0].statusAccount,
+          }, 'shhhhh', {
+            expiresIn: "5h"
+        })
+        if(user[0].lock === true) {
+          return res.status(500).json({
+              status: 500,
+              message: 'this account user has been locked',
+          })
+        } else {
+          return res.status(200).json({
+            status: 200,
+            message: 'login google successful',
+            user: user[0],
+            token: token,
+          })
+        }
+      }
+    })
+    .catch(err => {
+      console.log(err)
+      return res.status(401).json({
+        status: 401,
+        message: 'Auth failed',
+        error: err
+      })
+    })
+  })
+  .catch(err => {
+    console.log(err.response);
+    return res.status(401).json({
+      status: 401,
+      message: 'Google token failed',
+      error: err
+    })
+  })
+})
 
 module.exports = router;

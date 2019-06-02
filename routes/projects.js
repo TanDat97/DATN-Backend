@@ -16,12 +16,11 @@ cloudinary.config({
     api_secret: 'JdBsEVQDxp4_1jsZrT-qM7T8tns'
 })
 router.get('/all/:page', (req, res, next) => {
-    console.log(numItem)
     const page = parseInt(req.params.page) - 1
     Project.find({
         verify: true,
     }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
-        .select()
+        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
         .exec()
         .then(results => {
             if (results.length > 0) {
@@ -51,7 +50,7 @@ router.post('/home', (req, res, next) => {
     Project.find({
         verify: true,
     })
-        .select()
+        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
         .exec()
         .then(temp => {
             const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
@@ -90,7 +89,7 @@ router.post('/searchmap', (req, res, next) => {
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
     })
-        .select()
+        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
         .exec()
         .then(temp => {
             const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
@@ -120,6 +119,7 @@ router.post('/searchmap', (req, res, next) => {
 router.get('/:id', (req, res, next) => {
     const id = req.params.id
     Project.findById(id)
+        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
         .exec()
         .then(result => {
             if (result != null) {

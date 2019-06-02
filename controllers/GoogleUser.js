@@ -21,8 +21,8 @@ exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
                     id: profile.id,
                     token: accessToken
                 },
-                totalProject:0,
-                statusAccount:1,
+                totalProject: 0,
+                statusAccount: 1,
                 avatar:profile._json['picture'],
                 company: '0',
                 lock: false,

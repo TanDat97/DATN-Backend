@@ -395,7 +395,7 @@ router.post('/searchprojects', (req, res, next) => {
         price: { $gte: priceParam.start, $lte: priceParam.end },
         address: { $regex: `.*${addressParam}.*` },
     })
-        .select()
+        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
         .exec()
         .then(results => {
             if (results.length >= 0) {
@@ -430,7 +430,7 @@ router.post('/searchaddress', (req, res, next) => {
         price: { $gte: priceParam.start, $lte: priceParam.end },
         address: { $regex: `.*${addressParam}.*` },
     })
-        .select()
+        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
         .exec()
         .then(results => {
             if (results.length >= 0) {

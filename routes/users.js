@@ -221,7 +221,7 @@ router.post('/login', (req, res, next) => {
 router.get('/info', checkAuth, (req, res, next) => {
   const id = req.userData.id;
   User.findById(id)
-  .select('_id identify fullname address phone description email totalProject statusAccount avatar company verify')
+  .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify')
   .exec()
   .then(result => {
     res.status(200).json({
@@ -498,13 +498,53 @@ router.post('/login_google', (req, res, next) => {
       email: ex.data.email,
       verify: true,
     })
-    .select('_id identify fullname address phone description email totalProject statusAccount avatar company verify')
+    .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify')
     .exec()
     .then(user => {
       if (user.length <= 0) {
-        return res.status(200).json({
-          status: 200,
-          message: 'login google not successful',
+        const temp = User({
+          _id: new mongoose.Types.ObjectId(),
+          identify: '',
+          fullname: ex.data.name,
+          address: '',
+          phone: '',
+          description: '',
+          email: ex.data.email,
+          totalProject: 0,
+          statusAccount: 1,
+          avatar: ex.data.picture,
+          company: '0',
+          lock: false,
+          verify: true,
+        });
+        user
+        .save()
+        .then(result => {
+          const token = jwt.sign({
+            id: temp._id,
+            email: temp.email,
+            fullname: temp.fullname,
+            identify: temp.identify,
+            address: temp.address,
+            phone: temp.phone,
+            totalProject: temp.totalProject,
+            statusAccount: temp.statusAccount,
+            }, 'shhhhh', {
+              expiresIn: "24h"
+          })
+          res.status(200).json({
+            status: 200,
+            message: 'user created and login success',
+            user: temp,
+            token: token,
+          })
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({
+            status: 500,
+            error: err
+          })
         })
       } else {
         const token = jwt.sign({
@@ -517,7 +557,7 @@ router.post('/login_google', (req, res, next) => {
           totalProject: user[0].totalProject,
           statusAccount: user[0].statusAccount,
           }, 'shhhhh', {
-            expiresIn: "5h"
+            expiresIn: "24h"
         })
         if(user[0].lock === true) {
           return res.status(500).json({

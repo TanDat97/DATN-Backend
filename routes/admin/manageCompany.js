@@ -11,7 +11,8 @@ const User = require('../../models/userModel');
 const Project = require('../../models/projectModel');
 const Comment = require('../../models/commentModel');
 
-const numItem = 30
+const numItem = require('../../lib/constant')
+
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
     auth: {
@@ -45,9 +46,9 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -71,9 +72,9 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/', checkAuthAdmin, (req, res, next) => {
     Company.find({
@@ -103,6 +104,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                         address: req.body.address,
                         email: req.body.email,
                         phone: req.body.phone,
+                        website: req.body.website,
                         totalProject: 0,
                         status: 0,
                         avatar: req.body.avatar,
@@ -158,9 +160,9 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -168,6 +170,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const address = req.body.address;
     const email = req.body.email;
     const phone = req.body.phone;
+    const website = req.body.website;
     const totalProject = req.body.totalProject;
     const status = req.body.status;
     const description = req.body.description;
@@ -181,6 +184,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
             companyname: companyname,
             address: address,
             phone: phone,
+            website: website,
             status: status,
             description: description,
             updateTime: updateTime,
@@ -197,6 +201,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                     companyname: companyname,
                     address: address,
                     phone: phone,
+                    website: website,
                     totalProject: totalProject,
                     status: status,
                     description: description,
@@ -219,9 +224,9 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     Company.remove({
@@ -241,7 +246,7 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found'
-            });
+            })
         }
     })
     .catch(err => {
@@ -249,9 +254,9 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
     Company.update({

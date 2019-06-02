@@ -11,7 +11,7 @@ const Project = require('../../models/projectModel');
 const Comment = require('../../models/commentModel');
 const SavedProject = require('../../models/savedProjectModel');
 
-const numItem = 30
+const numItem = require('../../lib/constant')
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
@@ -71,6 +71,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
 router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
     const fullname = req.body.fullname;
+    const identify = req.body.identify;
     const address = req.body.address;
     const email = req.body.email;
     const phone = req.body.phone;
@@ -83,6 +84,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     }, {
         $set: {
             fullname: fullname,
+            identify: identify,
             address: address,
             phone: phone,
             totalProject: totalProject,
@@ -99,6 +101,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                 account: {
                     _id: id,
                     fullname: fullname,
+                    identify: identify,
                     address: address,
                     email: email,
                     phone: phone,

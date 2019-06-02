@@ -23,6 +23,10 @@ const Schema = mongoose.Schema({
         type: String,
         required: false,
     },
+    website: {
+        type: String,
+        required: true,
+    },
     totalProject: {
         type: Number,
         required: true,

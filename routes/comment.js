@@ -67,7 +67,7 @@ router.post('/', checkAuth, (req, res, next) => {
             updateTime: req.body.updateTime,
             content: req.body.content,
             star: req.body.star,
-        });
+        })
         comment
         .save()
         .then(result => {
@@ -91,9 +91,9 @@ router.post('/', checkAuth, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });   
-});
+        })
+    }) 
+})
 
 router.post('/edit/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
@@ -129,13 +129,13 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
                     content: content,
                     star: star,
                 },
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found',
                 result: result,
-            });
+            })
         }
     })
     .catch(err => {
@@ -143,9 +143,9 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.delete('/:id', checkAuth, (req, res, next) => {
     Comment.remove({
@@ -159,13 +159,13 @@ router.delete('/:id', checkAuth, (req, res, next) => {
                 status: 200,
                 message: 'comment deleted',
                 result: result,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found',
                 result: result,
-            });
+            })
         }
         
     })
@@ -174,8 +174,8 @@ router.delete('/:id', checkAuth, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 module.exports = router;

@@ -6,7 +6,7 @@ const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
 const libFunction = require('../../lib/function');
 const News = require('../../models/newsModel');
 
-const numItem = 30
+const numItem = require('../../lib/constant')
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1

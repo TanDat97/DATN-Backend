@@ -8,7 +8,7 @@ const libFunction = require('../lib/function')
 const Project = require('../models/projectModel')
 const Comment = require('../models/commentModel')
 
-const numItem = 30
+const numItem = require('../lib/constant')
 
 cloudinary.config({
     cloud_name: 'dne3aha8f',
@@ -16,6 +16,7 @@ cloudinary.config({
     api_secret: 'JdBsEVQDxp4_1jsZrT-qM7T8tns'
 })
 router.get('/all/:page', (req, res, next) => {
+    console.log(numItem)
     const page = parseInt(req.params.page) - 1
     Project.find({
         verify: true,
@@ -96,6 +97,7 @@ router.post('/searchmap', (req, res, next) => {
             if (results.length > 0) {
                 res.status(200).json({
                     status: 200,
+                    message: 'get list project success',
                     count: results.length,
                     projects: results,
                 })
@@ -123,6 +125,7 @@ router.get('/:id', (req, res, next) => {
             if (result != null) {
                 res.status(200).json({
                     status: 200,
+                    message: 'get info project success',
                     project: result,
                 })
             } else {
@@ -168,22 +171,49 @@ router.post('/', checkAuth, (req, res, next) => {
         url: req.body.url,
         publicId: req.body.publicId,
     })
-    project
-        .save()
-        .then(result => {
-            res.status(201).json({
-                status: 201,
-                message: 'add project success',
-                project: result,
+    User.find({
+        id: req.userData.id,
+        verify: true,
+    })
+    .exec()
+    .then(result => {
+        if(result.statusAccount === 1 && totalProject >= 5) {
+            res.status(203).json({
+                status: 203,
+                message: 'your account has maximum 5 project, upgrade your account for more',
             })
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                status: 500,
-                error: err,
+        } else if(result.statusAccount === 2 && totalProject  >= 40) {
+            res.status(204).json({
+                status: 204,
+                message: 'your account has maximum 40 project',
             })
+        } else {
+            project
+            .save()
+            .then(result => {
+                res.status(201).json({
+                    status: 201,
+                    message: 'add project success',
+                    project: result,
+                })
+            })
+            .catch(err => {
+                console.log(err)
+                res.status(500).json({
+                    status: 500,
+                    error: err,
+                })
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err,
         })
+    })
+
 })
 
 
@@ -204,7 +234,7 @@ const compare = function (arr1, arr2) {
     }
     return finalarray
 }
-router.post('/edit/:id', (req, res, next) => {
+router.post('/edit/:id', checkAuth, (req, res, next) => {
     const id = req.params.id
     const name = req.body.name
     const investor = req.body.investor

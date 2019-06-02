@@ -19,6 +19,8 @@ var transporter = nodemailer.createTransport({ // config mail server
     }
 });
 
+const numItem = require('../lib/constant')
+
 router.post('/verifycompany', (req, res, next) => {
     const id = req.body.id
     const hash = req.body.hash
@@ -59,13 +61,14 @@ router.post('/resetpassword', (req, res, next) => {
     Company.find({
         email: email,
         verify: true,
+        lock: false,
     })
     .exec()
     .then(company=>{
         if (company.length <= 0) {
             return res.status(404).json({
                 status: 404,
-                message: 'your account does not exists',
+                message: 'your account does not exists or has been locked',
             });
         } else {
             const pass = libFunction.randomPassword(10)
@@ -74,7 +77,7 @@ router.post('/resetpassword', (req, res, next) => {
                     return res.status(500).json({
                         status: 500,
                         error: err,
-                    });
+                    })
                 } else {
                     var EmailCompanyModel = require('../lib/emailCompanyModel')
                     var emailModel = new EmailCompanyModel()
@@ -117,7 +120,7 @@ router.post('/resetpassword', (req, res, next) => {
                             status: 500,
                             error: err
                         })
-                    });              
+                    })             
                 }
             })
         }
@@ -127,7 +130,7 @@ router.post('/resetpassword', (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
+        })
     })
 })
 
@@ -136,21 +139,22 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
         email: req.companyData.email,
         _id: req.companyData.id,
         verify: true,
+        lock: false,
     })
     .exec()
     .then(company => {
         if (company.length <= 0) {
             return res.status(401).json({
                 status: 401,
-                message: 'Account not found',
-            });
+                message: 'Account not found or has been locked',
+            })
         }
         bcrypt.compare(req.body.currentPassword, company[0].password, (err, result) => {
             if (err) {
                 return res.status(40).json({
                     status: 401,
                     message: 'Change password failed 1',
-                });
+                })
             }
             if (result) {
                 bcrypt.hash(req.body.newPassword, 10, (err, hash) => {
@@ -208,9 +212,9 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
             status: 401,
             error: err,
             message: 'Change password failed 5',
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/login', (req, res, next) => {
     Company.find({
@@ -274,8 +278,8 @@ router.post('/login', (req, res, next) => {
             return res.status(401).json({
                 status: 401,
                 message: 'Auth failed'
-            });
-        });
+            })
+        })
     })
     .catch(err => {
         console.log(err);
@@ -283,13 +287,40 @@ router.post('/login', (req, res, next) => {
             status: 401,
             message: 'Auth failed',
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
-router.get('/info', checkAuthCompany, (req, res, next) => {
-    const id = req.companyData.id;
+router.get('/all/:page', (req, res, next) => {
+    const page = parseInt(req.params.page) - 1
+    Company.find({
+        verify: true,
+        lock: false,
+    }).sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    .select('_id email companyname address phone website totalProject employees status avatar description createTime updateTime')
+    .exec()
+    .then(result => {
+        res.status(200).json({
+            status: 200,
+            message: 'successful',
+            page: page + 1,
+            count: result.length,
+            result: result,
+        })   
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
+router.get('/info/:id', (req, res, next) => {
+    const id = req.params.id;
     Company.findById(id)
+    .select('_id email companyname address phone website totalProject employees status avatar description createTime updateTime')
     .populate({
         path: 'employees.employee'
     })
@@ -304,19 +335,8 @@ router.get('/info', checkAuthCompany, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'successful',
-                id: result._id,
-                email: result.email,
-                companyname: result.companyname,
-                address: result.address,
-                phone: result.phone,
-                totalProject: result.totalProject,
-                employees: result.employees,
-                status: result.status,
-                avatar: result.avatar,
-                description: result.description,
-                createTime: result.createTime,
-                updateTime: result.updateTime,
-            });
+                company: result,
+            })
         }        
     })
     .catch(err => {
@@ -324,9 +344,9 @@ router.get('/info', checkAuthCompany, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/edit', checkAuthCompany, (req, res, next) => {
     const id = req.companyData.id;
@@ -334,22 +354,24 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
     const companyname = req.body.companyname;
     const address = req.body.address;
     const phone = req.body.phone;
+    const website = req.body.website;
     const totalProject = req.body.totalProject;
     const status = req.body.status;
     const avatar = req.body.avatar;
     const description = req.body.description;
     const createTime = req.body.createTime;
     const updateTime = req.body.updateTime;
-
     Company.update({
         _id: id,
         email: email,
         verify: true,
+        lock: false,
     }, {
         $set: {
             companyname: companyname,
             address: address,
             phone: phone,
+            website: website,
             totalProject: totalProject,
             status: status,
             avatar: avatar,
@@ -363,14 +385,14 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'update company success',
-                user: {
+                company: {
                     _id: id,
                     email: email,
                     companyname: companyname,
                     address: address,
                     phone: phone,
                     totalProject: totalProject,
-                    statusAccount: statusAccount,
+                    status: status,
                     avatar: avatar,
                     description: description,
                     createTime: createTime,
@@ -382,7 +404,7 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
                 status: 404,
                 message: 'No valid entry found',
                 result: result,
-            });
+            })
         }
     })
     .catch(err => {
@@ -390,9 +412,50 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
+
+router.get('/infoemployee/:id/:page', checkAuthCompany, (req, res, next) => {
+    const id = req.companyData.id
+    const employeeid = req.params.id
+    const page = parseInt(req.params.page) - 1
+    User.find({
+        _id: employeeid,
+        company: id,
+    })
+    .exec()
+    .then(result => {
+        Project.find({
+            ownerid: employeeid,
+        }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+        .select()
+        .exec()
+        .then(results => {
+            res.status(200).json({
+                status: 200,
+                message: 'successful',
+                page: page + 1,
+                info: result[0],
+                projects: results,
+            })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
 
 router.post('/addemployee', checkAuthCompany, (req, res, next) => {
     User.find({
@@ -418,12 +481,13 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                         _id: new mongoose.Types.ObjectId(),
                         password: hash,
                         fullname: req.body.fullname,
+                        identify: req.body.identify,
                         address: req.body.address,
                         phone: req.body.phone,
                         description: req.body.description,
                         email: req.body.email,
                         totalProject: 0,
-                        statusAccount: 1,
+                        statusAccount: 2,
                         avatar: req.body.avatar,
                         company: req.companyData.id,
                         lock: false,
@@ -471,7 +535,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                                 status: 500,
                                 message: 'Update Company Error',
                                 error: err
-                            });
+                            })
                         })
                     })
                     .catch(err => {
@@ -480,7 +544,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                             status: 500,
                             message: 'Insert User Error',
                             error: err
-                        });
+                        })
                     })
                 }
             })
@@ -494,6 +558,7 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
         _id: req.companyData.id,
         email: req.companyData.email,
         verify: true,
+        lock: false,
     })
     .exec()
     .then(datacompany => {
@@ -537,6 +602,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     const id = req.body.id;
     const email= req.body.email;
     const fullname = req.body.fullname;
+    const identify = req.body.identify;
     const address = req.body.address;
     const phone = req.body.phone;
     const totalProject = req.body.totalProject;
@@ -549,6 +615,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     },{
         $set :{
             fullname: fullname,
+            identify: identify,
             address: address,
             phone: phone,
             totalProject: totalProject,
@@ -568,7 +635,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
             res.status(404).json({
                 status: 404,
                 message:'No valid entry found',
-            });
+            })
         }
     })
     .catch(err => {
@@ -608,8 +675,8 @@ router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
 module.exports = router;

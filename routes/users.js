@@ -16,6 +16,8 @@ var { generateToken, sendToken } = require('./../middleware/token.utils');
 var config = require('./../middleware/config');
 require('./../middleware/passport')();
 
+const numItem = require('../lib/constant')
+
 router.post('/signup', (req, res, next) => {
   User.find({
     email: req.body.email,
@@ -39,12 +41,13 @@ router.post('/signup', (req, res, next) => {
             _id: new mongoose.Types.ObjectId(),
             password: hash,
             fullname: req.body.fullname,
+            identify: req.body.identify,
             address: req.body.address,
             phone: req.body.phone,
             description: req.body.description,
             email: req.body.email,
             totalProject: 0,
-            statusAccount: 0,
+            statusAccount: 1,
             avatar: 'ssssssssssss',
             company: '0',
             lock: false,
@@ -65,10 +68,10 @@ router.post('/signup', (req, res, next) => {
             res.status(500).json({
               status: 500,
               error: err
-            });
-          });
+            })
+          })
         }
-      });
+      })
     }
   })
   .catch(err => {
@@ -76,9 +79,79 @@ router.post('/signup', (req, res, next) => {
     res.status(500).json({
         status: 500,
         error: err
-    });
-});
-});
+    })
+  })
+})
+
+router.get('/allagent/:page', (req, res, next) => {
+  const page = parseInt(req.params.page) - 1
+  User.find({
+    verify: true,
+    lock: false,
+    $or: [{statusAccount: 2}]
+  }).skip(page*numItem).limit(numItem)
+  .select('_id email fullname identify address phone description totalProject statusAccount avatar company')
+  .exec()
+  .then(result => {
+      res.status(200).json({
+          status: 200,
+          message: 'get all agent successful',
+          page: page + 1,
+          count: result.length,
+          result: result,
+      })   
+  })
+  .catch(err => {
+      console.log(err);
+      res.status(500).json({
+          status: 500,
+          error: err
+      })
+  })
+})
+router.get('/infoagent/:id/:page', (req, res, next) => {
+  const id = req.params.id
+  const page = parseInt(req.params.page) - 1
+  User.find({
+      _id: id,
+      verify: true,
+      lock: false,
+      $or: [{statusAccount: 2}]
+  })
+  .select('_id email fullname identify address phone description totalProject statusAccount avatar company')
+  .exec()
+  .then(result => {
+      Project.find({
+          ownerid: id,
+          verify: true,
+      }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+      .select()
+      .exec()
+      .then(results => {
+          res.status(200).json({
+              status: 200,
+              message: 'get info agent successful',
+              page: page + 1,
+              info: result[0],
+              projects: results,
+          })
+      })
+      .catch(err => {
+          console.log(err);
+          res.status(500).json({
+              status: 500,
+              error: err
+          })
+      })
+  })
+  .catch(err => {
+      console.log(err);
+      res.status(500).json({
+          status: 500,
+          error: err
+      })
+  })
+})
 
 router.post('/login', (req, res, next) => {
   User.find({
@@ -122,14 +195,7 @@ router.post('/login', (req, res, next) => {
           return res.status(200).json({
             status: 200,
             message: 'successful',
-            id: user[0]._id,
-            email: user[0].email,
-            fullname: user[0].fullname,
-            identify: user[0].identify,
-            address: user[0].address,
-            description: user[0].description,
-            totalProject: user[0].totalProject,
-            statusAccount: user[0].statusAccount,
+            user: user[0],
             token: token,
           })
         }
@@ -157,7 +223,7 @@ router.get('/info', checkAuth, (req, res, next) => {
   .then(result => {
     res.status(200).json({
       status: 200,
-      message: 'successful',
+      message: 'get ino account successful',
       id: result._id,
       email: result.email,
       fullname: result.fullname,
@@ -174,9 +240,9 @@ router.get('/info', checkAuth, (req, res, next) => {
     res.status(500).json({
       status: 500,
       error: err
-    });
-  });
-});
+    })
+  })
+})
 
 router.post('/edit', checkAuth, (req, res, next) => {
   const id = req.userData.id;
@@ -186,7 +252,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
   const address = req.body.address;
   const phone = req.body.phone;
   const totalProject = req.body.totalProject;
-  const statusAccount = req.body.statusAccount;
   const avatar = req.body.avatar;
   const description = req.body.description;
   User.updateMany({
@@ -200,7 +265,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
       address: address,
       phone: phone,
       totalProject: totalProject,
-      statusAccount: statusAccount,
       avatar: avatar,
       description: description,
     }
@@ -210,7 +274,7 @@ router.post('/edit', checkAuth, (req, res, next) => {
     if (result.nModified > 0) {
       res.status(200).json({
         status: 200,
-        message: 'update user success',
+        message: 'update accont user success',
         user: {
           _id: id,
           email: email,
@@ -218,7 +282,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
           address: address,
           phone: phone,
           totalProject: totalProject,
-          statusAccount: statusAccount,
           avatar: avatar,
           description: description,
         },
@@ -250,6 +313,7 @@ router.get('/danhsachproject', checkAuth, (req, res, next) => {
     if (results.length >= 0) {
       res.status(200).json({
         status: 200,
+        message: 'get all project list success',
         count: results.length,
         projects: results,
       });
@@ -265,9 +329,9 @@ router.get('/danhsachproject', checkAuth, (req, res, next) => {
     res.status(500).json({
       status: 500,
       error: err
-    });
-  });
-});
+    })
+  })
+})
 
 router.get('/listSaved', checkAuth, (req, res, next) => {
   SavedProject.find({
@@ -278,7 +342,7 @@ router.get('/listSaved', checkAuth, (req, res, next) => {
     if (result.length > 0) {
       res.status(200).json({
         status: 200,
-        message: 'success',
+        message: 'get list project saved success',
         count: result[0].projects.length,
         result: result[0],
       });
@@ -305,6 +369,12 @@ router.post('/follow', checkAuth, (req, res, next) => {
   .exec()
   .then(result => {
     if(result.length >= 1) {
+      if (result[0].requests.length >= 10) {
+        return res.status(204).json({
+          status: 204,
+          message: ' user can not follow more project',
+        })
+      }
       const isInArray = result[0].projects.some(temp => {
         return temp.project === req.body.projectid;
       })
@@ -368,8 +438,8 @@ router.post('/follow', checkAuth, (req, res, next) => {
     res.status(500).json({
       status: 500,
       error: err,
-    });
-  });
+    })
+  })
 })
 
 router.post('/unfollow', checkAuth, (req, res, next) => {
@@ -409,8 +479,8 @@ router.post('/unfollow', checkAuth, (req, res, next) => {
     res.status(500).json({
       status: 500,
       error: err
-    });
-  });
+    })
+  })
 })
 
 router.post('/auth/google', passport.authenticate('google-token', { session: false }), function (req, res, next) {

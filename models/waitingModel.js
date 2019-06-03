@@ -8,18 +8,14 @@ var projectSchema = new Schema({
         ref: 'Project',
         required: true,
     },
-    createdTransaction: {
-        type: Boolean,
-        required: true,
-    },
-    choosenone: {
-        type: String,
-        default: '0',
-    },
     requests: [{
         user: {
             type: String,
             ref: 'User',
+            required: true,
+        },
+        createdTransaction: {
+            type: Boolean,
             required: true,
         },
         createTime: {

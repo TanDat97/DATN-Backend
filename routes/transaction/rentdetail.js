@@ -35,7 +35,7 @@ router.post('/deal', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(deal.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -67,7 +67,7 @@ router.post('/deal', checkAuth, (req, res, next) => {
             })
         })
     } else if(deal.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -131,7 +131,7 @@ router.post('/legality', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(legality.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -163,7 +163,7 @@ router.post('/legality', checkAuth, (req, res, next) => {
             })
         })
     } else if(legality.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -224,7 +224,7 @@ router.post('/deposit', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(deposit.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -256,7 +256,7 @@ router.post('/deposit', checkAuth, (req, res, next) => {
             })
         })
     } else if(deposit.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -317,7 +317,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(contract.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -349,7 +349,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
             })
         })
     } else if(contract.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -409,7 +409,7 @@ router.post('/confirmation', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(confirmation.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -441,7 +441,7 @@ router.post('/confirmation', checkAuth, (req, res, next) => {
             })
         })
     } else if(confirmation.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -508,7 +508,7 @@ router.post('/tax', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(tax.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -540,7 +540,7 @@ router.post('/tax', checkAuth, (req, res, next) => {
             })
         })
     } else if(tax.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -607,7 +607,7 @@ router.post('/delivery', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(delivery.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -639,7 +639,7 @@ router.post('/delivery', checkAuth, (req, res, next) => {
             })
         })
     } else if(delivery.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -701,7 +701,7 @@ router.post('/transfer', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(transfer.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -733,7 +733,7 @@ router.post('/transfer', checkAuth, (req, res, next) => {
             })
         })
     } else if(transfer.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{

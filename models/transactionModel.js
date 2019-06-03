@@ -26,6 +26,10 @@ const Schema = mongoose.Schema({
         ref: 'Project',
         required: true,
     },
+    code: {
+        type: String,
+        required: true,
+    },
     seller: {
         type: String,
         ref: 'User',
@@ -57,6 +61,10 @@ const Schema = mongoose.Schema({
     rentdetail: {
         type: String,
         ref: 'RentDetail',
+        required: true,
+    },
+    complete: {
+        type: Boolean,
         required: true,
     },
 });

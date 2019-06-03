@@ -48,7 +48,7 @@ router.post('/deal', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update deal complete: true',
+                    message: 'update deal selldetail complete: true',
                     deal: deal,
                     prev: result,
                 })
@@ -85,7 +85,7 @@ router.post('/deal', checkAuth, (req, res, next) => {
                 deal.description = result.deal.description 
                 res.status(200).json({
                     status: 200,
-                    message: 'update deal complete: false',
+                    message: 'update deal selldetail complete: false',
                     deal: deal,
                     prev: result,
                 })
@@ -144,7 +144,7 @@ router.post('/legality', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update legality complete: true',
+                    message: 'update legality selldetail complete: true',
                     legality: legality,
                     prev: result,
                 })
@@ -179,7 +179,7 @@ router.post('/legality', checkAuth, (req, res, next) => {
                 legality.contract = result.legality.contract
                 res.status(200).json({
                     status: 200,
-                    message: 'update legality complete: false',
+                    message: 'update legality selldetail complete: false',
                     legality: legality,
                     prev: result,
                 })
@@ -237,7 +237,7 @@ router.post('/deposit', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update deposit complete: true',
+                    message: 'update deposit selldetail complete: true',
                     deposit: deposit,
                     prev: result,
                 })
@@ -271,7 +271,7 @@ router.post('/deposit', checkAuth, (req, res, next) => {
                 deposit.detail = result.deposit.detail
                 res.status(200).json({
                     status: 200,
-                    message: 'update deposit complete: false',
+                    message: 'update deposit selldetail complete: false',
                     deposit: deposit,
                     prev: result,
                 })
@@ -330,7 +330,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update contract complete: true',
+                    message: 'update contract selldetail complete: true',
                     contract: contract,
                     prev: result,
                 })
@@ -365,7 +365,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
                 contract.image = result.contract.image
                 res.status(200).json({
                     status: 200,
-                    message: 'update contract complete: false',
+                    message: 'update contract selldetail complete: false',
                     contract: contract,
                     prev: result,
                 })
@@ -422,7 +422,7 @@ router.post('/confirmation', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update confirmation complete: true',
+                    message: 'update confirmation selldetail complete: true',
                     confirmation: confirmation,
                     prev: result,
                 })
@@ -455,7 +455,7 @@ router.post('/confirmation', checkAuth, (req, res, next) => {
                 confirmation.image = result.confirmation.image
                 res.status(200).json({
                     status: 200,
-                    message: 'update confirmation complete: false',
+                    message: 'update confirmation selldetail complete: false',
                     confirmation: confirmation,
                     prev: result,
                 })
@@ -521,7 +521,7 @@ router.post('/tax', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update tax complete: true',
+                    message: 'update tax selldetail complete: true',
                     tax: tax,
                     prev: result,
                 })
@@ -559,7 +559,7 @@ router.post('/tax', checkAuth, (req, res, next) => {
                 tax.buyer.amountmoney = result.tax.buyer.amountmoney
                 res.status(200).json({
                     status: 200,
-                    message: 'update tax complete: false',
+                    message: 'update tax selldetail complete: false',
                     tax: tax,
                     prev: result,
                 })
@@ -620,7 +620,7 @@ router.post('/delivery', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update delivery complete: true',
+                    message: 'update delivery selldetail complete: true',
                     delivery: delivery,
                     prev: result,
                 })
@@ -657,7 +657,7 @@ router.post('/delivery', checkAuth, (req, res, next) => {
                 delivery.tax = result.delivery.tax
                 res.status(200).json({
                     status: 200,
-                    message: 'update tax complete: false',
+                    message: 'update tax selldetail complete: false',
                     delivery: delivery,
                     prev: result,
                 })
@@ -714,7 +714,7 @@ router.post('/transfer', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update transfer complete: true',
+                    message: 'update transfer selldetail complete: true',
                     transfer: transfer,
                     prev: result,
                 })
@@ -747,7 +747,7 @@ router.post('/transfer', checkAuth, (req, res, next) => {
                 transfer.image = result.transfer.image
                 res.status(200).json({
                     status: 200,
-                    message: 'update transfer complete: false',
+                    message: 'update transfer selldetail complete: false',
                     transfer: transfer,
                     prev: result,
                 })

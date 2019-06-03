@@ -63,11 +63,11 @@ var projectSchema = new Schema({
         type: String,
         required: true,
     },
-    statusProject:{
+    statusProject: {
         type: Number,
         required: true,
     },
-    amount:{
+    amount: {
         type: Number,
         required: true,
     },
@@ -83,19 +83,28 @@ var projectSchema = new Schema({
         type: Boolean,
         required: true,
     },
-    allowComment : {
+    allowComment: {
         type: Boolean,
         required: true,
     },
-    url : [{
+    codelist: [{
+        code:  {
+            type: String,
+            required: true,
+        },
+        sold: {
+            type: Boolean,
+            required: true,
+        },
+    }],
+    url: [{
         type: String,
         required: true
     }],
-    publicId : [{
+    publicId: [{
         type: String,
         required: true
-    }]
-    
+    }],
 });
 
 // Export the model

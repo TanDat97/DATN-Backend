@@ -19,8 +19,9 @@ router.get('/all/:page', (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     Project.find({
         verify: true,
+        $or: [{statusProject: 1},{statusProject: 3}],
     }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
-        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {
             if (results.length > 0) {
@@ -49,8 +50,9 @@ router.get('/all/:page', (req, res, next) => {
 router.post('/home', (req, res, next) => {
     Project.find({
         verify: true,
+        $or: [{statusProject: 1},{statusProject: 3}],
     })
-        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(temp => {
             const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
@@ -89,7 +91,7 @@ router.post('/searchmap', (req, res, next) => {
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
     })
-        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(temp => {
             const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
@@ -119,7 +121,7 @@ router.post('/searchmap', (req, res, next) => {
 router.get('/:id', (req, res, next) => {
     const id = req.params.id
     Project.findById(id)
-        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(result => {
             if (result != null) {
@@ -145,6 +147,7 @@ router.get('/:id', (req, res, next) => {
 })
 
 router.post('/', checkAuth, (req, res, next) => {
+    const codelist = req.body.codelist ? req.body.codelist : ['dummy']
     const project = new Project({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -163,11 +166,12 @@ router.post('/', checkAuth, (req, res, next) => {
         email: req.body.email,
         avatar: req.body.avatar,
         statusProject: req.body.statusProject,
-        amount: req.body.type === 1 ? req.body.amount: 1,
+        amount: codelist.length,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
         verify: false,
         allowComment: true,
+        codelist: libFunction.createCodeList(codelist),
         url: req.body.url,
         publicId: req.body.publicId,
     })
@@ -191,6 +195,7 @@ router.post('/', checkAuth, (req, res, next) => {
             project
             .save()
             .then(result => {
+                // update totalProject
                 res.status(201).json({
                     status: 201,
                     message: 'add project success',
@@ -251,7 +256,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     const phone = req.body.phone
     const email = req.body.email
     const avatar = req.body.avatar
-    const statusProject = req.body.statusProject
     const updateTime = req.body.updateTime
     const url = req.body.url
     const publicId = req.body.publicId
@@ -260,6 +264,7 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
         _id: id,
         ownerid: req.userData.id,
         verify: true,
+        $or: [{statusProject: 1},{statusProject: 3}],
     })
         .exec()
         .then(doc => {
@@ -295,8 +300,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
                 phone: phone,
                 email: email,
                 avatar: avatar,
-                statusProject: statusProject,
-                amount: req.body.type === 1 ? req.body.amount: 1,
                 updateTime: updateTime,
                 url: url,
                 publicId: publicId,
@@ -325,7 +328,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
                         phone: phone,
                         email: email,
                         avatar: avatar,
-                        statusProject: statusProject,
                         updateTime: updateTime,
                         url: url,
                         publicId: publicId,
@@ -357,6 +359,10 @@ router.delete('/:id', checkAuth, (req, res, next) => {
         .then(result => {
             if (result.n > 0) {
                 Comment.remove({ projectid: projectid }).exec().then(result => console.log('delete comment success'))
+                // delete transaction 
+                // delete detailtransacion
+                // delete request
+                // update totalProject
                 res.status(200).json({
                     status: 200,
                     message: 'delete project success',
@@ -395,7 +401,7 @@ router.post('/searchprojects', (req, res, next) => {
         price: { $gte: priceParam.start, $lte: priceParam.end },
         address: { $regex: `.*${addressParam}.*` },
     })
-        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {
             if (results.length >= 0) {
@@ -426,11 +432,12 @@ router.post('/searchaddress', (req, res, next) => {
     const priceParam = libFunction.convertData(req.body.price)
     Project.find({
         verify: true,
+        $or: [{statusProject: 1},{statusProject: 3}],
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
         address: { $regex: `.*${addressParam}.*` },
     })
-        .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {
             if (results.length >= 0) {

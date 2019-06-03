@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 const checkAuth = require('../../middleware/checkAuth');
 const libFunction = require('../../lib/function');
+const dataprocess = require('../../lib/dataprocess');
 const User = require('../../models/userModel');
 const Project = require('../../models/projectModel');
 const Company = require('../../models/companyModel');
@@ -25,6 +26,7 @@ router.get('/listrequest/:projectid', checkAuth, (req, res, next) => {
         res.status(200).json({
             status: 200,
             message: 'get list requests success',
+            count: result.length > 0 ? result[0].requests.length : 0,
             result: result,
         })
     })
@@ -52,10 +54,9 @@ router.post('/addwaitingrequest', checkAuth, (req, res, next) => {
             const waiting = new Waiting({
                 _id: new mongoose.Types.ObjectId(),
                 project: projectid,
-                createdTransaction: false,
-                choosenone: '0',
                 requests: [{
                     user: userid,
+                    createdTransaction: false,
                     createTime: createTime,
                     money: money,
                     description: description,
@@ -77,13 +78,8 @@ router.post('/addwaitingrequest', checkAuth, (req, res, next) => {
                     error: err,
                 })
             })
-        } else if (result[0].createdTransaction === true) {
-            res.status(203).json({
-                status: 203,
-                message: 'this project is now in transaction',
-            })
         } else if (result.length >= 1) {
-            if(result[0].requests.length >= 10)  {
+            if(result[0].requests.length >= 50)  {
                 return res.status(204).json({
                     status: 204,
                     message: 'can not add more request transaction to this project',
@@ -189,6 +185,7 @@ router.post('/create', checkAuth, (req, res, next) => {
         typeproject: req.body.typeproject,
         typetransaction: req.body.typetransaction,
         project: req.body.project,
+        code: req.body.code,
         seller: req.userData.id,
         buyer: req.body.buyer,
         company: req.body.company,
@@ -196,29 +193,38 @@ router.post('/create', checkAuth, (req, res, next) => {
         updateTime: req.body.updateTime,
         selldetail: '0',
         rentdetail: '0',
+        complete: false,
     })
-    Waiting.findOneAndUpdate({ project: req.body.project }, { createdTransaction: true, choosenone: req.body.buyer })
-    .exec()
-    .then(ex => console.log('change created transaction'))
-    if(transaction.typetransaction === 1) {
-        const transactiondetail = SellDetail({
-            _id: new mongoose.Types.ObjectId(),
-            seller: req.userData.id,
-            buyer: req.body.buyer,
-            transactionid: transaction._id,
-        })
-        transactiondetail
-        .save()
-        .then(resultdetail => {
-            transaction.selldetail=transactiondetail._id
-            transaction
+    dataprocess.checkCodeAvailable(req.body.project, req.body.buyer, req.body.code, req.userData.id)
+    .then(result => {
+        console.log(result)        
+        if(transaction.typetransaction === 1) {
+            const transactiondetail = SellDetail({
+                _id: new mongoose.Types.ObjectId(),
+                seller: req.userData.id,
+                buyer: req.body.buyer,
+                transactionid: transaction._id,
+            })
+            transactiondetail
             .save()
-            .then(result => {
-                res.status(201).json({
-                    status: 201,
-                    message: 'create sell transaction success',
-                    transaction: result,
-                    transactiondetail: resultdetail,
+            .then(resultdetail => {
+                transaction.selldetail=transactiondetail._id
+                transaction
+                .save()
+                .then(result => {
+                    res.status(201).json({
+                        status: 201,
+                        message: 'create sell transaction success',
+                        transaction: result,
+                        transactiondetail: resultdetail,
+                    })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        status: 500,
+                        error: err
+                    })
                 })
             })
             .catch(err => {
@@ -228,31 +234,31 @@ router.post('/create', checkAuth, (req, res, next) => {
                     error: err
                 })
             })
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                error: err
+        } else if(transaction.typetransaction === 2) {
+            const transactiondetail = RentDetail({
+                _id: new mongoose.Types.ObjectId(),
+                transactionid: transaction._id,
             })
-        })
-    } else if(transaction.typetransaction === 2) {
-        const transactiondetail = RentDetail({
-            _id: new mongoose.Types.ObjectId(),
-            transactionid: transaction._id,
-        })
-        transactiondetail
-        .save()
-        .then(resultdetail => {
-            transaction.selldetail=transactiondetail._id
-            transaction
+            transactiondetail
             .save()
-            .then(result => {
-                res.status(201).json({
-                    status: 201,
-                    message: 'create rent transaction success',
-                    transaction: result,
-                    transactiondetail: resultdetail,
+            .then(resultdetail => {
+                transaction.selldetail=transactiondetail._id
+                transaction
+                .save()
+                .then(result => {
+                    res.status(201).json({
+                        status: 201,
+                        message: 'create rent transaction success',
+                        transaction: result,
+                        transactiondetail: resultdetail,
+                    })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        status: 500,
+                        error: err
+                    })
                 })
             })
             .catch(err => {
@@ -262,21 +268,19 @@ router.post('/create', checkAuth, (req, res, next) => {
                     error: err
                 })
             })
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: 500,
-                error: err
+        } else {
+            res.status(409).json({
+                status: 409,
+                error: 'request fail'
             })
+        }
+    })
+    .catch(err => {
+        res.status(500).json({
+            status: 500,
+            error: err
         })
-    } else {
-        res.status(409).json({
-            status: 409,
-            error: 'request fail'
-        })
-    }
-    
+    })    
 })
 
 router.post('/changestatus', checkAuth, (req, res, next) => {
@@ -284,6 +288,8 @@ router.post('/changestatus', checkAuth, (req, res, next) => {
     const active = req.body.active
     Transaction.update({
         _id: transactionid,
+        verify: false,
+        complete: false,
         seller: req.userData.id,
     },{
         $set: {
@@ -296,7 +302,45 @@ router.post('/changestatus', checkAuth, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'change status transaction success',
+                transactionid: transactionid,
                 active: active,
+            })
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
+router.post('/complete', checkAuth, (req, res, next) => {
+    const transactionid = req.body.id
+    Transaction.update({
+        _id: transactionid,
+        verify: false,
+        complete: false,
+        seller: req.userData.id,
+    },{
+        $set: {
+            complete: true,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'change status transaction success',
+                transactionid: transactionid,
+                complete: true,
             })
         } else {
             res.status(404).json({
@@ -328,6 +372,7 @@ router.get('/history/:page', checkAuth, (req, res, next) => {
         res.status(200).json({
             status: 200,
             message: 'get history transaction success',
+            count: result.length,
             history: result,
         })
     })

@@ -196,8 +196,8 @@ router.post('/create', checkAuth, (req, res, next) => {
         complete: false,
     })
     dataprocess.checkCodeAvailable(req.body.project, req.body.buyer, req.body.code, req.userData.id)
-    .then(result => {
-        console.log(result)        
+    .then(resultcheck => {
+        console.log(resultcheck)        
         if(transaction.typetransaction === 1) {
             const transactiondetail = SellDetail({
                 _id: new mongoose.Types.ObjectId(),

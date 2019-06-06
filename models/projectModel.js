@@ -99,11 +99,11 @@ var projectSchema = new Schema({
     }],
     url: [{
         type: String,
-        required: true
+        required: true,
     }],
     publicId: [{
         type: String,
-        required: true
+        required: true,
     }],
 });
 

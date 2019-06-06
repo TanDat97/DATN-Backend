@@ -6,6 +6,7 @@ const cloudinary = require('cloudinary')
 const checkAuth = require('../middleware/checkAuth')
 const libFunction = require('../lib/function')
 const Project = require('../models/projectModel')
+const User = require('../models/userModel')
 const Comment = require('../models/commentModel')
 
 const numItem = require('../lib/constant')
@@ -148,7 +149,6 @@ router.get('/:id', (req, res, next) => {
 
 router.post('/', checkAuth, (req, res, next) => {
     const codelist = req.body.codelist !== undefined && req.body.codelist.length > 0 ? req.body.codelist : ['dummy']
-    console.log(codelist)
     const project = new Project({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -173,11 +173,11 @@ router.post('/', checkAuth, (req, res, next) => {
         verify: false,
         allowComment: true,
         codelist: libFunction.createCodeList(codelist),
-        url: req.body.url,
-        publicId: req.body.publicId,
+        url: [],
+        publicId: [],
     })
     User.find({
-        id: req.userData.id,
+        _id: req.userData.id,
         verify: true,
     })
     .exec()

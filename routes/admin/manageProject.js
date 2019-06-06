@@ -12,7 +12,7 @@ const numItem = require('../../lib/constant')
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     Project.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
-    .select()
+    .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
     .exec()
     .then(results => {
         if (results.length > 0) {
@@ -41,6 +41,7 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
     Project.findById(id)
+    .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
     .exec()
     .then(result => {
         if(result!=null){
@@ -65,6 +66,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
 });
 
 router.post('/', checkAuthAdmin, (req, res, next) => {
+    const codelist = req.body.codelist !== undefined && req.body.codelist.length > 0 ? req.body.codelist : ['dummy']
     const project= new Project({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -83,11 +85,12 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         email: req.body.email,
         avatar: req.body.avatar,
         statusProject: req.body.statusProject,
-        amount: req.body.type === 1 ? req.body.amount: 1,
+        amount: codelist.length,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
         verify: false,
         allowComment: true,
+        codelist: libFunction.createCodeList(codelist),
         url: req.body.url,
         publicId: req.body.publicId,
     });
@@ -145,13 +148,10 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
             info: info,
             lat: lat,
             long: long,
-            ownerid: ownerid,
             fullname: fullname,
             phone: phone,
             email: email,
-            // avatar: avatar,
             statusProject: statusProject,
-            amount: req.body.type === 1 ? req.body.amount: 1,
             updateTime: updateTime,
             // url: url,
             // publicId: publicId,
@@ -214,6 +214,10 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     .exec()
     .then(result => {
         Comment.remove({projectid: projectid}).exec().then(result => console.log('delete comment success'))
+           // delete transaction       TRANSACTION
+            // delete detailtransacion  TRANSACTIONDETAIL
+            // delete request           WAITING
+            // update totalProject      USER
         if (result.n > 0) {
             res.status(200).json({
                 status: 200,

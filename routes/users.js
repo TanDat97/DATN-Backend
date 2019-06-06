@@ -93,7 +93,7 @@ router.get('/allagent/:page', (req, res, next) => {
     lock: false,
     $or: [{statusAccount: 2}]
   }).skip(page*numItem).limit(numItem)
-  .select('_id email fullname identify address phone description totalProject statusAccount avatar company')
+  .select('_id email fullname identify address phone description totalProject statusAccount avatar company __v')
   .exec()
   .then(result => {
       res.status(200).json({
@@ -121,7 +121,7 @@ router.get('/infoagent/:id/:page', (req, res, next) => {
       lock: false,
       $or: [{statusAccount: 2}]
   })
-  .select('_id email fullname identify address phone description totalProject statusAccount avatar company')
+  .select('_id email fullname identify address phone description totalProject statusAccount avatar company __v')
   .exec()
   .then(result => {
       Project.find({
@@ -222,7 +222,7 @@ router.post('/login', (req, res, next) => {
 router.get('/info', checkAuth, (req, res, next) => {
   const id = req.userData.id;
   User.findById(id)
-  .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify')
+  .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify hash __v')
   .exec()
   .then(result => {
     res.status(200).json({
@@ -367,7 +367,7 @@ router.post('/follow', checkAuth, (req, res, next) => {
   .exec()
   .then(result => {
     if(result.length >= 1) {
-      if (result[0].requests.length >= 10) {
+      if (result[0].projects.length >= 10) {
         return res.status(204).json({
           status: 204,
           message: ' user can not follow more project',
@@ -383,6 +383,7 @@ router.post('/follow', checkAuth, (req, res, next) => {
         })
       } else if (!isInArray) {
         const project = {
+          _id: new mongoose.Types.ObjectId(),
           project: req.body.projectid,
           createTime: req.body.createTime,
         }
@@ -501,7 +502,7 @@ router.post('/login_google', (req, res, next) => {
       email: ex.data.email,
       verify: true,
     })
-    .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify')
+    .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify hash __v')
     .exec()
     .then(user => {
       const now = moment().unix()
@@ -521,26 +522,27 @@ router.post('/login_google', (req, res, next) => {
           company: '0',
           lock: false,
           verify: true,
+          hash: 0,
         });
         temp
         .save()
         .then(result => {
           const token = jwt.sign({
-            id: temp._id,
-            email: temp.email,
-            fullname: temp.fullname,
-            identify: temp.identify,
-            address: temp.address,
-            phone: temp.phone,
-            totalProject: temp.totalProject,
-            statusAccount: temp.statusAccount,
+            id: result._id,
+            email: result.email,
+            fullname: result.fullname,
+            identify: result.identify,
+            address: result.address,
+            phone: result.phone,
+            totalProject: result.totalProject,
+            statusAccount: result.statusAccount,
             }, 'shhhhh', {
               expiresIn: "168h"
           })
           res.status(200).json({
             status: 200,
             message: 'user created and login success',
-            user: temp,
+            user: result,
             expireTime: expireTime,
             token: token,
           })

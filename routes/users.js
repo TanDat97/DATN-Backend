@@ -299,17 +299,19 @@ router.post('/edit', checkAuth, (req, res, next) => {
   });
 });
 
-router.get('/danhsachproject', checkAuth, (req, res, next) => {
+router.get('/danhsachproject/:page', checkAuth, (req, res, next) => {
+  const page = parseInt(req.params.page) - 1
   Project.find({
     ownerid: req.userData.id
-  })
-  .select('_id url publicId name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment')
+  }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+  .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
   .exec()
   .then(results => {
     if (results.length >= 0) {
       res.status(200).json({
         status: 200,
         message: 'get all project list success',
+        page: page + 1,
         count: results.length,
         projects: results,
       });

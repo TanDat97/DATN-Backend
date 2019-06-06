@@ -147,7 +147,8 @@ router.get('/:id', (req, res, next) => {
 })
 
 router.post('/', checkAuth, (req, res, next) => {
-    const codelist = req.body.codelist ? req.body.codelist : ['dummy']
+    const codelist = req.body.codelist !== undefined && req.body.codelist.length > 0 ? req.body.codelist : ['dummy']
+    console.log(codelist)
     const project = new Project({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -195,7 +196,7 @@ router.post('/', checkAuth, (req, res, next) => {
             project
             .save()
             .then(result => {
-                // update totalProject
+                // update totalProject      USER
                 res.status(201).json({
                     status: 201,
                     message: 'add project success',
@@ -218,7 +219,6 @@ router.post('/', checkAuth, (req, res, next) => {
             error: err,
         })
     })
-
 })
 
 
@@ -359,10 +359,10 @@ router.delete('/:id', checkAuth, (req, res, next) => {
         .then(result => {
             if (result.n > 0) {
                 Comment.remove({ projectid: projectid }).exec().then(result => console.log('delete comment success'))
-                // delete transaction 
-                // delete detailtransacion
-                // delete request
-                // update totalProject
+                // delete transaction       TRANSACTION
+                // delete detailtransacion  TRANSACTIONDETAIL
+                // delete request           WAITING
+                // update totalProject      USER
                 res.status(200).json({
                     status: 200,
                     message: 'delete project success',

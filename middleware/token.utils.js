@@ -5,7 +5,7 @@ var createToken = function (auth) {
         email: auth.email
     }, 'shhhhh',
         {
-            expiresIn: "5h"
+            expiresIn: "24h"
         });
 };
 

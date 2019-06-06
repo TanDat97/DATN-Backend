@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
+const moment = require('moment');
 
 const checkAuth = require('../middleware/checkAuth');
 const libFunction = require('../lib/function');
@@ -186,7 +187,7 @@ router.post('/login', (req, res, next) => {
           totalProject: user[0].totalProject,
           statusAccount: user[0].statusAccount,
           }, 'shhhhh', {
-            expiresIn: "5h"
+            expiresIn: "24h"
         });
         if(user[0].lock === true) {
           return res.status(500).json({
@@ -501,6 +502,8 @@ router.post('/login_google', (req, res, next) => {
     .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify')
     .exec()
     .then(user => {
+      const now = moment().unix()
+      const expireTime = now + 86400 * 7
       if (user.length <= 0) {
         const temp = User({
           _id: new mongoose.Types.ObjectId(),
@@ -530,12 +533,13 @@ router.post('/login_google', (req, res, next) => {
             totalProject: temp.totalProject,
             statusAccount: temp.statusAccount,
             }, 'shhhhh', {
-              expiresIn: "24h"
+              expiresIn: "168h"
           })
           res.status(200).json({
             status: 200,
             message: 'user created and login success',
             user: temp,
+            expireTime: expireTime,
             token: token,
           })
         })
@@ -557,7 +561,7 @@ router.post('/login_google', (req, res, next) => {
           totalProject: user[0].totalProject,
           statusAccount: user[0].statusAccount,
           }, 'shhhhh', {
-            expiresIn: "24h"
+            expiresIn: "168h"
         })
         if(user[0].lock === true) {
           return res.status(500).json({
@@ -569,6 +573,7 @@ router.post('/login_google', (req, res, next) => {
             status: 200,
             message: 'login google successful',
             user: user[0],
+            expireTime: expireTime,
             token: token,
           })
         }

@@ -166,7 +166,7 @@ router.post('/login', (req, res, next) => {
                     address: admin[0].address,
                     status: 'adminaccount',
                     }, 'HS256', {
-                    expiresIn: "10h"
+                    expiresIn: "24h"
                 });
                 return res.status(200).json({
                     status: 200,

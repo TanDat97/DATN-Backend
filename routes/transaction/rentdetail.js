@@ -364,6 +364,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
         })
         .exec()
         .then(result => {
+            deleteImageInCloudinary(result.contract.image, contract.image)
             if (result) {
                 res.status(200).json({
                     status: 200,
@@ -456,6 +457,7 @@ router.post('/confirmation', checkAuth, (req, res, next) => {
         })
         .exec()
         .then(result => {
+            deleteImageInCloudinary(result.confirmation.image, confirmation.image)
             if (result) {
                 res.status(200).json({
                     status: 200,
@@ -748,6 +750,7 @@ router.post('/transfer', checkAuth, (req, res, next) => {
         })
         .exec()
         .then(result => {
+            deleteImageInCloudinary(result.transfer.image, transfer.image)
             if (result) {
                 res.status(200).json({
                     status: 200,

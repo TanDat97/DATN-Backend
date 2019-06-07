@@ -38,6 +38,15 @@ const compare = function (arr1, arr2) {
     return finalarray
 }
 
+const deleteImageInCloudinary = ((images, imagesupdate) => {
+    imageDelete = compare(images, imagesupdate)
+    console.log(imageDelete)
+    if (imageDelete.length > 0) {
+        cloudinary.v2.api.delete_resources(imageDelete, { invalidate: true },
+            function (error, result) { console.log(result) })
+    }
+})
+
 router.post('/deal', checkAuth, (req, res, next) => {
     const id = req.body.id
     const deal = {
@@ -166,6 +175,9 @@ router.post('/legality', checkAuth, (req, res, next) => {
         })
         .exec()
         .then(result => {
+            deleteImageInCloudinary(result.legality.government, legality.government)
+            deleteImageInCloudinary(result.legality.certificate, legality.certificate)
+            deleteImageInCloudinary(result.legality.contract, legality.contract) 
             if (result) {
                 res.status(200).json({
                     status: 200,

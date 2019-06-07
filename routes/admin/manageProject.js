@@ -6,7 +6,7 @@ const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
 const libFunction = require('../../lib/function')
 const Project = require('../../models/projectModel')
 const Comment = require('../../models/commentModel')
-const Waiting = require('../models/waitingModel')
+const Waiting = require('../../models/waitingModel')
 
 const numItem = require('../../lib/constant')
 

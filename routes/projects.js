@@ -176,7 +176,7 @@ router.post('/', checkAuth, (req, res, next) => {
         url: req.body.url,
         publicId: req.body.publicId,
     })
-    User.find({
+    User.findOne({
         _id: req.userData.id,
         verify: true,
     })
@@ -187,26 +187,25 @@ router.post('/', checkAuth, (req, res, next) => {
                 status: 203,
                 message: 'your account has maximum 5 project, upgrade your account for more',
             })
-        } else if(resultuser.statusAccount === 2 && resultuser.totalProject  >= 40) {
+        } else if (resultuser.statusAccount === 2 && resultuser.totalProject >= 40) {
             res.status(204).json({
                 status: 204,
                 message: 'your account has maximum 40 project',
             })
         } else {
-            // const temp = resultuser.totalProject++
-            // User.findOneAndUpdate({_id: req.userData.id}, {totalProject: temp})
-            // .exec()
-            // .then(ex => {
-            //     console.log(ex)
-            // })
-
             project
             .save()
             .then(result => {
-                res.status(201).json({
-                    status: 201,
-                    message: 'add project success',
-                    project: result,
+                const temp = resultuser.totalProject + 1
+                User.findOneAndUpdate({_id: req.userData.id}, {totalProject: temp})
+                .exec()
+                .then(ex => {
+                    console.log(temp)
+                    res.status(201).json({
+                        status: 201,
+                        message: 'add project success',
+                        project: result,
+                    })
                 })
             })
             .catch(err => {

@@ -1,22 +1,22 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const axios = require('axios');
-const moment = require('moment');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const axios = require('axios')
+const moment = require('moment')
 
-const checkAuth = require('../middleware/checkAuth');
-const libFunction = require('../lib/function');
-const User = require('../models/userModel');
-const Project = require('../models/projectModel');
-const SavedProject = require('../models/savedProjectModel');
+const checkAuth = require('../middleware/checkAuth')
+const libFunction = require('../lib/function')
+const User = require('../models/userModel')
+const Project = require('../models/projectModel')
+const SavedProject = require('../models/savedProjectModel')
 
-var request = require('request');
-var passport = require('passport');
-var { generateToken, sendToken } = require('./../middleware/token.utils');
-var config = require('./../middleware/config');
-require('./../middleware/passport')();
+var request = require('request')
+var passport = require('passport')
+var { generateToken, sendToken } = require('./../middleware/token.utils')
+var config = require('./../middleware/config')
+require('./../middleware/passport')()
 
 const numItem = require('../lib/constant')
 
@@ -30,14 +30,14 @@ router.post('/signup', (req, res, next) => {
       return res.status(409).json({
         status: 409,
         message: 'user exists',
-      });
+      })
     } else {
       bcrypt.hash(req.body.password, 10, (err, hash) => {
         if (err) {
           return res.status(500).json({
             status: 500,
             error: err,
-          });
+          })
         } else {
           const user = User({
             _id: new mongoose.Types.ObjectId(),
@@ -55,7 +55,7 @@ router.post('/signup', (req, res, next) => {
             lock: false,
             verify: true,
             hash: 0,
-          });
+          })
           user
           .save()
           .then(result => {
@@ -67,7 +67,7 @@ router.post('/signup', (req, res, next) => {
             })
           })
           .catch(err => {
-            console.log(err);
+            console.log(err)
             res.status(500).json({
               status: 500,
               error: err
@@ -78,7 +78,7 @@ router.post('/signup', (req, res, next) => {
     }
   })
   .catch(err => {
-    console.log(err);
+    console.log(err)
     res.status(500).json({
         status: 500,
         error: err
@@ -105,7 +105,7 @@ router.get('/allagent/:page', (req, res, next) => {
       })   
   })
   .catch(err => {
-      console.log(err);
+      console.log(err)
       res.status(500).json({
           status: 500,
           error: err
@@ -140,7 +140,7 @@ router.get('/infoagent/:id/:page', (req, res, next) => {
           })
       })
       .catch(err => {
-          console.log(err);
+          console.log(err)
           res.status(500).json({
               status: 500,
               error: err
@@ -148,7 +148,7 @@ router.get('/infoagent/:id/:page', (req, res, next) => {
       })
   })
   .catch(err => {
-      console.log(err);
+      console.log(err)
       res.status(500).json({
           status: 500,
           error: err
@@ -174,7 +174,7 @@ router.post('/login', (req, res, next) => {
         return res.status(401).json({
           status: 401,
           message: 'Auth failed password'
-        });
+        })
       }
       if (result) {
         const token = jwt.sign({
@@ -188,7 +188,7 @@ router.post('/login', (req, res, next) => {
           statusAccount: user[0].statusAccount,
           }, 'shhhhh', {
             expiresIn: "24h"
-        });
+        })
         if(user[0].lock === true) {
           return res.status(500).json({
               status: 500,
@@ -210,7 +210,7 @@ router.post('/login', (req, res, next) => {
     })
   })
   .catch(err => {
-    console.log(err);
+    console.log(err)
     return res.status(401).json({
       status: 401,
       message: 'Auth failed',
@@ -232,7 +232,7 @@ router.get('/info', checkAuth, (req, res, next) => {
     })
   })
   .catch(err => {
-    console.log(err);
+    console.log(err)
     res.status(500).json({
       status: 500,
       error: err
@@ -281,23 +281,23 @@ router.post('/edit', checkAuth, (req, res, next) => {
           avatar: avatar,
           description: description,
         },
-      });
+      })
     } else {
       res.status(404).json({
         status: 404,
         message: 'No valid entry found',
         result: result,
-      });
+      })
     }
   })
   .catch(err => {
-    console.log(err);
+    console.log(err)
     res.status(500).json({
       status: 500,
       error: err
-    });
-  });
-});
+    })
+  })
+})
 
 router.get('/danhsachproject/:page', checkAuth, (req, res, next) => {
   const page = parseInt(req.params.page) - 1
@@ -314,7 +314,7 @@ router.get('/danhsachproject/:page', checkAuth, (req, res, next) => {
         page: page + 1,
         count: results.length,
         projects: results,
-      });
+      })
     } else {
       res.status(404).json({
         status: 404,
@@ -323,7 +323,7 @@ router.get('/danhsachproject/:page', checkAuth, (req, res, next) => {
     }
   })
   .catch(err => {
-    console.log(err);
+    console.log(err)
     res.status(500).json({
       status: 500,
       error: err
@@ -343,7 +343,7 @@ router.get('/listSaved', checkAuth, (req, res, next) => {
         message: 'get list project saved success',
         count: result[0].projects.length,
         result: result[0],
-      });
+      })
     } else {
       res.status(404).json({
         status: 404,
@@ -352,12 +352,12 @@ router.get('/listSaved', checkAuth, (req, res, next) => {
     }
   })
   .catch(err => {
-    console.log(err);
+    console.log(err)
     res.status(500).json({
       status: 500,
       error: err
-    });
-  });
+    })
+  })
 })
 
 router.post('/follow', checkAuth, (req, res, next) => {
@@ -397,7 +397,7 @@ router.post('/follow', checkAuth, (req, res, next) => {
           })
         })
         .catch(err => {
-          console.log(err);
+          console.log(err)
           res.status(500).json({
             status: 500,
             error: err,
@@ -424,7 +424,7 @@ router.post('/follow', checkAuth, (req, res, next) => {
         })
       })
       .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
           status: 500,
           error: err,
@@ -433,7 +433,7 @@ router.post('/follow', checkAuth, (req, res, next) => {
     }
   })
   .catch(err => {
-    console.log(err);
+    console.log(err)
     res.status(500).json({
       status: 500,
       error: err,
@@ -460,7 +460,7 @@ router.post('/unfollow', checkAuth, (req, res, next) => {
         })
       })
       .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
           status: 500,
           error: err,
@@ -474,7 +474,7 @@ router.post('/unfollow', checkAuth, (req, res, next) => {
     }
   })
   .catch(err => {
-    console.log(err);
+    console.log(err)
     res.status(500).json({
       status: 500,
       error: err
@@ -484,15 +484,15 @@ router.post('/unfollow', checkAuth, (req, res, next) => {
 
 router.post('/auth/google', passport.authenticate('google-token', { session: false }), function (req, res, next) {
   if (!req.user) {
-    return res.send(401, 'User Not Authenticated');
+    return res.send(401, 'User Not Authenticated')
   }
   req.auth = {
     id: req.user.id,
     email: req.user.email
   };
 
-  next();
-}, generateToken, sendToken);
+  next()
+}, generateToken, sendToken)
 
 router.post('/login_google', (req, res, next) => {
   const id_token = req.body.id_token
@@ -523,7 +523,7 @@ router.post('/login_google', (req, res, next) => {
           lock: false,
           verify: true,
           hash: 0,
-        });
+        })
         temp
         .save()
         .then(result => {
@@ -548,7 +548,7 @@ router.post('/login_google', (req, res, next) => {
           })
         })
         .catch(err => {
-          console.log(err);
+          console.log(err)
           res.status(500).json({
             status: 500,
             error: err
@@ -593,7 +593,7 @@ router.post('/login_google', (req, res, next) => {
     })
   })
   .catch(err => {
-    console.log(err.response);
+    console.log(err.response)
     return res.status(401).json({
       status: 401,
       message: 'Google token failed',

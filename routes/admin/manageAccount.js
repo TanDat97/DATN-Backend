@@ -1,15 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
-const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
-const libFunction = require('../../lib/function');
-const User = require('../../models/userModel');
-const Project = require('../../models/projectModel');
-const Comment = require('../../models/commentModel');
-const SavedProject = require('../../models/savedProjectModel');
+const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
+const libFunction = require('../../lib/function')
+const User = require('../../models/userModel')
+const Project = require('../../models/projectModel')
+const Comment = require('../../models/commentModel')
+const SavedProject = require('../../models/savedProjectModel')
 
 const numItem = require('../../lib/constant')
 
@@ -25,7 +25,7 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
                 count: results.length,
                 page: page + 1,
                 accounts: results,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -34,13 +34,13 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -51,7 +51,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 account: result,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -60,13 +60,13 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -112,7 +112,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                 request: {
                     type: 'PATCH',
                 }
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -121,13 +121,13 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
@@ -144,22 +144,22 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 message: 'account deleted',
                 result: result
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found'
-            });
+            })
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
     User.update({
@@ -176,7 +176,7 @@ router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 message: 'change account state success',
                 lock: req.body.lock,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -185,12 +185,12 @@ router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
 module.exports = router;

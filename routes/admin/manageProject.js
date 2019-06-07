@@ -1,11 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
 
-const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
-const libFunction = require('../../lib/function');
-const Project = require('../../models/projectModel');
-const Comment = require('../../models/commentModel');
+const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
+const libFunction = require('../../lib/function')
+const Project = require('../../models/projectModel')
+const Comment = require('../../models/commentModel')
+const Waiting = require('../models/waitingModel')
 
 const numItem = require('../../lib/constant')
 
@@ -21,7 +22,7 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
                 count: results.length,
                 page: page + 1,
                 projects: results,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -30,13 +31,13 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -48,7 +49,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 project: result,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -57,13 +58,13 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/', checkAuthAdmin, (req, res, next) => {
     const codelist = req.body.codelist !== undefined && req.body.codelist.length > 0 ? req.body.codelist : ['dummy']
@@ -93,7 +94,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         codelist: libFunction.createCodeList(codelist),
         url: req.body.url,
         publicId: req.body.publicId,
-    });
+    })
     project
     .save()
     .then(result => {
@@ -101,16 +102,16 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
             status: 201,
             message: 'add project success',
             project: result,
-        });
+        })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err,
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -189,7 +190,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                 request: {
                     type: 'PATCH',
                 }
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -198,13 +199,13 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     const projectid = req.params.id;
@@ -213,11 +214,11 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     })
     .exec()
     .then(result => {
-        Comment.remove({projectid: projectid}).exec().then(result => console.log('delete comment success'))
-           // delete transaction       TRANSACTION
-            // delete detailtransacion  TRANSACTIONDETAIL
-            // delete request           WAITING
-            // update totalProject      USER
+        // User.findOneAndUpdate({_id: req.userData.id, verify: true}, {totalProject: temp})
+        // .exec()
+        // .then(ex1 => console.log('update total project success: ' + temp))
+        Comment.remove({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
+        Waiting.remove({ projectid: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
         if (result.n > 0) {
             res.status(200).json({
                 status: 200,
@@ -225,22 +226,22 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                 request: {
                     type: 'DELETE',
                 }
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found'
-            });
+            })
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
     Project.update({
@@ -257,7 +258,7 @@ router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 message: 'change allow comment success',
                 allowComment: req.body.allowComment,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -266,12 +267,12 @@ router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
 router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
@@ -289,7 +290,7 @@ router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 message: 'change verify success',
                 verify: req.body.verify,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -298,12 +299,12 @@ router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
 router.get('/allcomment/:id', checkAuthAdmin, (req, res, next) => {
@@ -337,7 +338,7 @@ router.get('/allcomment/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 count: temp.length,
                 comments: temp,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -346,12 +347,12 @@ router.get('/allcomment/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 module.exports = router;

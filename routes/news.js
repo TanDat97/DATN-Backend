@@ -1,10 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
 
-const checkAuth = require('../middleware/checkAuth');
-const libFunction = require('../lib/function');
-const News = require('../models/newsModel');
+const checkAuth = require('../middleware/checkAuth')
+const libFunction = require('../lib/function')
+const News = require('../models/newsModel')
 
 const numItem = require('../lib/constant')
 
@@ -23,7 +23,7 @@ router.get('/all/:type/:page', (req, res, next) => {
                 count: results.length,
                 page: page + 1,
                 news: results,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -32,13 +32,13 @@ router.get('/all/:type/:page', (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.get('/:id', (req, res, next) => {
     const id = req.params.id;
@@ -48,15 +48,15 @@ router.get('/:id', (req, res, next) => {
         res.status(200).json({
             status: 200,
             news: result,
-        });
+        })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 module.exports = router;

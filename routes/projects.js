@@ -8,6 +8,10 @@ const libFunction = require('../lib/function')
 const Project = require('../models/projectModel')
 const User = require('../models/userModel')
 const Comment = require('../models/commentModel')
+const Transaction = require('../models/transactionModel')
+const SellDetail = require('../models/selldetailModel')
+const RentDetail = require('../models/rentdetailModel')
+const Waiting = require('../models/waitingModel')
 
 const numItem = require('../lib/constant')
 
@@ -16,6 +20,7 @@ cloudinary.config({
     api_key: '464146278492844',
     api_secret: 'JdBsEVQDxp4_1jsZrT-qM7T8tns'
 })
+
 router.get('/all/:page', (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     Project.find({
@@ -200,7 +205,7 @@ router.post('/', checkAuth, (req, res, next) => {
                 User.findOneAndUpdate({_id: req.userData.id}, {totalProject: temp})
                 .exec()
                 .then(ex => {
-                    console.log(temp)
+                    console.log('update total project success: ' + temp)
                     res.status(201).json({
                         status: 201,
                         message: 'add project success',
@@ -271,103 +276,112 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
         verify: true,
         $or: [{statusProject: 1},{statusProject: 3}],
     })
-        .exec()
-        .then(doc => {
-            if (doc.length > 0) {
-                // console.log(typeof (publicId))
-                publicIdInDataBase = doc[0].publicId
-                // console.log(typeof (publicIdInDataBase))
-                publicIdDelete = compare(publicIdInDataBase, publicId)
-                // console.log(publicIdDelete)
-                if (publicIdDelete.length > 0) {
-                    cloudinary.v2.api.delete_resources(publicIdDelete, { invalidate: true },
-                        function (error, result) { console.log(result) })
-                }
+    .exec()
+    .then(doc => {
+        if (doc.length > 0) {
+            // console.log(typeof (publicId))
+            publicIdInDataBase = doc[0].publicId
+            // console.log(typeof (publicIdInDataBase))
+            publicIdDelete = compare(publicIdInDataBase, publicId)
+            // console.log(publicIdDelete)
+            if (publicIdDelete.length > 0) {
+                cloudinary.v2.api.delete_resources(publicIdDelete, { invalidate: true },
+                    function (error, result) { console.log(result) })
             }
-        })
+        }
+    })
 
     Project.update({
         _id: id,
-        ownerid: req.userData.id
+        ownerid: req.userData.id,
+        verify: true,
+        $or: [{statusProject: 1},{statusProject: 3}],
     }, {
-            $set: {
-                name: name,
-                investor: investor,
-                price: price,
-                unit: unit,
-                area: area,
-                address: address,
-                type: type,
-                info: info,
-                lat: lat,
-                long: long,
-                fullname: fullname,
-                phone: phone,
-                email: email,
-                avatar: avatar,
-                updateTime: updateTime,
-                url: url,
-                publicId: publicId,
-            }
-        })
-        .exec()
-        .then(result => {
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: 'update project success',
-                    project: {
-                        _id: id,
-                        name: name,
-                        investor: investor,
-                        price: price,
-                        unit: unit,
-                        area: area,
-                        address: address,
-                        type: type,
-                        info: info,
-                        lat: lat,
-                        long: long,
-                        ownerid: ownerid,
-                        fullname: fullname,
-                        phone: phone,
-                        email: email,
-                        avatar: avatar,
-                        updateTime: updateTime,
-                        url: url,
-                        publicId: publicId,
-                    },
-                })
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found',
-                })
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                status: 500,
-                error: err
+        $set: {
+            name: name,
+            investor: investor,
+            price: price,
+            unit: unit,
+            area: area,
+            address: address,
+            type: type,
+            info: info,
+            lat: lat,
+            long: long,
+            fullname: fullname,
+            phone: phone,
+            email: email,
+            avatar: avatar,
+            updateTime: updateTime,
+            url: url,
+            publicId: publicId,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'update project success',
+                project: {
+                    _id: id,
+                    name: name,
+                    investor: investor,
+                    price: price,
+                    unit: unit,
+                    area: area,
+                    address: address,
+                    type: type,
+                    info: info,
+                    lat: lat,
+                    long: long,
+                    ownerid: ownerid,
+                    fullname: fullname,
+                    phone: phone,
+                    email: email,
+                    avatar: avatar,
+                    updateTime: updateTime,
+                    url: url,
+                    publicId: publicId,
+                },
             })
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
         })
+    })
 })
 
 router.delete('/:id', checkAuth, (req, res, next) => {
     const projectid = req.params.id
-    Project.remove({
-        _id: projectid,
-        ownerid: req.userData.id,
+    User.findOne({
+        _id: req.userData.id,
+        verify: true,
     })
+    .exec()
+    .then(resultuser => {
+        Project.remove({
+            _id: projectid,
+            ownerid: req.userData.id,
+        })
         .exec()
         .then(result => {
             if (result.n > 0) {
-                Comment.remove({ projectid: projectid }).exec().then(result => console.log('delete comment success'))
-                // delete transaction       TRANSACTION
-                // delete detailtransacion  TRANSACTIONDETAIL
-                // delete request           WAITING
-                // update totalProject      USER
+                const temp = resultuser.totalProject - 1
+                User.findOneAndUpdate({_id: req.userData.id, verify: true}, {totalProject: temp})
+                .exec()
+                .then(ex1 => console.log('update total project success: ' + temp))
+                Comment.remove({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
+                Waiting.remove({ projectid: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
                 res.status(200).json({
                     status: 200,
                     message: 'delete project success',
@@ -389,6 +403,8 @@ router.delete('/:id', checkAuth, (req, res, next) => {
                 error: err
             })
         })
+    })
+    
 })
 
 

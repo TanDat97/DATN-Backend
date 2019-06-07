@@ -1,10 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
 
-const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
-const libFunction = require('../../lib/function');
-const News = require('../../models/newsModel');
+const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
+const libFunction = require('../../lib/function')
+const News = require('../../models/newsModel')
 
 const numItem = require('../../lib/constant')
 
@@ -20,7 +20,7 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
                 count: results.length,
                 page: page + 1,
                 news: results,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -29,13 +29,13 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -45,16 +45,16 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         res.status(200).json({
             status: 200,
             newsResult: result,
-        });
+        })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/', checkAuthAdmin, (req, res, next) => {
     const news= new News({
@@ -64,7 +64,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         type: req.body.type,
         createTime: req.body.createTime,
         updateTime: req.body.updateTime,
-    });
+    })
     news
         .save()
         .then(result => {
@@ -72,17 +72,17 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                 status: 201,
                 message: 'add news success',
                 news: result,
-            });
+            })
         })
         .catch(err => {
-            console.log(err);
+            console.log(err)
             res.status(500).json({
                 status: 500,
                 error: err,
-            });
-        });
+            })
+        })
 
-});
+})
 
 router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -118,22 +118,22 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                     request: {
                         type: 'PATCH',
                     }
-                });
+                })
             } else {
                 res.status(404).json({
                     status: 404,
                     message: 'No valid entry found'
-                });
+                })
             }
         })
         .catch(err => {
-            console.log(err);
+            console.log(err)
             res.status(500).json({
                 status: 500,
                 error: err
-            });
-        });
-});
+            })
+        })
+})
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -149,7 +149,7 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                 request: {
                     type: 'DELETE',
                 }
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -158,12 +158,12 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 module.exports = router;

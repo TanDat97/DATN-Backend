@@ -1,15 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const nodemailer = require("nodemailer");
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const nodemailer = require("nodemailer")
 
-const checkAuthCompany = require('../middleware/checkAuthCompany');
-const libFunction = require('../lib/function');
-const Company = require('../models/companyModel');
-const User = require('../models/userModel');
-const Project = require('../models/projectModel');
+const checkAuthCompany = require('../middleware/checkAuthCompany')
+const libFunction = require('../lib/function')
+const Company = require('../models/companyModel')
+const User = require('../models/userModel')
+const Project = require('../models/projectModel')
 
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
@@ -17,7 +17,7 @@ var transporter = nodemailer.createTransport({ // config mail server
         user: 'trandat.sgg@gmail.com',
         pass: 'datdeptrai',
     }
-});
+})
 
 const numItem = require('../lib/constant')
 
@@ -39,7 +39,7 @@ router.post('/verifycompany', (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'verify company account success, please login',
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -48,12 +48,12 @@ router.post('/verifycompany', (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
 router.post('/resetpassword', (req, res, next) => {
@@ -69,7 +69,7 @@ router.post('/resetpassword', (req, res, next) => {
             return res.status(404).json({
                 status: 404,
                 message: 'your account does not exists or has been locked',
-            });
+            })
         } else {
             const pass = libFunction.randomPassword(10)
             bcrypt.hash(pass, 10, (err, hash) => {
@@ -115,7 +115,7 @@ router.post('/resetpassword', (req, res, next) => {
                         }
                     })
                     .catch(err => {
-                        console.log(err);
+                        console.log(err)
                         res.status(500).json({
                             status: 500,
                             error: err
@@ -126,7 +126,7 @@ router.post('/resetpassword', (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
@@ -162,7 +162,7 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
                         return res.status(500).json({
                             status: 500,
                             error: err,
-                        });
+                        })
                     } else {
                         Company.update({
                             email: req.companyData.email,
@@ -180,7 +180,7 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
                                     message: 'Change password success',
                                     email: req.companyData.email,
                                     _id: req.companyData.id,
-                                });
+                                })
                             } else {
                                 res.status(404).json({
                                     status: 404,
@@ -189,25 +189,25 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
                             }
                         })
                         .catch(err => {
-                            console.log(err);
+                            console.log(err)
                             res.status(500).json({
                                 status: 500,
                                 error: err,
                                 message: 'Change password failed 3',
-                            });
-                        });     
+                            })
+                        })     
                     }
                 }) 
             } else {
                 return res.status(401).json({
                     status: 401,
                     message: 'Change password failed 4',
-                });
+                })
             }
-        });
+        })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         return res.status(401).json({
             status: 401,
             error: err,
@@ -227,14 +227,14 @@ router.post('/login', (req, res, next) => {
             return res.status(401).json({
                 status: 401,
                 message: 'Auth failed email,'
-            });
+            })
         }
         bcrypt.compare(req.body.password, company[0].password, (err, result) => {
             if (err) {
                 return res.status(401).json({
                     status: 401,
                     message: 'Auth failed password'
-                });
+                })
             }
             if (result) {
                 const token = jwt.sign({
@@ -248,7 +248,7 @@ router.post('/login', (req, res, next) => {
                     status: company[0].status,
                 }, 'shhhhh', {
                         expiresIn: "5h"
-                    });
+                    })
 
                 if(company[0].lock === true) {
                     return res.status(500).json({
@@ -282,7 +282,7 @@ router.post('/login', (req, res, next) => {
         })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         return res.status(401).json({
             status: 401,
             message: 'Auth failed',
@@ -309,7 +309,7 @@ router.get('/all/:page', (req, res, next) => {
         })   
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
@@ -340,7 +340,7 @@ router.get('/info/:id', (req, res, next) => {
         }        
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
@@ -398,7 +398,7 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
                     createTime: createTime,
                     updateTime: updateTime,
                 },
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -408,7 +408,7 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
@@ -441,7 +441,7 @@ router.get('/infoemployee/:id/:page', checkAuthCompany, (req, res, next) => {
             })
         })
         .catch(err => {
-            console.log(err);
+            console.log(err)
             res.status(500).json({
                 status: 500,
                 error: err
@@ -449,7 +449,7 @@ router.get('/infoemployee/:id/:page', checkAuthCompany, (req, res, next) => {
         })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
@@ -494,7 +494,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                         verify: false,
                         hash: 0,
 
-                    });
+                    })
                     const employeeTemp = {
                         employee: user._id,
                         createTime: req.body.createTime
@@ -530,7 +530,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                             })
                         })
                         .catch(err => {
-                            console.log(err);
+                            console.log(err)
                             res.status(500).json({
                                 status: 500,
                                 message: 'Update Company Error',
@@ -539,7 +539,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                         })
                     })
                     .catch(err => {
-                        console.log(err);
+                        console.log(err)
                         res.status(500).json({
                             status: 500,
                             message: 'Insert User Error',
@@ -550,7 +550,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
             })
         }
     })
-});
+})
 
 router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
     const id = req.body.id
@@ -565,7 +565,7 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
         if (datacompany.length > 0) {
             const found = datacompany[0].employees.some(element => {
                 return element.employee === id;
-            });
+            })
             if (found === true) {
                 Company.findOneAndUpdate({ _id: req.companyData.id }, { $pull: { employees: { employee: id }}})
                 .exec()
@@ -590,13 +590,13 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             message: 'Delete Employee Error'
         })
     })
-});
+})
 
 router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     const id = req.body.id;
@@ -630,7 +630,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
             res.status(200).json({
                 status:200,
                 message:'update employee success'
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -639,7 +639,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             message: 'Edit Employee Error'
@@ -662,7 +662,7 @@ router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
                 status: 200,
                 message: 'change account state success',
                 lock: req.body.lock,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -671,7 +671,7 @@ router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err

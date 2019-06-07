@@ -1,17 +1,42 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
+const cloudinary = require('cloudinary')
 
-const checkAuth = require('../../middleware/checkAuth');
-const libFunction = require('../../lib/function');
-const User = require('../../models/userModel');
-const Project = require('../../models/projectModel');
-const Company = require('../../models/companyModel');
-const Transaction = require('../../models/transactionModel');
-const SellDetail = require('../../models/selldetailModel');
-const RentDetail = require('../../models/rentdetailModel');
+const checkAuth = require('../../middleware/checkAuth')
+const libFunction = require('../../lib/function')
+const User = require('../../models/userModel')
+const Project = require('../../models/projectModel')
+const Company = require('../../models/companyModel')
+const Transaction = require('../../models/transactionModel')
+const SellDetail = require('../../models/selldetailModel')
+const RentDetail = require('../../models/rentdetailModel')
 
 const numItem = require('../../lib/constant')
+
+cloudinary.config({
+    cloud_name: 'dne3aha8f',
+    api_key: '464146278492844',
+    api_secret: 'JdBsEVQDxp4_1jsZrT-qM7T8tns'
+})
+
+const compare = function (arr1, arr2) {
+    const finalarray = []
+    var flag = false
+    for (i = 0; i < arr1.length; i++) {
+        flag = false
+        for (j = 0; j < arr2.length; j++) {
+            if (arr1[i] === arr2[j]) {
+                flag = true
+                break
+            }
+        }
+        if (flag == false) {
+            finalarray.push(arr1[i])
+        }
+    }
+    return finalarray
+}
 
 router.post('/deal', checkAuth, (req, res, next) => {
     const id = req.body.id

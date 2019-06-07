@@ -1,11 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
 
-const checkAuth = require('../middleware/checkAuth');
-const libFunction = require('../lib/function');
-const User = require('../models/userModel');
-const Comment = require('../models/commentModel');
+const checkAuth = require('../middleware/checkAuth')
+const libFunction = require('../lib/function')
+const User = require('../models/userModel')
+const Comment = require('../models/commentModel')
 
 router.get('/all/:id', (req, res, next) => {
     const projectid = req.params.id
@@ -38,7 +38,7 @@ router.get('/all/:id', (req, res, next) => {
                 status: 200,
                 count: temp.length,
                 comments: temp,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -47,13 +47,13 @@ router.get('/all/:id', (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/', checkAuth, (req, res, next) => {
     User.findById(req.userData.id)
@@ -78,16 +78,16 @@ router.post('/', checkAuth, (req, res, next) => {
             })
         })
         .catch(err => {
-            console.log(err);
+            console.log(err)
             res.status(500).json({
                 status: 500,
                 error: err
-            });
-        });   
+            })
+        })   
         
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
@@ -139,7 +139,7 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
@@ -170,7 +170,7 @@ router.delete('/:id', checkAuth, (req, res, next) => {
         
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err

@@ -1,15 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const nodemailer = require("nodemailer");
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const nodemailer = require("nodemailer")
 
-const checkAuth = require('../middleware/checkAuth');
-const libFunction = require('../lib/function');
-const Company = require('../models/companyModel');
-const User = require('../models/userModel');
-const Project = require('../models/projectModel');
+const checkAuth = require('../middleware/checkAuth')
+const libFunction = require('../lib/function')
+const Company = require('../models/companyModel')
+const User = require('../models/userModel')
+const Project = require('../models/projectModel')
 
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
@@ -17,7 +17,7 @@ var transporter = nodemailer.createTransport({ // config mail server
         user: 'trandat.sgg@gmail.com',
         pass: 'datdeptrai',
     }
-});
+})
 
 const numItem = require('../lib/constant')
 
@@ -41,7 +41,7 @@ router.post('/verifyemloyee', (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'verify employee account success, please login',
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -50,12 +50,12 @@ router.post('/verifyemloyee', (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
 router.post('/resetpassword', (req, res, next) => {
@@ -71,7 +71,7 @@ router.post('/resetpassword', (req, res, next) => {
             return res.status(404).json({
                 status: 404,
                 message: 'your account does not exists or has been locked',
-            });
+            })
         } else {
             const pass = libFunction.randomPassword(10)
             bcrypt.hash(pass, 10, (err, hash) => {
@@ -79,7 +79,7 @@ router.post('/resetpassword', (req, res, next) => {
                     return res.status(500).json({
                         status: 500,
                         error: err,
-                    });
+                    })
                 } else {
                     var EmailEmployeeModel = require('../lib/emailEmployeeModel')
                     var emailModel = new EmailEmployeeModel()
@@ -117,22 +117,22 @@ router.post('/resetpassword', (req, res, next) => {
                         }
                     })
                     .catch(err => {
-                        console.log(err);
+                        console.log(err)
                         res.status(500).json({
                             status: 500,
                             error: err
                         })
-                    });              
+                    })              
                 }
             })
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
+        })
     })
 })
 
@@ -149,14 +149,14 @@ router.post('/changepassword', checkAuth, (req, res, next) => {
             return res.status(401).json({
                 status: 401,
                 message: 'Account not found or has been locked',
-            });
+            })
         }
         bcrypt.compare(req.body.currentPassword, user[0].password, (err, result) => {
             if (err) {
                 return res.status(40).json({
                     status: 401,
                     message: 'Change password failed 1',
-                });
+                })
             }
             if (result) {
                 bcrypt.hash(req.body.newPassword, 10, (err, hash) => {
@@ -164,7 +164,7 @@ router.post('/changepassword', checkAuth, (req, res, next) => {
                         return res.status(500).json({
                             status: 500,
                             error: err,
-                        });
+                        })
                     } else {
                         User.update({
                             email: req.userData.email,
@@ -182,7 +182,7 @@ router.post('/changepassword', checkAuth, (req, res, next) => {
                                     message: 'Change password success',
                                     email: req.userData.email,
                                     _id: req.userData.id,
-                                });
+                                })
                             } else {
                                 res.status(404).json({
                                     status: 404,
@@ -191,31 +191,31 @@ router.post('/changepassword', checkAuth, (req, res, next) => {
                             }
                         })
                         .catch(err => {
-                            console.log(err);
+                            console.log(err)
                             res.status(500).json({
                                 status: 500,
                                 error: err,
                                 message: 'Change password failed 3',
-                            });
-                        });     
+                            })
+                        })     
                     }
                 }) 
             } else {
                 return res.status(401).json({
                     status: 401,
                     message: 'Change password failed 4',
-                });
+                })
             }
-        });
+        })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         return res.status(401).json({
             status: 401,
             error: err,
             message: 'Change password failed 5',
-        });
-    });
-});
+        })
+    })
+})
 
 module.exports = router;

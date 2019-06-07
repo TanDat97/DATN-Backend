@@ -1,17 +1,17 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
 
-const checkAuth = require('../../middleware/checkAuth');
-const libFunction = require('../../lib/function');
-const dataprocess = require('../../lib/dataprocess');
-const User = require('../../models/userModel');
-const Project = require('../../models/projectModel');
-const Company = require('../../models/companyModel');
-const Transaction = require('../../models/transactionModel');
-const SellDetail = require('../../models/selldetailModel');
-const RentDetail = require('../../models/rentdetailModel');
-const Waiting = require('../../models/waitingModel');
+const checkAuth = require('../../middleware/checkAuth')
+const libFunction = require('../../lib/function')
+const dataprocess = require('../../lib/dataprocess')
+const User = require('../../models/userModel')
+const Project = require('../../models/projectModel')
+const Company = require('../../models/companyModel')
+const Transaction = require('../../models/transactionModel')
+const SellDetail = require('../../models/selldetailModel')
+const RentDetail = require('../../models/rentdetailModel')
+const Waiting = require('../../models/waitingModel')
 
 const numItem = require('../../lib/constant')
 
@@ -31,7 +31,7 @@ router.get('/listrequest/:projectid', checkAuth, (req, res, next) => {
         })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
@@ -72,7 +72,7 @@ router.post('/addwaitingrequest', checkAuth, (req, res, next) => {
                 })
             })
             .catch(err => {
-                console.log(err);
+                console.log(err)
                 res.status(500).json({
                     status: 500,
                     error: err,
@@ -110,7 +110,7 @@ router.post('/addwaitingrequest', checkAuth, (req, res, next) => {
                     })
                 })
                 .catch(err => {
-                    console.log(err);
+                    console.log(err)
                     res.status(500).json({
                         status: 500,
                         error: err,
@@ -120,7 +120,7 @@ router.post('/addwaitingrequest', checkAuth, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err,
@@ -154,7 +154,7 @@ router.post('/deletewaitingrequest', checkAuth, (req, res, next) => {
                 })
             })
             .catch(err => {
-                console.log(err);
+                console.log(err)
                 res.status(500).json({
                     status: 500,
                     error: err,
@@ -168,7 +168,7 @@ router.post('/deletewaitingrequest', checkAuth, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
@@ -220,7 +220,7 @@ router.post('/create', checkAuth, (req, res, next) => {
                     })
                 })
                 .catch(err => {
-                    console.log(err);
+                    console.log(err)
                     res.status(500).json({
                         status: 500,
                         error: err
@@ -228,7 +228,7 @@ router.post('/create', checkAuth, (req, res, next) => {
                 })
             })
             .catch(err => {
-                console.log(err);
+                console.log(err)
                 res.status(500).json({
                     status: 500,
                     error: err
@@ -254,7 +254,7 @@ router.post('/create', checkAuth, (req, res, next) => {
                     })
                 })
                 .catch(err => {
-                    console.log(err);
+                    console.log(err)
                     res.status(500).json({
                         status: 500,
                         error: err
@@ -262,7 +262,7 @@ router.post('/create', checkAuth, (req, res, next) => {
                 })
             })
             .catch(err => {
-                console.log(err);
+                console.log(err)
                 res.status(500).json({
                     status: 500,
                     error: err

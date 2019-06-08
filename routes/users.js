@@ -8,6 +8,7 @@ const moment = require('moment')
 
 const checkAuth = require('../middleware/checkAuth')
 const libFunction = require('../lib/function')
+const constructorModel = require('../lib/constructorModel')
 const User = require('../models/userModel')
 const Project = require('../models/projectModel')
 const SavedProject = require('../models/savedProjectModel')
@@ -54,25 +55,25 @@ router.post('/signup', (req, res, next) => {
                         company: '0',
                         lock: false,
                         verify: true,
+                        permission: false,
                         hash: 0,
                     })
                     user
-                        .save()
-                        .then(result => {
-                            res.status(201).json({
-                                status: 201,
-                                message: 'user created',
-                                email: result.email,
-                                // id: result._id,
-                            })
+                    .save()
+                    .then(result => {
+                        res.status(201).json({
+                            status: 201,
+                            message: 'user created',
+                            email: result.email,
                         })
-                        .catch(err => {
-                            console.log(err)
-                            res.status(500).json({
-                                status: 500,
-                                error: err
-                            })
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        res.status(500).json({
+                            status: 500,
+                            error: err
                         })
+                    })
                 }
             })
         }
@@ -93,7 +94,7 @@ router.get('/allagent/:page', (req, res, next) => {
         lock: false,
         $or: [{ statusAccount: 2 }]
     }).skip(page * numItem).limit(numItem)
-    .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify hash __v')
+    .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify permission hash __v')
     .exec()
     .then(result => {
         res.status(200).json({
@@ -122,31 +123,31 @@ router.get('/infoagent/:id/:page', (req, res, next) => {
         lock: false,
         $or: [{ statusAccount: 2 }]
     })
-    .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify hash __v')
+    .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify permission hash __v')
     .exec()
     .then(result => {
         Project.find({
             ownerid: id,
             verify: true,
         }).sort({ 'createTime': -1 }).skip(page * numItem).limit(numItem)
-            .select()
-            .exec()
-            .then(results => {
-                res.status(200).json({
-                    status: 200,
-                    message: 'get info agent successful',
-                    page: page + 1,
-                    info: result[0],
-                    projects: results,
-                })
+        .select()
+        .exec()
+        .then(results => {
+            res.status(200).json({
+                status: 200,
+                message: 'get info agent successful',
+                page: page + 1,
+                info: result[0],
+                projects: results,
             })
-            .catch(err => {
-                console.log(err)
-                res.status(500).json({
-                    status: 500,
-                    error: err
-                })
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
             })
+        })
     })
     .catch(err => {
         console.log(err)
@@ -221,9 +222,9 @@ router.post('/login', (req, res, next) => {
 })
 
 router.get('/info', checkAuth, (req, res, next) => {
-    const id = req.userData.id;
+    const id = req.userData.id
     User.findById(id)
-    .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify hash __v')
+    .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify permission hash __v')
     .exec()
     .then(result => {
         res.status(200).json({
@@ -242,15 +243,15 @@ router.get('/info', checkAuth, (req, res, next) => {
 })
 
 router.post('/edit', checkAuth, (req, res, next) => {
-    const id = req.userData.id;
-    const email = req.userData.email;
-    const fullname = req.body.fullname;
-    const identify = req.body.identify;
-    const address = req.body.address;
-    const phone = req.body.phone;
-    const totalProject = req.body.totalProject;
-    const avatar = req.body.avatar;
-    const description = req.body.description;
+    const id = req.userData.id
+    const email = req.userData.email
+    const fullname = req.body.fullname
+    const identify = req.body.identify
+    const address = req.body.address
+    const phone = req.body.phone
+    const totalProject = req.body.totalProject
+    const avatar = req.body.avatar
+    const description = req.body.description
     User.updateMany({
         _id: id,
         email: email,
@@ -303,7 +304,7 @@ router.post('/edit', checkAuth, (req, res, next) => {
 router.get('/danhsachproject/:page', checkAuth, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     Project.find({
-        ownerid: req.userData.id
+        ownerid: req.userData.id,
     }).sort({ 'createTime': -1 }).skip(page * numItem).limit(numItem)
     .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
     .exec()
@@ -375,7 +376,7 @@ router.post('/follow', checkAuth, (req, res, next) => {
                 })
             }
             const isInArray = result[0].projects.some(temp => {
-                return temp.project === req.body.projectid;
+                return temp.project === req.body.projectid
             })
             if (isInArray) {
                 return res.status(409).json({
@@ -449,7 +450,7 @@ router.post('/unfollow', checkAuth, (req, res, next) => {
     .exec()
     .then(result => {
         const isInArray = result[0].projects.some(temp => {
-            return temp.project === req.body.projectid;
+            return temp.project === req.body.projectid
         })
         if (result.length >= 1 && isInArray) {
             SavedProject.findOneAndUpdate({ userid: req.userData.id }, { $pull: { projects: { project: req.body.projectid } } })
@@ -466,7 +467,7 @@ router.post('/unfollow', checkAuth, (req, res, next) => {
                     status: 500,
                     error: err,
                 })
-                })
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -490,7 +491,7 @@ router.post('/auth/google', passport.authenticate('google-token', { session: fal
     req.auth = {
         id: req.user.id,
         email: req.user.email
-    };
+    }
     next()
 }, generateToken, sendToken)
 
@@ -508,22 +509,7 @@ router.post('/login_google', (req, res, next) => {
             const now = moment().unix()
             const expireTime = now + 86400 * 7
             if (user.length <= 0) {
-                const temp = User({
-                    _id: new mongoose.Types.ObjectId(),
-                    identify: '',
-                    fullname: ex.data.name,
-                    address: '',
-                    phone: '',
-                    description: '',
-                    email: ex.data.email,
-                    totalProject: 0,
-                    statusAccount: 1,
-                    avatar: ex.data.picture,
-                    company: '0',
-                    lock: false,
-                    verify: true,
-                    hash: 0,
-                })
+                const temp = constructorModel.constructorUser('', ex.data.fullname, '',  '', '', ex.data.email, 1, ex.data.picture, '0', 0)
                 temp
                 .save()
                 .then(result => {
@@ -665,8 +651,8 @@ router.get('/projectlist/:id/:page', (req, res, next) => {
         res.status(200).json({
             status: 200,
             message: 'get project list successful',
-            count: results.length,
             page: page + 1,
+            count: results.length,
             projects: results,
         })
     })
@@ -679,4 +665,4 @@ router.get('/projectlist/:id/:page', (req, res, next) => {
     })
 })
 
-module.exports = router;
+module.exports = router

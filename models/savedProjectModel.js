@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var projectSchema = new Schema({
     _id: mongoose.Schema.Types.ObjectId,
@@ -23,7 +23,7 @@ var projectSchema = new Schema({
         },
     }]
     
-});
+})
 
 // Export the model
-module.exports = mongoose.model('SavedProject', projectSchema);
+module.exports = mongoose.model('SavedProject', projectSchema)

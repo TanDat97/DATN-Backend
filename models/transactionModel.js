@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     active: {
@@ -67,7 +67,7 @@ const Schema = mongoose.Schema({
         type: Boolean,
         required: true,
     },
-});
+})
 
 // Export the model
-module.exports = mongoose.model('Transaction', Schema);
+module.exports = mongoose.model('Transaction', Schema)

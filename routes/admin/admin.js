@@ -198,7 +198,7 @@ router.post('/login', (req, res, next) => {
 })
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.id
     Admin.findById(id)
     .exec()
     .then(result => {
@@ -224,12 +224,12 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/edit', checkAuthAdmin, (req, res, next) => {
-    const id = req.adminData.id;
-    const fullname = req.body.fullname;
-    const address = req.body.address;
-    const email = req.body.email;
-    const phone = req.body.phone;
-    const createBy = req.body.createBy;
+    const id = req.adminData.id
+    const fullname = req.body.fullname
+    const address = req.body.address
+    const email = req.body.email
+    const phone = req.body.phone
+    const createBy = req.body.createBy
 
     Admin.update({
         _id: id,
@@ -358,8 +358,8 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
-    const id = req.adminData.id;
-    const avatar = req.body.avatar;
+    const id = req.adminData.id
+    const avatar = req.body.avatar
 
     Admin.update({
         _id: id,
@@ -454,4 +454,4 @@ router.post('/statisticdata', checkAuthAdmin, (req, res, next) => {
     })
 })
 
-module.exports = router;
+module.exports = router

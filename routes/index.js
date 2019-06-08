@@ -7,6 +7,6 @@ router.use('/', swaggerUi.serve)
 const options = {
     explorer : false,
     
-  };
+  }
 router.get('/', swaggerUi.setup(swaggerDocument,options))
-module.exports = router;
+module.exports = router

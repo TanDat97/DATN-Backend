@@ -41,7 +41,7 @@ router.get('/all/:type/:page', (req, res, next) => {
 })
 
 router.get('/:id', (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.id
     News.findById(id)
     .exec()
     .then(result => {
@@ -59,4 +59,4 @@ router.get('/:id', (req, res, next) => {
     })
 })
 
-module.exports = router;
+module.exports = router

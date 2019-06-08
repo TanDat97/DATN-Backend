@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     email: {
@@ -42,7 +42,7 @@ const Schema = mongoose.Schema({
         type: Number,
         required: true,
     },
-});
+})
 
 // Export the model
-module.exports = mongoose.model('Admin', Schema);
+module.exports = mongoose.model('Admin', Schema)

@@ -1,8 +1,8 @@
-'use strict';
-var passport = require('passport');
+'use strict'
+var passport = require('passport')
 var UserGG = require('../controllers/GoogleUser')
-var GoogleTokenStrategy = require('passport-google-token').Strategy;
-var config = require('./config');
+var GoogleTokenStrategy = require('passport-google-token').Strategy
+var config = require('./config')
 
 module.exports = function () {
     passport.use(new GoogleTokenStrategy({
@@ -11,7 +11,7 @@ module.exports = function () {
         },
         function (accessToken, refreshToken, profile, done) {
             UserGG.upsertGoogleUser(accessToken, refreshToken, profile, function(err, user) {
-                return done(err, user);
-            });
-        }));
-};
+                return done(err, user)
+            })
+        }))
+}

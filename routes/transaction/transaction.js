@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 
 const checkAuth = require('../../middleware/checkAuth')
 const libFunction = require('../../lib/function')
+const constructorModel = require('../../lib/constructorModel')
 const dataprocess = require('../../lib/dataprocess')
 const User = require('../../models/userModel')
 const Project = require('../../models/projectModel')
@@ -86,7 +87,7 @@ router.post('/addwaitingrequest', checkAuth, (req, res, next) => {
                 })
             }
             const isInArray = result[0].requests.some(temp => {
-                return temp.user === userid;
+                return temp.user === userid
             })
             if (isInArray) {
                 return res.status(206).json({
@@ -137,7 +138,7 @@ router.post('/deletewaitingrequest', checkAuth, (req, res, next) => {
     .exec()
     .then(result => {
         const isInArray = result[0].requests.some(temp => {
-            return temp.user === userid;
+            return temp.user === userid
         })
         if (result[0].createdTransaction === true) {
             res.status(203).json({
@@ -177,24 +178,7 @@ router.post('/deletewaitingrequest', checkAuth, (req, res, next) => {
 })
 
 router.post('/create', checkAuth, (req, res, next) => {
-    const transaction = Transaction({
-        _id: new mongoose.Types.ObjectId(),
-        active: true,
-        verify: false,
-        step: req.body.step,
-        typeproject: req.body.typeproject,
-        typetransaction: req.body.typetransaction,
-        project: req.body.project,
-        code: req.body.code,
-        seller: req.userData.id,
-        buyer: req.body.buyer,
-        company: req.body.company,
-        createTime: req.body.createTime,
-        updateTime: req.body.updateTime,
-        selldetail: '0',
-        rentdetail: '0',
-        complete: false,
-    })
+    var transaction = constructorModel.constructorTransaction(req.body.step, req.body.typeproject, req.body.typetransaction, req.body.project, req.body.code, req.userData.id, req.body.buyer,  req.body.company, req.body.createTime)
     dataprocess.checkCodeAvailable(req.body.project, req.body.buyer, req.body.code, req.userData.id)
     .then(resultcheck => {
         console.log(resultcheck)        
@@ -413,4 +397,4 @@ router.get('/detail/:id/:type', checkAuth, (req, res, next) => {
     })
 })
 
-module.exports = router;
+module.exports = router

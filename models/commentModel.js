@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     user: {
@@ -26,7 +26,7 @@ const Schema = mongoose.Schema({
         type: Number,
         required: true
     }, 
-});
+})
 
 // Export the model
-module.exports = mongoose.model('Comment', Schema);
+module.exports = mongoose.model('Comment', Schema)

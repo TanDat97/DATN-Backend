@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     seller: {
@@ -173,7 +173,7 @@ const Schema = mongoose.Schema({
             default: false,
         },
     },
-});
+})
 
 // Export the model
-module.exports = mongoose.model('SellDetail', Schema);
+module.exports = mongoose.model('SellDetail', Schema)

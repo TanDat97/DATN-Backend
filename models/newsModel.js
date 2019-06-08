@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     title: {
@@ -21,7 +21,7 @@ const Schema = mongoose.Schema({
         type: Number,
         requireed: true,
     }
-});
+})
 
 // Export the model
-module.exports = mongoose.model('News', Schema);
+module.exports = mongoose.model('News', Schema)

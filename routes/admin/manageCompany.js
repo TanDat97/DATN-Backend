@@ -6,6 +6,7 @@ const nodemailer = require("nodemailer")
 
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
 const libFunction = require('../../lib/function')
+const constructorModel = require('../../lib/constructorModel')
 const Company = require('../../models/companyModel')
 const User = require('../../models/userModel')
 const Project = require('../../models/projectModel')
@@ -97,26 +98,8 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                     })
                 } else {
                     console.log(pass)
-                    var company= new Company({
-                        _id: new mongoose.Types.ObjectId(),
-                        password: hash,
-                        companyname: req.body.companyname,
-                        address: req.body.address,
-                        email: req.body.email,
-                        phone: req.body.phone,
-                        website: req.body.website,
-                        totalProject: 0,
-                        status: 0,
-                        avatar: req.body.avatar,
-                        description: req.body.description,
-                        createTime: req.body.createTime,
-                        updateTime: req.body.updateTime,
-                        createBy: req.adminData.id,
-                        lock: false,
-                        verify: false,
-                        hash: 0,
-                        employees: [],
-                    })
+                    var company = constructorModel.constructorCompany(hash, req.body.companyname, req.body.address, req.body.email, req.body.phone, req.body.website, 0,
+                        req.body.avatar, req.body.description, req.body.createTime, req.adminData.id)
                     company.hash = libFunction.hashString(company._id.toString())
                     var link = "http://localhost:3000/verifycompany/" + company._id + "/" + company.hash;
                     var EmailCompanyModel = require('../../lib/emailCompanyModel')
@@ -290,4 +273,4 @@ router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
     })
 })
 
-module.exports = router;
+module.exports = router

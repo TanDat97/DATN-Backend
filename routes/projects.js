@@ -5,6 +5,7 @@ const cloudinary = require('cloudinary')
 
 const checkAuth = require('../middleware/checkAuth')
 const libFunction = require('../lib/function')
+const constructorModel = require('../lib/constructorModel')
 const Project = require('../models/projectModel')
 const User = require('../models/userModel')
 const Comment = require('../models/commentModel')
@@ -154,33 +155,8 @@ router.get('/:id', (req, res, next) => {
 
 router.post('/', checkAuth, (req, res, next) => {
     const codelist = req.body.codelist !== undefined && req.body.codelist.length > 0 ? req.body.codelist : ['dummy']
-    const project = new Project({
-        _id: new mongoose.Types.ObjectId(),
-        name: req.body.name,
-        investor: req.body.investor,
-        price: req.body.price,
-        unit: req.body.unit,
-        area: req.body.area,
-        address: req.body.address,
-        type: req.body.type,
-        info: req.body.info,
-        lat: req.body.lat,
-        long: req.body.long,
-        ownerid: req.userData.id,
-        fullname: req.body.fullname,
-        phone: req.body.phone,
-        email: req.body.email,
-        avatar: req.body.avatar,
-        statusProject: req.body.statusProject,
-        amount: codelist.length,
-        createTime: req.body.createTime,
-        updateTime: req.body.updateTime,
-        verify: false,
-        allowComment: true,
-        codelist: libFunction.createCodeList(codelist),
-        url: req.body.url,
-        publicId: req.body.publicId,
-    })
+    const project = constructorModel.constructorProject(req.body.name, req.body.investor, req.body.price, req.body.unit, req.body.area, req.body.address, req.body.type, req.body.info,
+        req.body.lat, req.body.long, req.userData.id, req.body.fullname, req.body.phone, req.body.email, req.body.avatar, req.body.statusProject, libFunction.createCodeList(codelist), req.body.createTime, req.body.url, req.body.publicId)
     User.findOne({
         _id: req.userData.id,
         verify: true,
@@ -198,6 +174,9 @@ router.post('/', checkAuth, (req, res, next) => {
                 message: 'your account has maximum 40 project',
             })
         } else {
+            if(resultuser.permission === true) {
+                project.verify = true
+            }
             project
             .save()
             .then(result => {

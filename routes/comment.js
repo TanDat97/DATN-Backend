@@ -96,13 +96,13 @@ router.post('/', checkAuth, (req, res, next) => {
 })
 
 router.post('/edit/:id', checkAuth, (req, res, next) => {
-    const id = req.params.id;
-    const userid = req.userData.id;
-    const createTime = req.body.createTime;
-    const updateTime = req.body.updateTime;
-    const content = req.body.content;
-    const star = req.body.star;
-    const projectid = req.body.projectid;
+    const id = req.params.id
+    const userid = req.userData.id
+    const createTime = req.body.createTime
+    const updateTime = req.body.updateTime
+    const content = req.body.content
+    const star = req.body.star
+    const projectid = req.body.projectid
 
     Comment.update({
         _id: id,
@@ -178,4 +178,4 @@ router.delete('/:id', checkAuth, (req, res, next) => {
     })
 })
 
-module.exports = router;
+module.exports = router

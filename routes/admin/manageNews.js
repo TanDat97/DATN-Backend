@@ -38,7 +38,7 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
 })
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.id
     News.findById(id)
     .exec()
     .then(result => {
@@ -85,7 +85,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.id
     const title = req.body.title
     const content = req.body.content
     const type = req.body.type
@@ -136,7 +136,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.id
     News.remove({
         _id: id
     })
@@ -166,4 +166,4 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     })
 })
 
-module.exports = router;
+module.exports = router

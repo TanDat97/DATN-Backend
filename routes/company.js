@@ -297,7 +297,7 @@ router.get('/all/:page', (req, res, next) => {
         verify: true,
         lock: false,
     }).sort({'createTime': -1}).skip(page*numItem).limit(numItem)
-    .select('_id email companyname address phone website totalProject employees status avatar description createTime updateTime')
+    .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
     .exec()
     .then(result => {
         res.status(200).json({
@@ -318,9 +318,9 @@ router.get('/all/:page', (req, res, next) => {
 })
 
 router.get('/info/:id', (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.id
     Company.findById(id)
-    .select('_id email companyname address phone website totalProject employees status avatar description createTime updateTime')
+    .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
     .populate({
         path: 'employees.employee'
     })
@@ -349,18 +349,18 @@ router.get('/info/:id', (req, res, next) => {
 })
 
 router.post('/edit', checkAuthCompany, (req, res, next) => {
-    const id = req.companyData.id;
-    const email = req.companyData.email;
-    const companyname = req.body.companyname;
-    const address = req.body.address;
-    const phone = req.body.phone;
-    const website = req.body.website;
-    const totalProject = req.body.totalProject;
-    const status = req.body.status;
-    const avatar = req.body.avatar;
-    const description = req.body.description;
-    const createTime = req.body.createTime;
-    const updateTime = req.body.updateTime;
+    const id = req.companyData.id
+    const email = req.companyData.email
+    const companyname = req.body.companyname
+    const address = req.body.address
+    const phone = req.body.phone
+    const website = req.body.website
+    const totalProject = req.body.totalProject
+    const status = req.body.status
+    const avatar = req.body.avatar
+    const description = req.body.description
+    const createTime = req.body.createTime
+    const updateTime = req.body.updateTime
     Company.update({
         _id: id,
         email: email,
@@ -492,6 +492,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                         company: req.companyData.id,
                         lock: false,
                         verify: false,
+                        permission: false,
                         hash: 0,
 
                     })
@@ -500,7 +501,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                         createTime: req.body.createTime
                     }
                     user.hash = libFunction.hashString(user._id.toString())
-                    var link = "http://localhost:3000/verifyemployee/" + user.company + "/" + user._id + "/" + user.hash;
+                    var link = "http://localhost:3000/verifyemployee/" + user.company + "/" + user._id + "/" + user.hash
                     var EmailEmployeeModel = require('../lib/emailEmployeeModel')
                     var emailModel = new EmailEmployeeModel()
                     emailModel.verifyMail(user.email, link, pass)
@@ -564,7 +565,7 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
     .then(datacompany => {
         if (datacompany.length > 0) {
             const found = datacompany[0].employees.some(element => {
-                return element.employee === id;
+                return element.employee === id
             })
             if (found === true) {
                 Company.findOneAndUpdate({ _id: req.companyData.id }, { $pull: { employees: { employee: id }}})
@@ -599,16 +600,16 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
 })
 
 router.post('/editemployee', checkAuthCompany, (req, res, next) => {
-    const id = req.body.id;
-    const email= req.body.email;
-    const fullname = req.body.fullname;
-    const identify = req.body.identify;
-    const address = req.body.address;
-    const phone = req.body.phone;
-    const totalProject = req.body.totalProject;
-    const statusAccount = req.body.statusAccount;
-    const avatar = req.body.avatar;
-    const description = req.body.description;
+    const id = req.body.id
+    const email= req.body.email
+    const fullname = req.body.fullname
+    const identify = req.body.identify
+    const address = req.body.address
+    const phone = req.body.phone
+    const totalProject = req.body.totalProject
+    const statusAccount = req.body.statusAccount
+    const avatar = req.body.avatar
+    const description = req.body.description
     User.updateMany({
         _id: id,
         email: email,
@@ -679,4 +680,4 @@ router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
     })
 })
 
-module.exports = router;
+module.exports = router

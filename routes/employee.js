@@ -153,7 +153,7 @@ router.post('/changepassword', checkAuth, (req, res, next) => {
         }
         bcrypt.compare(req.body.currentPassword, user[0].password, (err, result) => {
             if (err) {
-                return res.status(40).json({
+                return res.status(401).json({
                     status: 401,
                     message: 'Change password failed 1',
                 })

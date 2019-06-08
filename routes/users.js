@@ -627,10 +627,9 @@ router.get('/alluser/:page', (req, res, next) => {
         })
     })
 })
-router.get('/profile/:id/:page', (req, res, next) => {
+router.get('/profile/:id', (req, res, next) => {
     const id = req.params.id
-    const page = parseInt(req.params.page) - 1
-    User.find({
+    User.findOne({
         _id: id,
         verify: true,
         lock: false,
@@ -638,27 +637,37 @@ router.get('/profile/:id/:page', (req, res, next) => {
     .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify hash __v')
     .exec()
     .then(result => {
-        Project.find({
-            ownerid: id,
-            verify: true,
-        }).sort({ 'createTime': -1 }).skip(page * numItem).limit(numItem)
-        .select()
-        .exec()
-        .then(results => {
-            res.status(200).json({
-                status: 200,
-                message: 'get info user successful',
-                page: page + 1,
-                info: result[0],
-                projects: results,
-            })
+        res.status(200).json({
+            status: 200,
+            message: 'get info user successful',
+            info: result,
         })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                status: 500,
-                error: err
-            })
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
+router.get('/projectlist/:id/:page', (req, res, next) => {
+    const id = req.params.id
+    const page = parseInt(req.params.page) - 1
+    Project.find({
+        ownerid: id,
+        verify: true,
+    }).sort({ 'createTime': -1 }).skip(page * numItem).limit(numItem)
+    .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
+    .exec()
+    .then(results => {
+        res.status(200).json({
+            status: 200,
+            message: 'get project list successful',
+            count: results.length,
+            page: page + 1,
+            projects: results,
         })
     })
     .catch(err => {

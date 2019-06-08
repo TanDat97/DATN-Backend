@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken')
 const nodemailer = require("nodemailer")
 
 const libFunction = require('../../lib/function')
+const constructorModel = require('../../lib/constructorModel')
+const dataprocess = require('../../lib/dataprocess')
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
 const Admin = require('../../models/adminModel')
 const User = require('../../models/userModel')
@@ -396,46 +398,9 @@ router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
     })
 })
 
-function countAccount(){
-    return new Promise((resolve,reject) => {
-        User.count({}, (err, count) => {
-            if(err)
-                reject(err)
-            resolve(count)
-        })
-    })
-}
-function countProject(){
-    return new Promise((resolve,reject) => {
-        Project.count({}, (err, count) => {
-            if(err)
-                reject(err)
-            resolve(count)
-        })
-    })
-}
-function countNews(){
-    return new Promise((resolve,reject) => {
-        News.count({}, (err, count) => {
-            if(err)
-                reject(err)
-            resolve(count)
-        })
-    })
-}
-function countCompany(){
-    return new Promise((resolve,reject) => {
-        Company.count({}, (err, count) => {
-            if(err)
-                reject(err)
-            resolve(count)
-        })
-    })
-}
-
 router.post('/statisticdata', checkAuthAdmin, (req, res, next) => {
-    Promise.all([countAccount(),countProject(),countNews(),countCompany()])
-    .then(function(arrayOfResults) {
+    Promise.all([dataprocess.countAccount(), dataprocess.countProject(), dataprocess.countNews(), dataprocess.countCompany()])
+    .then((arrayOfResults) => {
         const [account, project, news, company] = arrayOfResults
         res.status(200).json({
             status: 200,

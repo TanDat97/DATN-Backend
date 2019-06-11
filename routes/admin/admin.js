@@ -7,7 +7,7 @@ const nodemailer = require("nodemailer")
 
 const libFunction = require('../../lib/function')
 const constructorModel = require('../../lib/constructorModel')
-const dataprocess = require('../../lib/dataprocess')
+const dataProcess = require('../../lib/dataProcess')
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
 const Admin = require('../../models/adminModel')
 const User = require('../../models/userModel')
@@ -399,7 +399,7 @@ router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/statisticdata', checkAuthAdmin, (req, res, next) => {
-    Promise.all([dataprocess.countAccount(), dataprocess.countProject(), dataprocess.countNews(), dataprocess.countCompany()])
+    Promise.all([dataProcess.countAccount(), dataProcess.countProject(), dataProcess.countNews(), dataProcess.countCompany()])
     .then((arrayOfResults) => {
         const [account, project, news, company] = arrayOfResults
         res.status(200).json({

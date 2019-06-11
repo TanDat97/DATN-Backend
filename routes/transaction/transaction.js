@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const checkAuth = require('../../middleware/checkAuth')
 const libFunction = require('../../lib/function')
 const constructorModel = require('../../lib/constructorModel')
-const dataprocess = require('../../lib/dataprocess')
+const dataProcess = require('../../lib/dataProcess')
 const User = require('../../models/userModel')
 const Project = require('../../models/projectModel')
 const Company = require('../../models/companyModel')
@@ -179,7 +179,7 @@ router.post('/deletewaitingrequest', checkAuth, (req, res, next) => {
 
 router.post('/create', checkAuth, (req, res, next) => {
     var transaction = constructorModel.constructorTransaction(req.body.step, req.body.typeproject, req.body.typetransaction, req.body.project, req.body.code, req.userData.id, req.body.buyer,  req.body.company, req.body.createTime)
-    dataprocess.checkCodeAvailable(req.body.buyer, req.body.project, req.body.code, req.userData.id)
+    dataProcess.checkCodeAvailable(req.body.buyer, req.body.project, req.body.code, req.userData.id)
     .then(resultcheck => {
         console.log(resultcheck)        
         if(transaction.typetransaction === 1) {
@@ -400,12 +400,11 @@ router.get('/detail/:id/:type', checkAuth, (req, res, next) => {
 router.get('/test/:seller/:buyer', (req, res, next) => {
     const seller = req.params.seller
     const buyer = req.params.buyer
-    dataprocess.getListTransaction(seller, buyer)
+    dataProcess.getListTransaction(seller, buyer)
     .then(result => {
         res.status(200).json({
             status: 200,
-            message: 'get list transaction success',
-            count: result.length,
+            message: 'get num of transaction success',
             result: result,
         })
     })

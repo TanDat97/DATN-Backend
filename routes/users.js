@@ -623,11 +623,18 @@ router.get('/profile/:id', (req, res, next) => {
     .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify hash __v')
     .exec()
     .then(result => {
-        res.status(200).json({
-            status: 200,
-            message: 'get info user successful',
-            info: result,
-        })
+        if(result) {
+            res.status(200).json({
+                status: 200,
+                message: 'get info user successful',
+                info: result,
+            })
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
     })
     .catch(err => {
         console.log(err)

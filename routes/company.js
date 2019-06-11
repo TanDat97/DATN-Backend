@@ -526,7 +526,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                                         message: 'employee created in company',
                                         employee: user,
                                         info: info.response,
-                                    }) 
+                                    })
                                 }
                             })
                         })

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     active: {
@@ -26,12 +26,16 @@ const Schema = mongoose.Schema({
         ref: 'Project',
         required: true,
     },
-    buyer: {
+    code: {
+        type: String,
+        required: true,
+    },
+    seller: {
         type: String,
         ref: 'User',
         required: true,
     },
-    seller: {
+    buyer: {
         type: String,
         ref: 'User',
         required: true,
@@ -45,6 +49,10 @@ const Schema = mongoose.Schema({
         type: Number,
         required: true,
     },
+    updateTime: {
+        type: Number,
+        required: true,
+    },
     selldetail: {
         type: String,
         ref: 'SellDetail',
@@ -54,8 +62,12 @@ const Schema = mongoose.Schema({
         type: String,
         ref: 'RentDetail',
         required: true,
-    }
-});
+    },
+    complete: {
+        type: Boolean,
+        required: true,
+    },
+})
 
 // Export the model
-module.exports = mongoose.model('Transaction', Schema);
+module.exports = mongoose.model('Transaction', Schema)

@@ -1,11 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
 
-const checkAuth = require('../middleware/checkAuth');
-const libFunction = require('../lib/function');
-const User = require('../models/userModel');
-const Comment = require('../models/commentModel');
+const checkAuth = require('../middleware/checkAuth')
+const libFunction = require('../lib/function')
+const User = require('../models/userModel')
+const Comment = require('../models/commentModel')
 
 router.get('/all/:id', (req, res, next) => {
     const projectid = req.params.id
@@ -38,7 +38,7 @@ router.get('/all/:id', (req, res, next) => {
                 status: 200,
                 count: temp.length,
                 comments: temp,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -47,13 +47,13 @@ router.get('/all/:id', (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/', checkAuth, (req, res, next) => {
     User.findById(req.userData.id)
@@ -67,7 +67,7 @@ router.post('/', checkAuth, (req, res, next) => {
             updateTime: req.body.updateTime,
             content: req.body.content,
             star: req.body.star,
-        });
+        })
         comment
         .save()
         .then(result => {
@@ -78,31 +78,31 @@ router.post('/', checkAuth, (req, res, next) => {
             })
         })
         .catch(err => {
-            console.log(err);
+            console.log(err)
             res.status(500).json({
                 status: 500,
                 error: err
-            });
-        });   
+            })
+        })   
         
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });   
-});
+        })
+    }) 
+})
 
 router.post('/edit/:id', checkAuth, (req, res, next) => {
-    const id = req.params.id;
-    const userid = req.userData.id;
-    const createTime = req.body.createTime;
-    const updateTime = req.body.updateTime;
-    const content = req.body.content;
-    const star = req.body.star;
-    const projectid = req.body.projectid;
+    const id = req.params.id
+    const userid = req.userData.id
+    const createTime = req.body.createTime
+    const updateTime = req.body.updateTime
+    const content = req.body.content
+    const star = req.body.star
+    const projectid = req.body.projectid
 
     Comment.update({
         _id: id,
@@ -129,23 +129,23 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
                     content: content,
                     star: star,
                 },
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found',
                 result: result,
-            });
+            })
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.delete('/:id', checkAuth, (req, res, next) => {
     Comment.remove({
@@ -159,23 +159,23 @@ router.delete('/:id', checkAuth, (req, res, next) => {
                 status: 200,
                 message: 'comment deleted',
                 result: result,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found',
                 result: result,
-            });
+            })
         }
         
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
-module.exports = router;
+module.exports = router

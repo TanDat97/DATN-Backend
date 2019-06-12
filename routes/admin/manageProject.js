@@ -1,18 +1,20 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
 
-const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
-const libFunction = require('../../lib/function');
-const Project = require('../../models/projectModel');
-const Comment = require('../../models/commentModel');
+const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
+const libFunction = require('../../lib/function')
+const constructorModel = require('../../lib/constructorModel')
+const Project = require('../../models/projectModel')
+const Comment = require('../../models/commentModel')
+const Waiting = require('../../models/waitingModel')
 
-const numItem = 30
+const numItem = require('../../lib/constant')
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     Project.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
-    .select()
+    .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
     .exec()
     .then(results => {
         if (results.length > 0) {
@@ -21,7 +23,7 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
                 count: results.length,
                 page: page + 1,
                 projects: results,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -30,24 +32,25 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.id
     Project.findById(id)
+    .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
     .exec()
     .then(result => {
         if(result!=null){
             res.status(200).json({
                 status: 200,
                 project: result,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -56,41 +59,18 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/', checkAuthAdmin, (req, res, next) => {
-    const project= new Project({
-        _id: new mongoose.Types.ObjectId(),
-        name: req.body.name,
-        investor: req.body.investor,
-        price: req.body.price,
-        unit: req.body.unit,
-        area: req.body.area,
-        address: req.body.address,
-        type: req.body.type,
-        info: req.body.info,
-        lat: req.body.lat,
-        long: req.body.long,
-        ownerid: req.body.ownerid,
-        fullname: req.body.fullname,
-        phone: req.body.phone,
-        email: req.body.email,
-        avatar: req.body.avatar,
-        statusProject: req.body.statusProject,
-        amount: req.body.type === 1 ? req.body.amount: 1,
-        createTime: req.body.createTime,
-        updateTime: req.body.updateTime,
-        verify: false,
-        allowComment: true,
-        url: req.body.url,
-        publicId: req.body.publicId,
-    });
+    const codelist = req.body.codelist !== undefined && req.body.codelist.length > 0 ? req.body.codelist : ['dummy']
+    const project = constructorModel.constructorProject(req.body.name, req.body.investor, req.body.price, req.body.unit, req.body.area, req.body.address, req.body.type, req.body.info,
+        req.body.lat, req.body.long, 'admin:'+req.adminData.id, req.body.fullname, req.body.phone, req.body.email, req.body.avatar, req.body.statusProject, libFunction.createCodeList(codelist), req.body.createTime, req.body.url, req.body.publicId)
     project
     .save()
     .then(result => {
@@ -98,39 +78,39 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
             status: 201,
             message: 'add project success',
             project: result,
-        });
+        })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err,
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
-    const name = req.body.name;
-    const investor = req.body.investor;
-    const price = req.body.price;
-    const unit = req.body.unit;
-    const area = req.body.area;
-    const address = req.body.address;
-    const type = req.body.type;
-    const info = req.body.info;
-    const lat = req.body.lat;
-    const long = req.body.long;
-    const ownerid = req.body.ownerid;
-    const fullname = req.body.fullname;
-    const phone = req.body.phone;
-    const email = req.body.email;
-    const avatar = req.body.avatar;
-    const statusProject = req.body.statusProject;
-    const createTime = req.body.createTime;
-    const updateTime = req.body.updateTime;
-    const url = req.body.url;
-    const publicId = req.body.publicId;
+    const id = req.params.id
+    const name = req.body.name
+    const investor = req.body.investor
+    const price = req.body.price
+    const unit = req.body.unit
+    const area = req.body.area
+    const address = req.body.address
+    const type = req.body.type
+    const info = req.body.info
+    const lat = req.body.lat
+    const long = req.body.long
+    const ownerid = req.body.ownerid
+    const fullname = req.body.fullname
+    const phone = req.body.phone
+    const email = req.body.email
+    const avatar = req.body.avatar
+    const statusProject = req.body.statusProject
+    const createTime = req.body.createTime
+    const updateTime = req.body.updateTime
+    const url = req.body.url
+    const publicId = req.body.publicId
     Project.update({
         _id: id,
     }, {
@@ -145,13 +125,10 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
             info: info,
             lat: lat,
             long: long,
-            ownerid: ownerid,
             fullname: fullname,
             phone: phone,
             email: email,
-            // avatar: avatar,
             statusProject: statusProject,
-            amount: req.body.type === 1 ? req.body.amount: 1,
             updateTime: updateTime,
             // url: url,
             // publicId: publicId,
@@ -189,7 +166,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                 request: {
                     type: 'PATCH',
                 }
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -198,22 +175,26 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
-    const projectid = req.params.id;
+    const projectid = req.params.id
     Project.remove({
         _id: id
     })
     .exec()
     .then(result => {
-        Comment.remove({projectid: projectid}).exec().then(result => console.log('delete comment success'))
+        // User.findOneAndUpdate({_id: req.userData.id, verify: true}, {totalProject: temp})
+        // .exec()
+        // .then(ex1 => console.log('update total project success: ' + temp))
+        Comment.remove({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
+        Waiting.remove({ projectid: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
         if (result.n > 0) {
             res.status(200).json({
                 status: 200,
@@ -221,39 +202,7 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                 request: {
                     type: 'DELETE',
                 }
-            });
-        } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found'
-            });
-        }
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            status: 500,
-            error: err
-        });
-    });
-});
-
-router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
-    Project.update({
-        _id: req.params.id,
-    }, {
-        $set: {
-            allowComment: req.body.allowComment,
-        }
-    })
-    .exec()
-    .then(result => {
-        if (result.nModified > 0) {
-            res.status(200).json({
-                status: 200,
-                message: 'change allow comment success',
-                allowComment: req.body.allowComment,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -262,13 +211,14 @@ router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
+
 
 router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
     Project.update({
@@ -285,7 +235,7 @@ router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 message: 'change verify success',
                 verify: req.body.verify,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -294,12 +244,44 @@ router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
+})
+
+router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
+    Project.update({
+        _id: req.params.id,
+    }, {
+        $set: {
+            allowComment: req.body.allowComment,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'change allow comment success',
+                allowComment: req.body.allowComment,
+            })
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
 })
 
 router.get('/allcomment/:id', checkAuthAdmin, (req, res, next) => {
@@ -333,7 +315,7 @@ router.get('/allcomment/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 count: temp.length,
                 comments: temp,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -342,12 +324,12 @@ router.get('/allcomment/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
-module.exports = router;
+module.exports = router

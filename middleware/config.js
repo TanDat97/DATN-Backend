@@ -4,4 +4,4 @@ module.exports = {
         'clientSecret'     : '8dyRJPDzRg3oq7aRGpq6cW0-',
         'callbackURL'      : 'http://localhost:3001//users/auth/google/callback'
     }
-};
+}

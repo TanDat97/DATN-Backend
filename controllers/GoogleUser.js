@@ -1,7 +1,7 @@
 var gg = require('../models/userModel'),
-  UserGG = gg.model('User');
+  UserGG = gg.model('User')
 
-var  mongoose = require('mongoose');
+var  mongoose = require('mongoose')
 
 exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
     UserGG.findOne({
@@ -21,22 +21,24 @@ exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
                     id: profile.id,
                     token: accessToken
                 },
-                totalProject:0,
-                statusAccount:0,
+                totalProject: 0,
+                statusAccount: 1,
                 avatar:profile._json['picture'],
                 company: '0',
                 lock: false,
                 verify: true,
-            });
+                permission: false,
+                hash: 0,
+            })
 
             newUser.save(function(error, savedUser) {
                 if (error) {
-                    console.log(error);
+                    console.log(error)
                 }
-                return cb(error, savedUser);
-            });
+                return cb(error, savedUser)
+            })
         } else {
-            return cb(err, user);
+            return cb(err, user)
         }
-    });
-};
+    })
+}

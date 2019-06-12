@@ -26,7 +26,7 @@ const compare = function (arr1, arr2) {
     for (i = 0; i < arr1.length; i++) {
         flag = false
         for (j = 0; j < arr2.length; j++) {
-            if (arr1[i] === arr2[j]) {
+            if (arr1[i].id === arr2[j].id) {
                 flag = true
                 break
             }
@@ -69,7 +69,7 @@ router.post('/deal', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(deal.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -82,7 +82,7 @@ router.post('/deal', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update deal selldetail complete: true',
+                    message: 'update deal complete: true',
                     deal: deal,
                     prev: result,
                 })
@@ -101,7 +101,7 @@ router.post('/deal', checkAuth, (req, res, next) => {
             })
         })
     } else if(deal.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -119,7 +119,7 @@ router.post('/deal', checkAuth, (req, res, next) => {
                 deal.description = result.deal.description 
                 res.status(200).json({
                     status: 200,
-                    message: 'update deal selldetail complete: false',
+                    message: 'update deal complete: false',
                     deal: deal,
                     prev: result,
                 })
@@ -165,7 +165,7 @@ router.post('/legality', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(legality.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -177,11 +177,11 @@ router.post('/legality', checkAuth, (req, res, next) => {
         .then(result => {
             deleteImageInCloudinary(result.legality.government, legality.government)
             deleteImageInCloudinary(result.legality.certificate, legality.certificate)
-            deleteImageInCloudinary(result.legality.contract, legality.contract) 
+            deleteImageInCloudinary(result.legality.contract, legality.contract)            
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update legality selldetail complete: true',
+                    message: 'update legality complete: true',
                     legality: legality,
                     prev: result,
                 })
@@ -200,7 +200,7 @@ router.post('/legality', checkAuth, (req, res, next) => {
             })
         })
     } else if(legality.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -216,7 +216,7 @@ router.post('/legality', checkAuth, (req, res, next) => {
                 legality.contract = result.legality.contract
                 res.status(200).json({
                     status: 200,
-                    message: 'update legality selldetail complete: false',
+                    message: 'update legality complete: false',
                     legality: legality,
                     prev: result,
                 })
@@ -261,7 +261,7 @@ router.post('/deposit', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(deposit.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -274,7 +274,7 @@ router.post('/deposit', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update deposit selldetail complete: true',
+                    message: 'update deposit complete: true',
                     deposit: deposit,
                     prev: result,
                 })
@@ -293,7 +293,7 @@ router.post('/deposit', checkAuth, (req, res, next) => {
             })
         })
     } else if(deposit.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -308,7 +308,7 @@ router.post('/deposit', checkAuth, (req, res, next) => {
                 deposit.detail = result.deposit.detail
                 res.status(200).json({
                     status: 200,
-                    message: 'update deposit selldetail complete: false',
+                    message: 'update deposit complete: false',
                     deposit: deposit,
                     prev: result,
                 })
@@ -354,7 +354,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(contract.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -368,7 +368,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update contract selldetail complete: true',
+                    message: 'update contract complete: true',
                     contract: contract,
                     prev: result,
                 })
@@ -387,7 +387,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
             })
         })
     } else if(contract.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -403,7 +403,7 @@ router.post('/contract', checkAuth, (req, res, next) => {
                 contract.image = result.contract.image
                 res.status(200).json({
                     status: 200,
-                    message: 'update contract selldetail complete: false',
+                    message: 'update contract complete: false',
                     contract: contract,
                     prev: result,
                 })
@@ -447,7 +447,7 @@ router.post('/confirmation', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(confirmation.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -461,7 +461,7 @@ router.post('/confirmation', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update confirmation selldetail complete: true',
+                    message: 'update confirmation complete: true',
                     confirmation: confirmation,
                     prev: result,
                 })
@@ -480,7 +480,7 @@ router.post('/confirmation', checkAuth, (req, res, next) => {
             })
         })
     } else if(confirmation.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -494,7 +494,7 @@ router.post('/confirmation', checkAuth, (req, res, next) => {
                 confirmation.image = result.confirmation.image
                 res.status(200).json({
                     status: 200,
-                    message: 'update confirmation selldetail complete: false',
+                    message: 'update confirmation complete: false',
                     confirmation: confirmation,
                     prev: result,
                 })
@@ -547,7 +547,7 @@ router.post('/tax', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(tax.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -560,7 +560,7 @@ router.post('/tax', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update tax selldetail complete: true',
+                    message: 'update tax complete: true',
                     tax: tax,
                     prev: result,
                 })
@@ -579,7 +579,7 @@ router.post('/tax', checkAuth, (req, res, next) => {
             })
         })
     } else if(tax.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -598,7 +598,7 @@ router.post('/tax', checkAuth, (req, res, next) => {
                 tax.buyer.amountmoney = result.tax.buyer.amountmoney
                 res.status(200).json({
                     status: 200,
-                    message: 'update tax selldetail complete: false',
+                    message: 'update tax complete: false',
                     tax: tax,
                     prev: result,
                 })
@@ -646,7 +646,7 @@ router.post('/delivery', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(delivery.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -659,7 +659,7 @@ router.post('/delivery', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update delivery selldetail complete: true',
+                    message: 'update delivery complete: true',
                     delivery: delivery,
                     prev: result,
                 })
@@ -678,7 +678,7 @@ router.post('/delivery', checkAuth, (req, res, next) => {
             })
         })
     } else if(delivery.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -696,7 +696,7 @@ router.post('/delivery', checkAuth, (req, res, next) => {
                 delivery.tax = result.delivery.tax
                 res.status(200).json({
                     status: 200,
-                    message: 'update tax selldetail complete: false',
+                    message: 'update tax complete: false',
                     delivery: delivery,
                     prev: result,
                 })
@@ -740,7 +740,7 @@ router.post('/transfer', checkAuth, (req, res, next) => {
     .then(result => console.log(req.body.updateTime))
     .catch(err  => console.log(err))
     if(transfer.complete === true) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -754,7 +754,7 @@ router.post('/transfer', checkAuth, (req, res, next) => {
             if (result) {
                 res.status(200).json({
                     status: 200,
-                    message: 'update transfer selldetail complete: true',
+                    message: 'update transfer complete: true',
                     transfer: transfer,
                     prev: result,
                 })
@@ -773,7 +773,7 @@ router.post('/transfer', checkAuth, (req, res, next) => {
             })
         })
     } else if(transfer.complete === false) {
-        SellDetail.findOneAndUpdate({
+        RentDetail.findOneAndUpdate({
             _id: id,
             seller: req.userData.id,
         },{
@@ -787,7 +787,7 @@ router.post('/transfer', checkAuth, (req, res, next) => {
                 transfer.image = result.transfer.image
                 res.status(200).json({
                     status: 200,
-                    message: 'update transfer selldetail complete: false',
+                    message: 'update transfer complete: false',
                     transfer: transfer,
                     prev: result,
                 })

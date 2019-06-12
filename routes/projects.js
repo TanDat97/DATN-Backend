@@ -5,22 +5,30 @@ const cloudinary = require('cloudinary')
 
 const checkAuth = require('../middleware/checkAuth')
 const libFunction = require('../lib/function')
+const constructorModel = require('../lib/constructorModel')
 const Project = require('../models/projectModel')
+const User = require('../models/userModel')
 const Comment = require('../models/commentModel')
+const Transaction = require('../models/transactionModel')
+const SellDetail = require('../models/selldetailModel')
+const RentDetail = require('../models/rentdetailModel')
+const Waiting = require('../models/waitingModel')
 
-const numItem = 30
+const numItem = require('../lib/constant')
 
 cloudinary.config({
     cloud_name: 'dne3aha8f',
     api_key: '464146278492844',
     api_secret: 'JdBsEVQDxp4_1jsZrT-qM7T8tns'
 })
+
 router.get('/all/:page', (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     Project.find({
         verify: true,
+        $or: [{statusProject: 1},{statusProject: 3}],
     }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
-        .select()
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {
             if (results.length > 0) {
@@ -49,8 +57,9 @@ router.get('/all/:page', (req, res, next) => {
 router.post('/home', (req, res, next) => {
     Project.find({
         verify: true,
+        $or: [{statusProject: 1},{statusProject: 3}],
     })
-        .select()
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(temp => {
             const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
@@ -89,13 +98,14 @@ router.post('/searchmap', (req, res, next) => {
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
     })
-        .select()
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(temp => {
             const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
             if (results.length > 0) {
                 res.status(200).json({
                     status: 200,
+                    message: 'get list project success',
                     count: results.length,
                     projects: results,
                 })
@@ -118,11 +128,13 @@ router.post('/searchmap', (req, res, next) => {
 router.get('/:id', (req, res, next) => {
     const id = req.params.id
     Project.findById(id)
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(result => {
             if (result != null) {
                 res.status(200).json({
                     status: 200,
+                    message: 'get info project success',
                     project: result,
                 })
             } else {
@@ -142,48 +154,60 @@ router.get('/:id', (req, res, next) => {
 })
 
 router.post('/', checkAuth, (req, res, next) => {
-    const project = new Project({
-        _id: new mongoose.Types.ObjectId(),
-        name: req.body.name,
-        investor: req.body.investor,
-        price: req.body.price,
-        unit: req.body.unit,
-        area: req.body.area,
-        address: req.body.address,
-        type: req.body.type,
-        info: req.body.info,
-        lat: req.body.lat,
-        long: req.body.long,
-        ownerid: req.userData.id,
-        fullname: req.body.fullname,
-        phone: req.body.phone,
-        email: req.body.email,
-        avatar: req.body.avatar,
-        statusProject: req.body.statusProject,
-        amount: req.body.type === 1 ? req.body.amount: 1,
-        createTime: req.body.createTime,
-        updateTime: req.body.updateTime,
-        verify: false,
-        allowComment: true,
-        url: req.body.url,
-        publicId: req.body.publicId,
+    const codelist = req.body.codelist !== undefined && req.body.codelist.length > 0 ? req.body.codelist : ['dummy']
+    const project = constructorModel.constructorProject(req.body.name, req.body.investor, req.body.price, req.body.unit, req.body.area, req.body.address, req.body.type, req.body.info,
+        req.body.lat, req.body.long, req.userData.id, req.body.fullname, req.body.phone, req.body.email, req.body.avatar, req.body.statusProject, libFunction.createCodeList(codelist), req.body.createTime, req.body.url, req.body.publicId)
+    User.findOne({
+        _id: req.userData.id,
+        verify: true,
     })
-    project
-        .save()
-        .then(result => {
-            res.status(201).json({
-                status: 201,
-                message: 'add project success',
-                project: result,
+    .exec()
+    .then(resultuser => {
+        if(resultuser.statusAccount === 1 && resultuser.totalProject >= 5) {
+            res.status(203).json({
+                status: 203,
+                message: 'your account has maximum 5 project, upgrade your account for more',
             })
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                status: 500,
-                error: err,
+        } else if (resultuser.statusAccount === 2 && resultuser.totalProject >= 40) {
+            res.status(204).json({
+                status: 204,
+                message: 'your account has maximum 40 project',
             })
+        } else {
+            if(resultuser.permission === true) {
+                project.verify = true
+            }
+            project
+            .save()
+            .then(result => {
+                const temp = resultuser.totalProject + 1
+                User.findOneAndUpdate({_id: req.userData.id}, {totalProject: temp})
+                .exec()
+                .then(ex => {
+                    console.log('update total project success: ' + temp)
+                    res.status(201).json({
+                        status: 201,
+                        message: 'add project success',
+                        project: result,
+                    })
+                })
+            })
+            .catch(err => {
+                console.log(err)
+                res.status(500).json({
+                    status: 500,
+                    error: err,
+                })
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err,
         })
+    })
 })
 
 
@@ -204,7 +228,7 @@ const compare = function (arr1, arr2) {
     }
     return finalarray
 }
-router.post('/edit/:id',checkAuth, (req, res, next) => {
+router.post('/edit/:id', checkAuth, (req, res, next) => {
     const id = req.params.id
     const name = req.body.name
     const investor = req.body.investor
@@ -221,7 +245,6 @@ router.post('/edit/:id',checkAuth, (req, res, next) => {
     const phone = req.body.phone
     const email = req.body.email
     const avatar = req.body.avatar
-    const statusProject = req.body.statusProject
     const updateTime = req.body.updateTime
     const url = req.body.url
     const publicId = req.body.publicId
@@ -230,102 +253,114 @@ router.post('/edit/:id',checkAuth, (req, res, next) => {
         _id: id,
         ownerid: req.userData.id,
         verify: true,
+        $or: [{statusProject: 1},{statusProject: 3}],
     })
-        .exec()
-        .then(doc => {
-            if (doc.length > 0) { 
-                publicIdInDataBase = doc[0].publicId
-                // console.log(typeof (publicIdInDataBase))
-                publicIdDelete = compare(publicIdInDataBase, publicId)
-                // console.log(publicIdDelete)
-                if (publicIdDelete.length > 0) {
-                    cloudinary.v2.api.delete_resources(publicIdDelete, { invalidate: true },
-                        function (error, result) { console.log(result) })
-                }
+    .exec()
+    .then(doc => {
+        if (doc.length > 0) {
+            // console.log(typeof (publicId))
+            publicIdInDataBase = doc[0].publicId
+            // console.log(typeof (publicIdInDataBase))
+            publicIdDelete = compare(publicIdInDataBase, publicId)
+            // console.log(publicIdDelete)
+            if (publicIdDelete.length > 0) {
+                cloudinary.v2.api.delete_resources(publicIdDelete, { invalidate: true },
+                    function (error, result) { console.log(result) })
             }
-        })
+        }
+    })
 
     Project.update({
         _id: id,
-        ownerid: req.userData.id
+        ownerid: req.userData.id,
+        verify: true,
+        $or: [{statusProject: 1},{statusProject: 3}],
     }, {
-            $set: {
-                name: name,
-                investor: investor,
-                price: price,
-                unit: unit,
-                area: area,
-                address: address,
-                type: type,
-                info: info,
-                lat: lat,
-                long: long,
-                fullname: fullname,
-                phone: phone,
-                email: email,
-                avatar: avatar,
-                statusProject: statusProject,
-                amount: req.body.type === 1 ? req.body.amount: 1,
-                updateTime: updateTime,
-                url: url,
-                publicId: publicId,
-            }
-        })
-        .exec()
-        .then(result => {
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: 'update project success',
-                    project: {
-                        _id: id,
-                        name: name,
-                        investor: investor,
-                        price: price,
-                        unit: unit,
-                        area: area,
-                        address: address,
-                        type: type,
-                        info: info,
-                        lat: lat,
-                        long: long,
-                        ownerid: ownerid,
-                        fullname: fullname,
-                        phone: phone,
-                        email: email,
-                        avatar: avatar,
-                        statusProject: statusProject,
-                        updateTime: updateTime,
-                        url: url,
-                        publicId: publicId,
-                    },
-                })
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found',
-                })
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                status: 500,
-                error: err
+        $set: {
+            name: name,
+            investor: investor,
+            price: price,
+            unit: unit,
+            area: area,
+            address: address,
+            type: type,
+            info: info,
+            lat: lat,
+            long: long,
+            fullname: fullname,
+            phone: phone,
+            email: email,
+            avatar: avatar,
+            updateTime: updateTime,
+            url: url,
+            publicId: publicId,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'update project success',
+                project: {
+                    _id: id,
+                    name: name,
+                    investor: investor,
+                    price: price,
+                    unit: unit,
+                    area: area,
+                    address: address,
+                    type: type,
+                    info: info,
+                    lat: lat,
+                    long: long,
+                    ownerid: ownerid,
+                    fullname: fullname,
+                    phone: phone,
+                    email: email,
+                    avatar: avatar,
+                    updateTime: updateTime,
+                    url: url,
+                    publicId: publicId,
+                },
             })
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
         })
+    })
 })
 
 router.delete('/:id', checkAuth, (req, res, next) => {
     const projectid = req.params.id
-    Project.remove({
-        _id: projectid,
-        ownerid: req.userData.id,
+    User.findOne({
+        _id: req.userData.id,
+        verify: true,
     })
+    .exec()
+    .then(resultuser => {
+        Project.remove({
+            _id: projectid,
+            ownerid: req.userData.id,
+        })
         .exec()
         .then(result => {
             if (result.n > 0) {
-                Comment.remove({ projectid: projectid }).exec().then(result => console.log('delete comment success'))
+                const temp = resultuser.totalProject - 1
+                User.findOneAndUpdate({_id: req.userData.id, verify: true}, {totalProject: temp})
+                .exec()
+                .then(ex1 => console.log('update total project success: ' + temp))
+                Comment.remove({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
+                Waiting.remove({ projectid: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
                 res.status(200).json({
                     status: 200,
                     message: 'delete project success',
@@ -347,6 +382,8 @@ router.delete('/:id', checkAuth, (req, res, next) => {
                 error: err
             })
         })
+    })
+    
 })
 
 
@@ -364,7 +401,7 @@ router.post('/searchprojects', (req, res, next) => {
         price: { $gte: priceParam.start, $lte: priceParam.end },
         address: { $regex: `.*${addressParam}.*` },
     })
-        .select()
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {
             if (results.length >= 0) {
@@ -395,11 +432,12 @@ router.post('/searchaddress', (req, res, next) => {
     const priceParam = libFunction.convertData(req.body.price)
     Project.find({
         verify: true,
+        $or: [{statusProject: 1},{statusProject: 3}],
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
         address: { $regex: `.*${addressParam}.*` },
     })
-        .select()
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {
             if (results.length >= 0) {

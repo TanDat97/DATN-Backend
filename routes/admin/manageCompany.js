@@ -1,24 +1,26 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const nodemailer = require("nodemailer");
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const nodemailer = require("nodemailer")
 
-const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
-const libFunction = require('../../lib/function');
-const Company = require('../../models/companyModel');
-const User = require('../../models/userModel');
-const Project = require('../../models/projectModel');
-const Comment = require('../../models/commentModel');
+const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
+const libFunction = require('../../lib/function')
+const constructorModel = require('../../lib/constructorModel')
+const Company = require('../../models/companyModel')
+const User = require('../../models/userModel')
+const Project = require('../../models/projectModel')
+const Comment = require('../../models/commentModel')
 
-const numItem = 30
+const numItem = require('../../lib/constant')
+
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
     auth: {
         user: 'trandat.sgg@gmail.com',
         pass: 'datdeptrai',
     }
-});
+})
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
@@ -32,7 +34,7 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
                 count: results.length,
                 page: page + 1,
                 company: results,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -41,13 +43,13 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -58,7 +60,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 company: result,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -67,13 +69,13 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/', checkAuthAdmin, (req, res, next) => {
     Company.find({
@@ -85,7 +87,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
             return res.status(409).json({
                 status: 409,
                 message: 'company exists',
-            });
+            })
         } else {
             const pass = libFunction.randomPassword(10)
             bcrypt.hash(pass, 10, (err, hash) => {
@@ -93,28 +95,11 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                     return res.status(500).json({
                         status: 500,
                         error: err,
-                    });
+                    })
                 } else {
                     console.log(pass)
-                    var company= new Company({
-                        _id: new mongoose.Types.ObjectId(),
-                        password: hash,
-                        companyname: req.body.companyname,
-                        address: req.body.address,
-                        email: req.body.email,
-                        phone: req.body.phone,
-                        totalProject: 0,
-                        status: 0,
-                        avatar: req.body.avatar,
-                        description: req.body.description,
-                        createTime: req.body.createTime,
-                        updateTime: req.body.updateTime,
-                        createBy: req.adminData.id,
-                        lock: false,
-                        verify: false,
-                        hash: 0,
-                        employees: [],
-                    });
+                    var company = constructorModel.constructorCompany(hash, req.body.companyname, req.body.address, req.body.email, req.body.phone, req.body.website, 0,
+                        req.body.avatar, req.body.description, req.body.createTime, req.adminData.id)
                     company.hash = libFunction.hashString(company._id.toString())
                     var link = "http://localhost:3000/verifycompany/" + company._id + "/" + company.hash;
                     var EmailCompanyModel = require('../../lib/emailCompanyModel')
@@ -143,24 +128,24 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                         })
                     })
                     .catch(err => {
-                        console.log(err);
+                        console.log(err)
                         res.status(500).json({
                             status: 500,
                             error: err
-                        });
-                    });                
+                        })
+                    })                
                 }
             })
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id;
@@ -168,6 +153,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const address = req.body.address;
     const email = req.body.email;
     const phone = req.body.phone;
+    const website = req.body.website;
     const totalProject = req.body.totalProject;
     const status = req.body.status;
     const description = req.body.description;
@@ -181,6 +167,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
             companyname: companyname,
             address: address,
             phone: phone,
+            website: website,
             status: status,
             description: description,
             updateTime: updateTime,
@@ -197,6 +184,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                     companyname: companyname,
                     address: address,
                     phone: phone,
+                    website: website,
                     totalProject: totalProject,
                     status: status,
                     description: description,
@@ -206,7 +194,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                 request: {
                     type: 'PATCH',
                 }
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -215,13 +203,13 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     Company.remove({
@@ -236,22 +224,22 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 message: 'company deleted',
                 result: result
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found'
-            });
+            })
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
     Company.update({
@@ -268,7 +256,7 @@ router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 message: 'change account state success',
                 lock: req.body.lock,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -277,12 +265,12 @@ router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
-module.exports = router;
+module.exports = router

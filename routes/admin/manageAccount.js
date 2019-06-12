@@ -1,17 +1,17 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
-const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
-const libFunction = require('../../lib/function');
-const User = require('../../models/userModel');
-const Project = require('../../models/projectModel');
-const Comment = require('../../models/commentModel');
-const SavedProject = require('../../models/savedProjectModel');
+const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
+const libFunction = require('../../lib/function')
+const User = require('../../models/userModel')
+const Project = require('../../models/projectModel')
+const Comment = require('../../models/commentModel')
+const SavedProject = require('../../models/savedProjectModel')
 
-const numItem = 30
+const numItem = require('../../lib/constant')
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
@@ -25,7 +25,7 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
                 count: results.length,
                 page: page + 1,
                 accounts: results,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -34,16 +34,16 @@ router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.id
     User.findById(id)
     .exec()
     .then(result => {
@@ -51,7 +51,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 account: result,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -60,29 +60,31 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
-    const fullname = req.body.fullname;
-    const address = req.body.address;
-    const email = req.body.email;
-    const phone = req.body.phone;
-    const totalProject = req.body.totalProject;
-    const statusAccount = req.body.statusAccount;
-    const description = req.body.description;
+    const id = req.params.id
+    const fullname = req.body.fullname
+    const identify = req.body.identify
+    const address = req.body.address
+    const email = req.body.email
+    const phone = req.body.phone
+    const totalProject = req.body.totalProject
+    const statusAccount = req.body.statusAccount
+    const description = req.body.description
     User.update({
         _id: id,
         email: email,
     }, {
         $set: {
             fullname: fullname,
+            identify: identify,
             address: address,
             phone: phone,
             totalProject: totalProject,
@@ -99,6 +101,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                 account: {
                     _id: id,
                     fullname: fullname,
+                    identify: identify,
                     address: address,
                     email: email,
                     phone: phone,
@@ -109,22 +112,22 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                 request: {
                     type: 'PATCH',
                 }
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
-                message: 'No valid entry found'
+                message: 'No valid entry found',
             })
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
@@ -141,22 +144,22 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 message: 'account deleted',
                 result: result
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
-                message: 'No valid entry found'
-            });
+                message: 'No valid entry found',
+            })
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
     User.update({
@@ -173,21 +176,53 @@ router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
                 status: 200,
                 message: 'change account state success',
                 lock: req.body.lock,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
-                message: 'No valid entry found'
+                message: 'No valid entry found',
             })
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
-module.exports = router;
+router.post('/changePermission/:id', checkAuthAdmin, (req, res, next) => {
+    User.update({
+        _id: req.params.id,
+    }, {
+        $set: {
+            permission: req.body.permission,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'change account permission success',
+                permission: req.body.permission,
+            })
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err,
+        })
+    })
+})
+
+module.exports = router

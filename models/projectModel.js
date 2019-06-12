@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var projectSchema = new Schema({
     _id: mongoose.Schema.Types.ObjectId,
@@ -63,11 +63,11 @@ var projectSchema = new Schema({
         type: String,
         required: true,
     },
-    statusProject:{
+    statusProject: {
         type: Number,
         required: true,
     },
-    amount:{
+    amount: {
         type: Number,
         required: true,
     },
@@ -83,20 +83,29 @@ var projectSchema = new Schema({
         type: Boolean,
         required: true,
     },
-    allowComment : {
+    allowComment: {
         type: Boolean,
         required: true,
     },
-    url : [{
-        type: String,
-        required: true
+    codelist: [{
+        code:  {
+            type: String,
+            required: true,
+        },
+        sold: {
+            type: Boolean,
+            required: true,
+        },
     }],
-    publicId : [{
+    url: [{
         type: String,
-        required: true
-    }]
-    
-});
+        required: true,
+    }],
+    publicId: [{
+        type: String,
+        required: true,
+    }],
+})
 
 // Export the model
-module.exports = mongoose.model('Project', projectSchema);
+module.exports = mongoose.model('Project', projectSchema)

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./bin/www.js"
+    "start": "node ./bin/www.js"
   },
   "keywords": [
     "example",
@@ -16,6 +16,7 @@
     "npm": "6.4.1"
   },
   "dependencies": {
+    "axios": "^0.19.0",
     "bcrypt": "^3.0.4",
     "body-parser": "^1.18.3",
     "cloudinary": "^1.14.0",

@@ -1,16 +1,19 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const nodemailer = require("nodemailer");
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const nodemailer = require("nodemailer")
 
-const libFunction = require('../../lib/function');
-const checkAuthAdmin = require('../../middleware/checkAuthAdmin');
-const Admin = require('../../models/adminModel');
-const User = require('../../models/userModel');
-const Project = require('../../models/projectModel');
-const News = require('../../models/newsModel');
+const libFunction = require('../../lib/function')
+const constructorModel = require('../../lib/constructorModel')
+const dataProcess = require('../../lib/dataProcess')
+const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
+const Admin = require('../../models/adminModel')
+const User = require('../../models/userModel')
+const Project = require('../../models/projectModel')
+const News = require('../../models/newsModel')
+const Company = require('../../models/companyModel')
 
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
@@ -18,7 +21,7 @@ var transporter = nodemailer.createTransport({ // config mail server
         user: 'trandat.sgg@gmail.com',
         pass: 'datdeptrai',
     }
-});
+})
 
 router.post('/signup', checkAuthAdmin, (req, res, next) => {
     Admin.find({
@@ -30,7 +33,7 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
             return res.status(409).json({
                 status: 409,
                 message: 'admin exists',
-            });
+            })
         } else {
             const pass = libFunction.randomPassword(10)
             bcrypt.hash(pass, 10, (err, hash) => {
@@ -38,7 +41,7 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                     return res.status(500).json({
                         status: 500,
                         error: err,
-                    });
+                    })
                 } else {
                     var admin = Admin({
                         _id: new mongoose.Types.ObjectId(),
@@ -81,25 +84,25 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                         })
                     })
                     .catch(err => {
-                        console.log(err);
+                        console.log(err)
                         res.status(500).json({
                             status: 500,
                             error: err
-                        });
-                    });
+                        })
+                    })
                                     
                 }
             })
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/verify', (req, res, next) => {
     const id = req.body.id
@@ -119,7 +122,7 @@ router.post('/verify', (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'verify admin success, please login again',
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -128,12 +131,12 @@ router.post('/verify', (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
 router.post('/login', (req, res, next) => {
@@ -147,14 +150,14 @@ router.post('/login', (req, res, next) => {
             return res.status(401).json({
                 status: 401,
                 message: 'Auth failed email,'
-            });
+            })
         }
         bcrypt.compare(req.body.password, admin[0].password, (err, result) => {
             if (err) {
                 return res.status(401).json({
                     status: 401,
                     message: 'Auth failed password'
-                });
+                })
             }
             if (result) {
                 const token = jwt.sign({
@@ -165,8 +168,8 @@ router.post('/login', (req, res, next) => {
                     address: admin[0].address,
                     status: 'adminaccount',
                     }, 'HS256', {
-                    expiresIn: "5h"
-                });
+                    expiresIn: "24h"
+                })
                 return res.status(200).json({
                     status: 200,
                     message: 'successful',
@@ -187,7 +190,7 @@ router.post('/login', (req, res, next) => {
         })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         return res.status(401).json({
             status: 401,
             message: 'Auth failed',
@@ -197,7 +200,7 @@ router.post('/login', (req, res, next) => {
 })
 
 router.get('/:id', checkAuthAdmin, (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.id
     Admin.findById(id)
     .exec()
     .then(result => {
@@ -205,7 +208,7 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 admin: result,
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -214,21 +217,21 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err,
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/edit', checkAuthAdmin, (req, res, next) => {
-    const id = req.adminData.id;
-    const fullname = req.body.fullname;
-    const address = req.body.address;
-    const email = req.body.email;
-    const phone = req.body.phone;
-    const createBy = req.body.createBy;
+    const id = req.adminData.id
+    const fullname = req.body.fullname
+    const address = req.body.address
+    const email = req.body.email
+    const phone = req.body.phone
+    const createBy = req.body.createBy
 
     Admin.update({
         _id: id,
@@ -258,7 +261,7 @@ router.post('/edit', checkAuthAdmin, (req, res, next) => {
                 request: {
                     type: 'PATCH',
                 }
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -267,13 +270,13 @@ router.post('/edit', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err,
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
     Admin.find({
@@ -287,14 +290,14 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
             return res.status(401).json({
                 status: 401,
                 message: 'Account not found'
-            });
+            })
         }
         bcrypt.compare(req.body.currentPassword, admin[0].password, (err, result) => {
             if (err) {
                 return res.status(40).json({
                     status: 401,
                     message: 'Change password failed 1',
-                });
+                })
             }
             if (result) {
                 bcrypt.hash(req.body.newPassword, 10, (err, hash) => {
@@ -302,7 +305,7 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
                         return res.status(500).json({
                             status: 500,
                             error: err,
-                        });
+                        })
                     } else {
                         Admin.update({
                             email: req.adminData.email,
@@ -320,7 +323,7 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
                                     message: 'Change password success',
                                     email: req.adminData.email,
                                     _id: req.adminData.id,
-                                });
+                                })
                             } else {
                                 res.status(404).json({
                                     status: 404,
@@ -329,36 +332,36 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
                             }
                         })
                         .catch(err => {
-                            console.log(err);
+                            console.log(err)
                             res.status(500).json({
                                 status: 500,
                                 error: err,
                                 message: 'Change password failed 3',
-                            });
-                        });     
+                            })
+                        })     
                     }
                 }) 
             } else {
                 return res.status(401).json({
                     status: 401,
                     message: 'Change password failed 4',
-                });
+                })
             }
-        });
+        })
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         return res.status(401).json({
             status: 401,
             error: err,
             message: 'Change password failed 5',
-        });
-    });
-});
+        })
+    })
+})
 
 router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
-    const id = req.adminData.id;
-    const avatar = req.body.avatar;
+    const id = req.adminData.id
+    const avatar = req.body.avatar
 
     Admin.update({
         _id: id,
@@ -378,7 +381,7 @@ router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
                     id: id,
                     avatar: avatar
                 },
-            });
+            })
         } else {
             res.status(404).json({
                 status: 404,
@@ -387,60 +390,33 @@ router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             status: 500,
             error: err
-        });
-    });
+        })
+    })
 })
 
-function countAccount(){
-    return new Promise((resolve,reject) => {
-        User.count({}, (err, count) => {
-            if(err)
-                reject(err)
-            resolve(count)
-        })
-    })
-}
-function countProject(){
-    return new Promise((resolve,reject) => {
-        Project.count({}, (err, count) => {
-            if(err)
-                reject(err)
-            resolve(count)
-        })
-    })
-}
-function countNews(){
-    return new Promise((resolve,reject) => {
-        News.count({}, (err, count) => {
-            if(err)
-                reject(err)
-            resolve(count)
-        })
-    })
-}
-
 router.post('/statisticdata', checkAuthAdmin, (req, res, next) => {
-    Promise.all([countAccount(),countProject(),countNews()])
-    .then(function(arrayOfResults) {
-        const [account, project, news] = arrayOfResults
+    Promise.all([dataProcess.countAccount(), dataProcess.countProject(), dataProcess.countNews(), dataProcess.countCompany()])
+    .then((arrayOfResults) => {
+        const [account, project, news, company] = arrayOfResults
         res.status(200).json({
             status: 200,
             message: 'get data success',
             countAccount: account,
             countProject: project,
             countNews: news,
-        });
+            countCompany: company,
+        })
     })
     .catch(err => {
         res.status(500).json({
             status: 500,
             error: err
-        });
+        })
     })
 })
 
-module.exports = router;
+module.exports = router

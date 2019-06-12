@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 const Schema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     password: {
@@ -52,6 +52,7 @@ const Schema = mongoose.Schema({
     },
     company: {
         type: String,
+        ref: 'Company',
         required: true,
     },
     lock: {
@@ -62,11 +63,15 @@ const Schema = mongoose.Schema({
         type: Boolean,
         required: true,
     },
+    permission: {
+        type: Boolean,
+        required: true,
+    },
     hash: {
         type: Number,
         required: false,
     }
-});
+})
 
 // Export the model
-module.exports = mongoose.model('User', Schema);
+module.exports = mongoose.model('User', Schema)

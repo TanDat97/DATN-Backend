@@ -319,7 +319,10 @@ router.get('/all/:page', (req, res, next) => {
 
 router.get('/info/:id', (req, res, next) => {
     const id = req.params.id
-    Company.findById(id)
+    Company.find({
+        _id: id,
+        verify: true,
+    })
     .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
     .populate({
         path: 'employees.employee'

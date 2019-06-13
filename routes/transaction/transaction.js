@@ -342,59 +342,59 @@ router.post('/complete', checkAuth, (req, res, next) => {
     })
 })
 
-// router.post('/cancel', checkAuth, (req, res, next) => {
-//     const transactionid = req.body.transactionid
-//     const type = parseInt(req.body.type)
-//     const transactiondetail = req.body.transactiondetail
-//     const waitingid = req.body.waitingid
-//     const seller = req.body.seller
-//     const buyer = req.body.buyer
-//     Transaction.remove({
-//         _id: transactionid,
-//         verify: false,
-//         complete: false,
-//         seller: seller,
-//     })
-//     .exec()
-//     .then(result => {
-//         if (result.n > 0) {
-//             if(type === 1) {
-//                 SellDetail.remove({
-//                     _id: transactiondetail,
-//                     transactionid: transactionid,
-//                 })
-//                 .exec()
-//                 .then(console.log('delete selldetail success'))
-//             } else if(type === 2) {
-//                 RentDetail.remove({
-//                     _id: transactiondetail,
-//                     transactionid: transactionid,
-//                 })
-//                 .exec()
-//                 .then(console.log('delete rentdetail success'))
-//             }
-//             Waiting.findOneAndUpdate({ _id: waitingid }, { $pull: { requests: { user: buyer }}})
-//             .exec()
-//             .then(console.log('remove request success'))
-//             res.status(200).json({
-//                 status: 200,
-//                 message: 'cancel transaction success',
-//             })
-//         } else {
-//             res.status(404).json({
-//                 status: 404,
-//                 message: 'No valid entry found',
-//             })
-//         }
-//     })
-//     .catch(err => {
-//         console.log(err)
-//         res.status(500).json({
-//             status: 500,
-//             error: err,
-//         })
-//     })
-// })
+router.post('/cancel', checkAuth, (req, res, next) => {
+    const transactionid = req.body.transactionid
+    const type = parseInt(req.body.type)
+    const transactiondetail = req.body.transactiondetail
+    const waitingid = req.body.waitingid
+    const seller = req.body.seller
+    const buyer = req.body.buyer
+    Transaction.remove({
+        _id: transactionid,
+        verify: false,
+        complete: false,
+        seller: seller,
+    })
+    .exec()
+    .then(result => {
+        if (result.n > 0) {
+            if(type === 1) {
+                SellDetail.remove({
+                    _id: transactiondetail,
+                    transactionid: transactionid,
+                })
+                .exec()
+                .then(console.log('delete selldetail success'))
+            } else if(type === 2) {
+                RentDetail.remove({
+                    _id: transactiondetail,
+                    transactionid: transactionid,
+                })
+                .exec()
+                .then(console.log('delete rentdetail success'))
+            }
+            Waiting.findOneAndUpdate({ _id: waitingid }, { $pull: { requests: { user: buyer }}})
+            .exec()
+            .then(console.log('remove request success'))
+            res.status(200).json({
+                status: 200,
+                message: 'cancel transaction success',
+            })
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err,
+        })
+    })
+})
 
 router.get('/history/:page', checkAuth, (req, res, next) => {
     const userid = req.userData.id

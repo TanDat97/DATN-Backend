@@ -37,6 +37,7 @@ const manageAccountRouter = require('./routes/admin/manageAccount')
 const manageProjectRouter = require('./routes/admin/manageProject')
 const manageNewsRouter = require('./routes/admin/manageNews')
 const manageCompanyRouter = require('./routes/admin/manageCompany')
+const manageTransactionRouter = require('./routes/admin/manageTransaction')
 
 app.use(sessions({
   secret: '(!)*#(!JE)WJEqw09ej12',
@@ -86,6 +87,7 @@ app.use('/manageAccount', manageAccountRouter)
 app.use('/manageProject', manageProjectRouter)
 app.use('/manageNews', manageNewsRouter)
 app.use('/manageCompany', manageCompanyRouter)
+app.use('/manageTransaction', manageTransactionRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

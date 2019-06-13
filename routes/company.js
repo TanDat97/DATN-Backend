@@ -348,6 +348,37 @@ router.get('/info/:id', (req, res, next) => {
     })
 })
 
+router.get('/infoprivate', checkAuthCompany, (req, res, next) => {
+    const id = req.companyData.id
+    Company.findById(id)
+    .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
+    .populate({
+        path: 'employees.employee'
+    })
+    .exec()
+    .then(result => {
+        if(result.lock === true) {
+            return res.status(500).json({
+                status: 500,
+                message: 'this account company has been locked',
+            })
+        } else {
+            res.status(200).json({
+                status: 200,
+                message: 'successful',
+                company: result,
+            })
+        }        
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
 router.post('/edit', checkAuthCompany, (req, res, next) => {
     const id = req.companyData.id
     const email = req.companyData.email

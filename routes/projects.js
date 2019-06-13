@@ -248,6 +248,7 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     const updateTime = req.body.updateTime
     const url = req.body.url
     const publicId = req.body.publicId
+    const codelist = req.body.codelist
 
     Project.find({
         _id: id,
@@ -294,6 +295,7 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
             updateTime: updateTime,
             url: url,
             publicId: publicId,
+            codelist:  codelist,
         }
     })
     .exec()

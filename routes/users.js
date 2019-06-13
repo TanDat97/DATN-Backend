@@ -249,7 +249,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
     const identify = req.body.identify
     const address = req.body.address
     const phone = req.body.phone
-    const totalProject = req.body.totalProject
     const avatar = req.body.avatar
     const description = req.body.description
     User.updateMany({
@@ -262,7 +261,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
             identify: identify,
             address: address,
             phone: phone,
-            totalProject: totalProject,
             avatar: avatar,
             description: description,
         }

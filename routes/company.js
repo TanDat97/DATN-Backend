@@ -319,7 +319,7 @@ router.get('/all/:page', (req, res, next) => {
 
 router.get('/info/:id', (req, res, next) => {
     const id = req.params.id
-    Company.find({
+    Company.findOne({
         _id: id,
         verify: true,
     })

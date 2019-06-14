@@ -454,7 +454,7 @@ router.get('/detail/:id/:type', checkAuth, (req, res, next) => {
 router.get('/test/:seller/:buyer', (req, res, next) => {
     const seller = req.params.seller
     const buyer = req.params.buyer
-    dataProcess.getListTransaction(seller, buyer)
+    dataProcess.getNumberTransaction(seller, buyer)
     .then(result => {
         res.status(200).json({
             status: 200,

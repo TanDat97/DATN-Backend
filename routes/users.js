@@ -51,7 +51,7 @@ router.post('/signup', (req, res, next) => {
                         email: req.body.email,
                         totalProject: 0,
                         statusAccount: 1,
-                        avatar: 'ssssssssssss',
+                        avatar: req.body.avatar,
                         company: '0',
                         lock: false,
                         verify: true,

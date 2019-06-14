@@ -72,6 +72,8 @@ mongoose.connect(url,{
 })
 mongoose.Promise = global.Promise
 
+app.get('/favicon.ico', (req, res) => res.status(204));
+
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
 app.use('/company', companyRouter)

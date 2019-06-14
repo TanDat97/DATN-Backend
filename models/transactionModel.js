@@ -21,6 +21,10 @@ const Schema = mongoose.Schema({
         type: Number,
         required: true,
     },
+    status: {  //1 la in process, 2 la complete and wait verify, 3 la da verify, 4 la expire
+        type: Number,
+        required: true,
+    },
     project: {
         type: String,
         ref: 'Project',
@@ -61,10 +65,6 @@ const Schema = mongoose.Schema({
     rentdetail: {
         type: String,
         ref: 'RentDetail',
-        required: true,
-    },
-    complete: {
-        type: Boolean,
         required: true,
     },
 })

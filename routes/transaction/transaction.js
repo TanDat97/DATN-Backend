@@ -226,7 +226,7 @@ router.post('/create', checkAuth, (req, res, next) => {
             transactiondetail
             .save()
             .then(resultdetail => {
-                transaction.selldetail=transactiondetail._id
+                transaction.rentdetail=transactiondetail._id
                 transaction
                 .save()
                 .then(result => {
@@ -267,13 +267,13 @@ router.post('/create', checkAuth, (req, res, next) => {
     })    
 })
 
-router.post('/changestatus', checkAuth, (req, res, next) => {
-    const transactionid = req.body.id
+router.post('/changeactive', checkAuth, (req, res, next) => {
+    const transactionid = req.body.transactionid
     const active = req.body.active
     Transaction.update({
         _id: transactionid,
         verify: false,
-        complete: false,
+        status: 1,
         seller: req.userData.id,
     },{
         $set: {
@@ -306,15 +306,15 @@ router.post('/changestatus', checkAuth, (req, res, next) => {
 })
 
 router.post('/complete', checkAuth, (req, res, next) => {
-    const transactionid = req.body.id
+    const transactionid = req.body.transactionid
     Transaction.update({
         _id: transactionid,
         verify: false,
-        complete: false,
+        status: 1,
         seller: req.userData.id,
     },{
         $set: {
-            complete: true,
+            status: 2,
         }
     })
     .exec()
@@ -324,7 +324,7 @@ router.post('/complete', checkAuth, (req, res, next) => {
                 status: 200,
                 message: 'change status transaction success',
                 transactionid: transactionid,
-                complete: true,
+                status: 2,
             })
         } else {
             res.status(404).json({
@@ -352,7 +352,7 @@ router.post('/cancel', checkAuth, (req, res, next) => {
     Transaction.remove({
         _id: transactionid,
         verify: false,
-        complete: false,
+        status: 1,
         seller: seller,
     })
     .exec()

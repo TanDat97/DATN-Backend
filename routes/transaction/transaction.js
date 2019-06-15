@@ -221,6 +221,8 @@ router.post('/create', checkAuth, (req, res, next) => {
         } else if(transaction.typetransaction === 2) {
             const transactiondetail = RentDetail({
                 _id: new mongoose.Types.ObjectId(),
+                seller: req.userData.id,
+                buyer: req.body.buyer,
                 transactionid: transaction._id,
             })
             transactiondetail

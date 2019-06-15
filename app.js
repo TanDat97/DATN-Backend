@@ -31,6 +31,7 @@ const newsRouter = require('./routes/news')
 const commentRouter = require('./routes/comment')
 const transactionRouter = require('./routes/transaction/transaction')
 const selldetailRouter = require('./routes/transaction/selldetail')
+const rentdetailRouter = require('./routes/transaction/rentdetail')
 
 const adminRouter = require('./routes/admin/admin')
 const manageAccountRouter = require('./routes/admin/manageAccount')
@@ -45,9 +46,8 @@ app.use(sessions({
   saveUninitialized: true
 }))
 
-// view engine setup
-// app.set('views', path.join(__dirname, 'views'))
-// app.set('view engine', 'jade')
+const transactionProcess = require('./lib/transactionProcess')
+transactionProcess.checkExpireTransaction()
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({

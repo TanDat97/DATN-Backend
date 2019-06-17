@@ -31,12 +31,14 @@ const newsRouter = require('./routes/news')
 const commentRouter = require('./routes/comment')
 const transactionRouter = require('./routes/transaction/transaction')
 const selldetailRouter = require('./routes/transaction/selldetail')
+const rentdetailRouter = require('./routes/transaction/rentdetail')
 
 const adminRouter = require('./routes/admin/admin')
 const manageAccountRouter = require('./routes/admin/manageAccount')
 const manageProjectRouter = require('./routes/admin/manageProject')
 const manageNewsRouter = require('./routes/admin/manageNews')
 const manageCompanyRouter = require('./routes/admin/manageCompany')
+const manageTransactionRouter = require('./routes/admin/manageTransaction')
 
 app.use(sessions({
   secret: '(!)*#(!JE)WJEqw09ej12',
@@ -44,9 +46,8 @@ app.use(sessions({
   saveUninitialized: true
 }))
 
-// view engine setup
-// app.set('views', path.join(__dirname, 'views'))
-// app.set('view engine', 'jade')
+const transactionProcess = require('./lib/transactionProcess')
+transactionProcess.checkExpireTransaction()
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
@@ -71,6 +72,8 @@ mongoose.connect(url,{
 })
 mongoose.Promise = global.Promise
 
+app.get('/favicon.ico', (req, res) => res.status(204));
+
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
 app.use('/company', companyRouter)
@@ -86,6 +89,7 @@ app.use('/manageAccount', manageAccountRouter)
 app.use('/manageProject', manageProjectRouter)
 app.use('/manageNews', manageNewsRouter)
 app.use('/manageCompany', manageCompanyRouter)
+app.use('/manageTransaction', manageTransactionRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

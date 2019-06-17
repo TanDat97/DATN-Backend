@@ -319,6 +319,40 @@ router.get('/all/:page', (req, res, next) => {
 
 router.get('/info/:id', (req, res, next) => {
     const id = req.params.id
+    Company.findOne({
+        _id: id,
+        verify: true,
+    })
+    .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
+    .populate({
+        path: 'employees.employee'
+    })
+    .exec()
+    .then(result => {
+        if(result.lock === true) {
+            return res.status(500).json({
+                status: 500,
+                message: 'this account company has been locked',
+            })
+        } else {
+            res.status(200).json({
+                status: 200,
+                message: 'successful',
+                company: result,
+            })
+        }        
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
+router.get('/infoprivate', checkAuthCompany, (req, res, next) => {
+    const id = req.companyData.id
     Company.findById(id)
     .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
     .populate({
@@ -553,51 +587,6 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
     })
 })
 
-router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
-    const id = req.body.id
-    Company.find({
-        _id: req.companyData.id,
-        email: req.companyData.email,
-        verify: true,
-        lock: false,
-    })
-    .exec()
-    .then(datacompany => {
-        if (datacompany.length > 0) {
-            const found = datacompany[0].employees.some(element => {
-                return element.employee === id
-            })
-            if (found === true) {
-                Company.findOneAndUpdate({ _id: req.companyData.id }, { $pull: { employees: { employee: id }}})
-                .exec()
-                .then(
-                    User.findByIdAndRemove({
-                        _id: id
-                    })
-                    .exec()
-                    .then(
-                        res.status(200).json({
-                            status: 200,
-                            message: 'employee has been deleted',
-                        })
-                    )
-                )
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'Employee does not exist'
-                })
-            }
-        }
-    })
-    .catch(err => {
-        console.log(err)
-        res.status(500).json({
-            status: 500,
-            message: 'Delete Employee Error'
-        })
-    })
-})
 
 router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     const id = req.body.id
@@ -648,6 +637,52 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     })
 })
 
+router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
+    const id = req.body.id
+    Company.find({
+        _id: req.companyData.id,
+        email: req.companyData.email,
+        verify: true,
+        lock: false,
+    })
+    .exec()
+    .then(datacompany => {
+        if (datacompany.length > 0) {
+            const found = datacompany[0].employees.some(element => {
+                return element.employee === id
+            })
+            if (found === true) {
+                Company.findOneAndUpdate({ _id: req.companyData.id }, { $pull: { employees: { employee: id }}})
+                .exec()
+                .then(
+                    User.findByIdAndRemove({
+                        _id: id
+                    })
+                    .exec()
+                    .then(
+                        res.status(200).json({
+                            status: 200,
+                            message: 'employee has been deleted',
+                        })
+                    )
+                )
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'Employee does not exist'
+                })
+            }
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            message: 'Delete Employee Error'
+        })
+    })
+})
+
 router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
     User.update({
         _id: req.body.id,
@@ -663,6 +698,39 @@ router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
                 status: 200,
                 message: 'change account state success',
                 lock: req.body.lock,
+            })
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
+
+router.post('/changePermission', checkAuthCompany, (req, res, next) => {
+    User.update({
+        _id: req.body.id,
+    }, {
+        $set: {
+            permission: req.body.permission,
+        }
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'change account permission success',
+                permission: req.body.permission,
             })
         } else {
             res.status(404).json({

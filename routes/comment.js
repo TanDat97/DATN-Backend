@@ -56,35 +56,44 @@ router.get('/all/:id', (req, res, next) => {
 })
 
 router.post('/', checkAuth, (req, res, next) => {
-    User.findById(req.userData.id)
+    Comment.find({
+        user: req.userData.id,
+        projectid: req.body.projectid
+    })
     .exec()
-    .then(user => {
-        const comment = Comment({
-            _id: new mongoose.Types.ObjectId(),
-            user: req.userData.id,
-            projectid: req.body.projectid,
-            createTime: req.body.createTime,
-            updateTime: req.body.updateTime,
-            content: req.body.content,
-            star: req.body.star,
-        })
-        comment
-        .save()
-        .then(result => {
-            res.status(201).json({
-                status: 201,
-                message: 'add comment success',
-                comment: result,
+    .then(result => {
+        if(result.length >= 2) {
+            return res.status(403).json({
+                status: 403,
+                message: 'user can not add more comment to this project',
             })
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                status: 500,
-                error: err
+        } else {
+            const comment = Comment({
+                _id: new mongoose.Types.ObjectId(),
+                user: req.userData.id,
+                projectid: req.body.projectid,
+                createTime: req.body.createTime,
+                updateTime: req.body.updateTime,
+                content: req.body.content,
+                star: req.body.star,
             })
-        })   
-        
+            comment
+            .save()
+            .then(result => {
+                return res.status(201).json({
+                    status: 201,
+                    message: 'add comment success',
+                    comment: result,
+                })
+            })
+            .catch(err => {
+                console.log(err)
+                return res.status(500).json({
+                    status: 500,
+                    error: err
+                })
+            })
+        }
     })
     .catch(err => {
         console.log(err)

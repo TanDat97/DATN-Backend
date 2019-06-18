@@ -28,13 +28,13 @@ cloudinary.config({
 
 var fs = require('fs');
 router.get('/all', (req, res, next) => {
-    SavedProject.find()
+    User.find()
     .select()
         .exec()
         .then(results => {
             if (results.length > 0) {
                 var json = JSON.stringify(results);
-                fs.writeFile('D:\\Do an tot nghiep\\DATN-Backend\\config\\SampleData\\savedproject.json', json, 'utf8', (err => console.log(err)));
+                fs.writeFile('D:\\Do an tot nghiep\\DATN-Backend\\config\\SampleData\\user.json', json, 'utf8', (err => console.log(err)));
                 res.status(200).json({
                     status: 200,
                     count: results.length,

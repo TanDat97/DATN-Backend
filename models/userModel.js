@@ -11,7 +11,7 @@ const Schema = mongoose.Schema({
     },
     identify: {
         type: String,
-        default: 0,
+        default: '0',
     },
     address: {
         type: String,

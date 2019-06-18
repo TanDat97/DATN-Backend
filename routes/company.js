@@ -656,13 +656,14 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
                 .exec()
                 .then(
                     User.findByIdAndRemove({
-                        _id: id
+                        _id: id,
+                        verify: false,
                     })
                     .exec()
                     .then(
                         res.status(200).json({
                             status: 200,
-                            message: 'employee has been deleted',
+                            message: 'employee was deleted or was verified',
                         })
                     )
                 )

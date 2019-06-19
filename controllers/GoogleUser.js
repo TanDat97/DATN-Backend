@@ -38,6 +38,12 @@ exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
                 return cb(error, savedUser)
             })
         } else {
+            if(user.statusAccount==1){
+                return  res.status(401).json({
+                    status:401,
+                    message:'email is a employee email'
+                })
+            }
             return cb(err, user)
         }
     })

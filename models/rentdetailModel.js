@@ -143,7 +143,7 @@ const Schema = mongoose.Schema({
             default: 0,
         },
         apartmentcode: {
-            type: Number,
+            type: String,
             default: 0,
         },
         room: {

@@ -9,10 +9,14 @@ const constructorModel = require('../lib/constructorModel')
 const Project = require('../models/projectModel')
 const User = require('../models/userModel')
 const Comment = require('../models/commentModel')
+const Waiting = require('../models/waitingModel')
+
 const Transaction = require('../models/transactionModel')
 const SellDetail = require('../models/selldetailModel')
 const RentDetail = require('../models/rentdetailModel')
-const Waiting = require('../models/waitingModel')
+
+
+const SavedProject = require('../models/savedProjectModel')
 
 const numItem = require('../lib/constant')
 
@@ -21,6 +25,37 @@ cloudinary.config({
     api_key: '464146278492844',
     api_secret: 'JdBsEVQDxp4_1jsZrT-qM7T8tns'
 })
+
+var fs = require('fs');
+router.get('/all', (req, res, next) => {
+    User.find()
+    .select()
+        .exec()
+        .then(results => {
+            if (results.length > 0) {
+                var json = JSON.stringify(results);
+                fs.writeFile('D:\\Do an tot nghiep\\DATN-Backend\\config\\SampleData\\user.json', json, 'utf8', (err => console.log(err)));
+                res.status(200).json({
+                    status: 200,
+                    count: results.length,
+                    result: results,
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+})
+
 
 router.get('/all/:page', (req, res, next) => {
     const page = parseInt(req.params.page) - 1

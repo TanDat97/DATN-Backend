@@ -66,19 +66,12 @@ router.get('/all/:page', (req, res, next) => {
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {
-            if (results.length > 0) {
-                res.status(200).json({
-                    status: 200,
-                    count: results.length,
-                    page: page + 1,
-                    projects: results,
-                })
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found',
-                })
-            }
+            res.status(200).json({
+                status: 200,
+                count: results.length,
+                page: page + 1,
+                projects: results,
+            })
         })
         .catch(err => {
             console.log(err)
@@ -105,9 +98,10 @@ router.post('/home', (req, res, next) => {
                     projects: results,
                 })
             } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found',
+                res.status(200).json({
+                    status: 200,
+                    count: 0,
+                    projects: [],
                 })
             }
         })
@@ -145,9 +139,11 @@ router.post('/searchmap', (req, res, next) => {
                     projects: results,
                 })
             } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found',
+                res.status(200).json({
+                    status: 200,
+                    message: 'get list project success',
+                    count: 0,
+                    projects: [],
                 })
             }
         })
@@ -401,9 +397,6 @@ router.delete('/:id', checkAuth, (req, res, next) => {
                 res.status(200).json({
                     status: 200,
                     message: 'delete project success',
-                    request: {
-                        type: 'DELETE',
-                    }
                 })
             } else {
                 res.status(404).json({
@@ -448,9 +441,10 @@ router.post('/searchprojects', (req, res, next) => {
                     projects: results,
                 })
             } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found',
+                res.status(200).json({
+                    status: 200,
+                    count: 0,
+                    projects: [],
                 })
             }
         })
@@ -484,9 +478,10 @@ router.post('/searchaddress', (req, res, next) => {
                     projects: results,
                 })
             } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found',
+                res.status(200).json({
+                    status: 200,
+                    count: 0,
+                    projects: [],
                 })
             }
         })

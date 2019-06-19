@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const nodemailer = require("nodemailer")
 
+const host = require('../../config/host')
 const libFunction = require('../../lib/function')
 const constructorModel = require('../../lib/constructorModel')
 const dataProcess = require('../../lib/dataProcess')
@@ -57,7 +58,7 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
                         hash: 0,    
                     })
                     admin.hash = libFunction.hashString(admin._id.toString())
-                    var link = "http://localhost:3000/verify/" + admin._id + "/" + admin.hash
+                    var link = host.hostAdmin + '/verify/' + admin._id + '/' + admin.hash
                     var EmailAdminModel = require('../../lib/emailAdminModel')
                     var emailModel = new EmailAdminModel()
                     emailModel.verifyMail(admin.email, link, pass)

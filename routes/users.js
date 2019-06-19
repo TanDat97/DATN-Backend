@@ -345,9 +345,11 @@ router.get('/listSaved', checkAuth, (req, res, next) => {
                 result: result[0],
             })
         } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found',
+            res.status(200).json({
+                status: 200,
+                message: 'get list project saved success',
+                count: 0,
+                result: [],
             })
         }
     })

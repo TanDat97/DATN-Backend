@@ -17,19 +17,12 @@ router.get('/all/:type/:page', (req, res, next) => {
     .select()
     .exec()
     .then(results => {
-        if (results.length > 0) {
-            res.status(200).json({
-                status: 200,
-                count: results.length,
-                page: page + 1,
-                news: results,
-            })
-        } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found',
-            })
-        }
+        res.status(200).json({
+            status: 200,
+            count: results.length,
+            page: page + 1,
+            news: results,
+        })
     })
     .catch(err => {
         console.log(err)

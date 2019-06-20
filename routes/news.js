@@ -6,14 +6,14 @@ const checkAuth = require('../middleware/checkAuth')
 const libFunction = require('../lib/function')
 const News = require('../models/newsModel')
 
-const numItem = require('../lib/constant')
+const constant = require('../lib/constant')
 
 router.get('/all/:type/:page', (req, res, next) => {
     const type = req.params.type
     const page = parseInt(req.params.page) - 1
     News.find({
         type: type,
-    }).sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    }).sort({'createTime': -1}).skip(page*constant.numItem).limit(constant.numItem)
     .select()
     .exec()
     .then(results => {

@@ -20,7 +20,7 @@ var transporter = nodemailer.createTransport({ // config mail server
     }
 })
 
-const numItem = require('../lib/constant')
+const constant = require('../lib/constant')
 
 router.post('/verifycompany', (req, res, next) => {
     const id = req.body.id
@@ -297,7 +297,7 @@ router.get('/all/:page', (req, res, next) => {
     Company.find({
         verify: true,
         lock: false,
-    }).sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    }).sort({'createTime': -1}).skip(page*constant.numItem).limit(constant.numItem)
     .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
     .exec()
     .then(result => {
@@ -390,11 +390,9 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
     const address = req.body.address
     const phone = req.body.phone
     const website = req.body.website
-    const totalProject = req.body.totalProject
     const status = req.body.status
     const avatar = req.body.avatar
     const description = req.body.description
-    const createTime = req.body.createTime
     const updateTime = req.body.updateTime
     Company.update({
         _id: id,
@@ -407,7 +405,6 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
             address: address,
             phone: phone,
             website: website,
-            totalProject: totalProject,
             status: status,
             avatar: avatar,
             description: description,
@@ -426,11 +423,9 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
                     companyname: companyname,
                     address: address,
                     phone: phone,
-                    totalProject: totalProject,
                     status: status,
                     avatar: avatar,
                     description: description,
-                    createTime: createTime,
                     updateTime: updateTime,
                 },
             })
@@ -462,7 +457,7 @@ router.get('/infoemployee/:id/:page', checkAuthCompany, (req, res, next) => {
     .then(result => {
         Project.find({
             ownerid: employeeid,
-        }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+        }).sort({ 'createTime': -1 }).skip(page*constant.numItem).limit(constant.numItem)
         .select()
         .exec()
         .then(results => {
@@ -595,11 +590,10 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     const identify = req.body.identify
     const address = req.body.address
     const phone = req.body.phone
-    const totalProject = req.body.totalProject
     const statusAccount = req.body.statusAccount
     const avatar = req.body.avatar
     const description = req.body.description
-    User.updateMany({
+    User.update({
         _id: id,
         email: email,
     },{
@@ -608,7 +602,6 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
             identify: identify,
             address: address,
             phone: phone,
-            totalProject: totalProject,
             statusAccount: statusAccount,
             avatar: avatar,
             description: description,

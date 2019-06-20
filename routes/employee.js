@@ -19,7 +19,7 @@ var transporter = nodemailer.createTransport({ // config mail server
     }
 })
 
-const numItem = require('../lib/constant')
+const constant = require('../lib/constant')
 
 router.post('/verifyemloyee', (req, res, next) => {
     const id = req.body.id

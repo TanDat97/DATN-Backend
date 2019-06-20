@@ -13,7 +13,7 @@ const User = require('../../models/userModel')
 const Project = require('../../models/projectModel')
 const Comment = require('../../models/commentModel')
 
-const numItem = require('../../lib/constant')
+const constant = require('../../lib/constant')
 
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
@@ -25,7 +25,7 @@ var transporter = nodemailer.createTransport({ // config mail server
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    Company.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    Company.find().sort({'createTime': -1}).skip(page*constant.numItem).limit(constant.numItem)
     .select()
     .exec()
     .then(results => {

@@ -20,7 +20,7 @@ var { generateToken, sendToken } = require('./../middleware/token.utils')
 var config = require('./../middleware/config')
 require('./../middleware/passport')()
 
-const numItem = require('../lib/constant')
+const constant = require('../lib/constant')
 
 router.post('/signup', (req, res, next) => {
     User.find({
@@ -94,7 +94,7 @@ router.get('/allagent/:page', (req, res, next) => {
         verify: true,
         lock: false,
         $or: [{ statusAccount: 2 }]
-    }).skip(page * numItem).limit(numItem)
+    }).skip(page * constant.numItem).limit(constant.numItem)
     .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify permission hash __v')
     .exec()
     .then(result => {
@@ -130,7 +130,7 @@ router.get('/infoagent/:id/:page', (req, res, next) => {
         Project.find({
             ownerid: id,
             verify: true,
-        }).sort({ 'createTime': -1 }).skip(page * numItem).limit(numItem)
+        }).sort({ 'createTime': -1 }).skip(page * constant.numItem).limit(constant.numItem)
         .select()
         .exec()
         .then(results => {
@@ -252,7 +252,7 @@ router.post('/edit', checkAuth, (req, res, next) => {
     const phone = req.body.phone
     const avatar = req.body.avatar
     const description = req.body.description
-    User.updateMany({
+    User.update({
         _id: id,
         email: email,
         verify: true,
@@ -303,7 +303,7 @@ router.get('/danhsachproject/:page', checkAuth, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     Project.find({
         ownerid: req.userData.id,
-    }).sort({ 'createTime': -1 }).skip(page * numItem).limit(numItem)
+    }).sort({ 'createTime': -1 }).skip(page * constant.numItem).limit(constant.numItem)
     .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
     .exec()
     .then(results => {
@@ -603,7 +603,7 @@ router.get('/alluser/:page', (req, res, next) => {
     User.find({
         verify: true,
         lock: false,
-    }).skip(page * numItem).limit(numItem)
+    }).skip(page * constant.numItem).limit(constant.numItem)
     .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify hash __v')
     .exec()
     .then(result => {
@@ -661,7 +661,7 @@ router.get('/projectlist/:id/:page', (req, res, next) => {
     Project.find({
         ownerid: id,
         verify: true,
-    }).sort({ 'createTime': -1 }).skip(page * numItem).limit(numItem)
+    }).sort({ 'createTime': -1 }).skip(page * constant.numItem).limit(constant.numItem)
     .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
     .exec()
     .then(results => {

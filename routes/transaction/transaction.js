@@ -14,7 +14,7 @@ const SellDetail = require('../../models/selldetailModel')
 const RentDetail = require('../../models/rentdetailModel')
 const Waiting = require('../../models/waitingModel')
 
-const numItem = require('../../lib/constant')
+const constant = require('../../lib/constant')
 
 router.get('/listrequest/:projectid', checkAuth, (req, res, next) => {
     const projectid = req.params.projectid
@@ -403,7 +403,7 @@ router.get('/history/:page', checkAuth, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     Transaction.find({
         $or: [{seller: userid},{buyer: userid}]
-    }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+    }).sort({ 'createTime': -1 }).skip(page*constant.numItem).limit(constant.numItem)
     .populate({
         path: 'project'
     })

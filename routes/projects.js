@@ -16,7 +16,7 @@ const Transaction = require('../models/transactionModel')
 const SellDetail = require('../models/selldetailModel')
 const RentDetail = require('../models/rentdetailModel')
 
-const numItem = require('../lib/constant')
+const constant = require('../lib/constant')
 
 cloudinary.config({
     cloud_name: 'dne3aha8f',
@@ -60,7 +60,7 @@ router.get('/all/:page', (req, res, next) => {
     Project.find({
         verify: true,
         $or: [{statusProject: 1},{statusProject: 3}],
-    }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+    }).sort({ 'createTime': -1 }).skip(page*constant.numItem).limit(constant.numItem)
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {

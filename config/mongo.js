@@ -8,7 +8,7 @@ const options = {
     useNewUrlParser: true,
 }
 
-// const  url = 'mongodb://@localhost:27017/realestate?retryWrites=true'
+// const url = 'mongodb://@localhost:27017/realestate?retryWrites=true'
 // const options = {
 //     user: "root",
 //     pass: "root_password",

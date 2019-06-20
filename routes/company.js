@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const nodemailer = require("nodemailer")
 
+const host = require('../config/host')
 const checkAuthCompany = require('../middleware/checkAuthCompany')
 const libFunction = require('../lib/function')
 const Company = require('../models/companyModel')
@@ -437,7 +438,6 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found',
-                result: result,
             })
         }
     })
@@ -535,7 +535,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                         createTime: req.body.createTime
                     }
                     user.hash = libFunction.hashString(user._id.toString())
-                    var link = "http://localhost:3000/verifyemployee/" + user.company + "/" + user._id + "/" + user.hash
+                    var link = host.hostWeb + '/verifyemployee/' + user.company + '/' + user._id + '/' + user.hash
                     var EmailEmployeeModel = require('../lib/emailEmployeeModel')
                     var emailModel = new EmailEmployeeModel()
                     emailModel.verifyMail(user.email, link, pass)
@@ -619,7 +619,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
         if(result.nModified > 0){
             res.status(200).json({
                 status:200,
-                message:'update employee success'
+                message:'update employee success',
             })
         } else {
             res.status(404).json({
@@ -632,7 +632,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
         console.log(err)
         res.status(500).json({
             status: 500,
-            message: 'Edit Employee Error'
+            message: 'Edit Employee Error',
         })
     })
 })

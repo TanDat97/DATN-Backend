@@ -84,6 +84,7 @@ app.use('/news', newsRouter)
 app.use('/comment', commentRouter)
 app.use('/transaction', transactionRouter)
 app.use('/selldetail', selldetailRouter)
+app.use('/rentdetail', rentdetailRouter)
 
 app.use('/admin', adminRouter)
 app.use('/manageAccount', manageAccountRouter)

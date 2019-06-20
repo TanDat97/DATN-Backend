@@ -179,7 +179,7 @@ router.post('/deletewaitingrequest', checkAuth, (req, res, next) => {
 
 router.post('/create', checkAuth, (req, res, next) => {
     var transaction = constructorModel.constructorTransaction(req.body.step, req.body.typeproject, req.body.typetransaction, req.body.project, req.body.code, req.userData.id, req.body.buyer,  req.body.company, req.body.createTime)
-    dataProcess.checkCodeAvailable(req.body.buyer, req.body.project, req.body.code, req.userData.id)
+    dataProcess.checkCodeAvailable(req.userData.id, req.body.buyer, req.body.project, req.body.code, req.userData.id)
     .then(resultcheck => {
         console.log(resultcheck)        
         if(transaction.typetransaction === 1) {

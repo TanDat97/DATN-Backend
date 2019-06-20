@@ -512,7 +512,7 @@ router.post('/login_google', (req, res, next) => {
             const now = moment().unix()
             const expireTime = now + 86400 * 7
             if (user.length <= 0) {
-                const temp = constructorModel.constructorUser('0', ex.data.fullname, '0',  '0', '0', ex.data.email, 1, ex.data.picture, '0', 0)
+                const temp = constructorModel.constructorUser('0', ex.data.name, '0',  '0', '0', ex.data.email, 1, ex.data.picture, '0', 0)
                 temp
                 .save()
                 .then(result => {

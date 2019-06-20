@@ -352,7 +352,13 @@ router.get('/listSaved', checkAuth, (req, res, next) => {
                 status: 200,
                 message: 'get list project saved success',
                 count: 0,
-                result: [],
+                result: {
+                    _id: '0',
+                    userid: req.userData.id,
+                    fullname: '0',
+                    projects: [],
+                    __v: 0,
+                },
             })
         })
     })
@@ -414,7 +420,8 @@ router.post('/follow', checkAuth, (req, res, next) => {
                 _id: new mongoose.Types.ObjectId(),
                 userid: req.userData.id,
                 fullname: req.body.fullname,
-                project: [{
+                projects: [{
+                    _id: new mongoose.Types.ObjectId(),
                     project: req.body.projectid,
                     createTime: req.body.createTime,
                 }],

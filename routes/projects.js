@@ -10,13 +10,11 @@ const Project = require('../models/projectModel')
 const User = require('../models/userModel')
 const Comment = require('../models/commentModel')
 const Waiting = require('../models/waitingModel')
+const SavedProject = require('../models/savedProjectModel')
 
 const Transaction = require('../models/transactionModel')
 const SellDetail = require('../models/selldetailModel')
 const RentDetail = require('../models/rentdetailModel')
-
-
-const SavedProject = require('../models/savedProjectModel')
 
 const numItem = require('../lib/constant')
 
@@ -393,7 +391,15 @@ router.delete('/:id', checkAuth, (req, res, next) => {
                 .exec()
                 .then(ex1 => console.log('update total project success: ' + temp))
                 Comment.remove({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
-                Waiting.remove({ projectid: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
+                Waiting.remove({ project: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
+                Transaction.findOneAndRemove({project: projectid}).exec().then(ex4 => {
+                    console.log('delete transaction success')
+                    if(ex4.typetransaction === 1) {
+                        SellDetail.remove({transactionid: ex4._id}).exec().then(ex5 => console.log('delete selldetail success'))
+                    } else if(ex4.typetransaction === 2) {
+                        RentDetail.remove({transactionid: ex4._id}).exec().then(ex6 => console.log('delete rentdetail success'))
+                    }
+                })
                 res.status(200).json({
                     status: 200,
                     message: 'delete project success',
@@ -413,7 +419,6 @@ router.delete('/:id', checkAuth, (req, res, next) => {
             })
         })
     })
-    
 })
 
 

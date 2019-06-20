@@ -348,7 +348,7 @@ router.post('/cancel', checkAuth, (req, res, next) => {
     const transactionid = req.body.transactionid
     const type = parseInt(req.body.type)
     const transactiondetail = req.body.transactiondetail
-    const waitingid = req.body.waitingid
+    const projectid = req.body.projectid
     const seller = req.body.seller
     const buyer = req.body.buyer
     Transaction.remove({
@@ -375,7 +375,7 @@ router.post('/cancel', checkAuth, (req, res, next) => {
                 .exec()
                 .then(console.log('delete rentdetail success'))
             }
-            Waiting.findOneAndUpdate({ _id: waitingid }, { $pull: { requests: { user: buyer }}})
+            Waiting.findOneAndUpdate({ project: projectid }, { $pull: { requests: { user: buyer }}})
             .exec()
             .then(console.log('remove request success'))
             res.status(200).json({

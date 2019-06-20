@@ -8,6 +8,7 @@ const moment = require('moment')
 
 const checkAuth = require('../middleware/checkAuth')
 const libFunction = require('../lib/function')
+const dataProcess = require('../lib/dataProcess')
 const constructorModel = require('../lib/constructorModel')
 const User = require('../models/userModel')
 const Project = require('../models/projectModel')
@@ -277,7 +278,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
                     fullname: fullname,
                     address: address,
                     phone: phone,
-                    totalProject: totalProject,
                     avatar: avatar,
                     description: description,
                 },
@@ -332,26 +332,29 @@ router.get('/danhsachproject/:page', checkAuth, (req, res, next) => {
 })
 
 router.get('/listSaved', checkAuth, (req, res, next) => {
-    SavedProject.find({
+    SavedProject.findOne({
         userid: req.userData.id,
     })
     .populate({ path: 'projects.project' })
     .then(result => {
-        if (result.length > 0) {
+        dataProcess.checkListSavedStatus(result)
+        .then(ex => {
             res.status(200).json({
                 status: 200,
                 message: 'get list project saved success',
-                count: result[0].projects.length,
-                result: result[0],
+                count: ex.projects.length,
+                result: ex,
             })
-        } else {
+        })
+        .catch(err => {
+            console.log(err)
             res.status(200).json({
                 status: 200,
                 message: 'get list project saved success',
                 count: 0,
                 result: [],
             })
-        }
+        })
     })
     .catch(err => {
         console.log(err)
@@ -363,19 +366,19 @@ router.get('/listSaved', checkAuth, (req, res, next) => {
 })
 
 router.post('/follow', checkAuth, (req, res, next) => {
-    SavedProject.find({
+    SavedProject.findOne({
         userid: req.userData.id,
     })
     .exec()
     .then(result => {
-        if (result.length >= 1) {
-            if (result[0].projects.length >= 10) {
+        if (result !== null) {
+            if (result.projects.length >= 10) {
                 return res.status(204).json({
                     status: 204,
-                    message: ' user can not follow more project',
+                    message: 'user can not follow more project',
                 })
             }
-            const isInArray = result[0].projects.some(temp => {
+            const isInArray = result.projects.some(temp => {
                 return temp.project === req.body.projectid
             })
             if (isInArray) {
@@ -422,7 +425,7 @@ router.post('/follow', checkAuth, (req, res, next) => {
                 res.status(201).json({
                     status: 201,
                     message: 'create new list saved project success',
-                    result: result.project[0],
+                    result: result.projects[0],
                 })
             })
             .catch(err => {

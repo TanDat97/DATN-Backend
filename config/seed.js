@@ -191,6 +191,7 @@ function insertWaiting() {
         var waiting = JSON.parse(filedata)
         Waiting.insertMany(waiting).then(result => {
             console.log('insert waiting success!')
+            resolve('insert waiting success!')
         })
         .catch(err => {
             console.log(err)
@@ -199,7 +200,7 @@ function insertWaiting() {
     })
 }
 
-Promise.all([insertAdmin(), insertComment(), insertCompany(), insertNews(), insertRentDetail(), insertSavedProject(), insertSellDetail(), insertTransaction(), insertUser(), insertWaiting()])
+Promise.all([insertAdmin(), insertComment(), insertCompany(), insertProject(), insertNews(), insertRentDetail(), insertSavedProject(), insertSellDetail(), insertTransaction(), insertUser(), insertWaiting()])
 .then(result => {
     console.log(result)
     process.exit()

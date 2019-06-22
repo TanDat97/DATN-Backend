@@ -11,11 +11,11 @@ const RentDetail = require('../../models/rentdetailModel')
 const Project = require('../../models/projectModel')
 const Waiting = require('../../models/waitingModel')
 
-const numItem = require('../../lib/constant')
+const constant = require('../../lib/constant')
 
 router.get('/all/:page', (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    Transaction.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    Transaction.find().sort({'createTime': -1}).skip(page*constant.numItem).limit(constant.numItem)
     .select()
     .exec()
     .then(results => {

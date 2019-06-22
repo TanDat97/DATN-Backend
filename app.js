@@ -9,16 +9,16 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 var sessions = require('express-session')
 
-const url='mongodb+srv://tuan:tuan123@cluster0-mmyqj.mongodb.net/realestate?retryWrites=true'
+const mongo = require('./config/mongo')
 
 // const swaggerUi = require('swagger-ui-express')
 // const swaggerDocument = require('./swagger.json')
 
 var corsOption = {
-  origin: true,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  exposedHeaders: ['authorization']
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    exposedHeaders: ['authorization']
 }
 app.use(cors(corsOption))
 
@@ -31,6 +31,7 @@ const newsRouter = require('./routes/news')
 const commentRouter = require('./routes/comment')
 const transactionRouter = require('./routes/transaction/transaction')
 const selldetailRouter = require('./routes/transaction/selldetail')
+const rentdetailRouter = require('./routes/transaction/rentdetail')
 
 const adminRouter = require('./routes/admin/admin')
 const manageAccountRouter = require('./routes/admin/manageAccount')
@@ -40,37 +41,39 @@ const manageCompanyRouter = require('./routes/admin/manageCompany')
 const manageTransactionRouter = require('./routes/admin/manageTransaction')
 
 app.use(sessions({
-  secret: '(!)*#(!JE)WJEqw09ej12',
-  resave: false,
-  saveUninitialized: true
+    secret: '(!)*#(!JE)WJEqw09ej12',
+    resave: false,
+    saveUninitialized: true
 }))
 
-// view engine setup
-// app.set('views', path.join(__dirname, 'views'))
-// app.set('view engine', 'jade')
+const transactionProcess = require('./lib/transactionProcess')
+transactionProcess.checkExpireTransaction()
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
-  extended: false
+    extended: false
 }))
 
-app.use(cors()) 
+app.use(cors())
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
-mongoose.connect(url,{
-  useNewUrlParser: true, useFindAndModify: false 
-},function(err){
-  if (err) 
-    throw err
-  else{
-    console.log('Connect Data Successful')
-  }
+
+mongoose.connect(mongo.url, mongo.options)
+.then(success => {
+    console.log('Connect Database Success')
 })
+.catch(err => {
+    console.log('Connect Database Failed: ' + err)
+    process.exit()
+})
+
 mongoose.Promise = global.Promise
+
+app.get('/favicon.ico', (req, res) => res.status(204));
 
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
@@ -81,6 +84,7 @@ app.use('/news', newsRouter)
 app.use('/comment', commentRouter)
 app.use('/transaction', transactionRouter)
 app.use('/selldetail', selldetailRouter)
+app.use('/rentdetail', rentdetailRouter)
 
 app.use('/admin', adminRouter)
 app.use('/manageAccount', manageAccountRouter)
@@ -90,19 +94,19 @@ app.use('/manageCompany', manageCompanyRouter)
 app.use('/manageTransaction', manageTransactionRouter)
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404))
+app.use(function (req, res, next) {
+    next(createError(404))
 })
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message
-  res.locals.error = req.app.get('env') === 'development' ? err : {}
+app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message
+    res.locals.error = req.app.get('env') === 'development' ? err : {}
 
-  // render the error page
-  res.status(err.status || 500)
-  res.render('error')
+    // render the error page
+    res.status(err.status || 500)
+    res.render('error')
 })
 
 module.exports = app

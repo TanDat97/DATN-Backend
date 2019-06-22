@@ -11,11 +11,11 @@ const Project = require('../../models/projectModel')
 const Comment = require('../../models/commentModel')
 const SavedProject = require('../../models/savedProjectModel')
 
-const numItem = require('../../lib/constant')
+const constant = require('../../lib/constant')
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    User.find().skip(page*numItem).limit(numItem)
+    User.find().skip(page*constant.numItem).limit(constant.numItem)
     .select()
     .exec()
     .then(results => {
@@ -132,7 +132,8 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     User.remove({
-        _id: req.params.id
+        _id: req.params.id,
+        verify: false,
     })
     .exec()
     .then(result => {

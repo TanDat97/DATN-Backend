@@ -1,7 +1,7 @@
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 
-var projectSchema = new Schema({
+var waitingSchema = new Schema({
     _id: mongoose.Schema.Types.ObjectId,
     project: {
         type: String,
@@ -34,4 +34,4 @@ var projectSchema = new Schema({
 })
 
 // Export the model
-module.exports = mongoose.model('Waiting', projectSchema)
+module.exports = mongoose.model('Waiting', waitingSchema)

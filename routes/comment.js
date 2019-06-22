@@ -40,9 +40,10 @@ router.get('/all/:id', (req, res, next) => {
                 comments: temp,
             })
         } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found',
+            res.status(200).json({
+                status: 200,
+                count: 0,
+                comments: [],
             })
         }
     })
@@ -143,7 +144,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found',
-                result: result,
             })
         }
     })
@@ -167,13 +167,11 @@ router.delete('/:id', checkAuth, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'comment deleted',
-                result: result,
             })
         } else {
             res.status(404).json({
                 status: 404,
-                message: 'No valid entry found',
-                result: result,
+                message: 'No valid entry found'
             })
         }
         

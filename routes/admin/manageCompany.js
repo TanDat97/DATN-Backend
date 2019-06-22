@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const nodemailer = require("nodemailer")
 
+const host = require('../../config/host')
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
 const libFunction = require('../../lib/function')
 const constructorModel = require('../../lib/constructorModel')
@@ -12,7 +13,7 @@ const User = require('../../models/userModel')
 const Project = require('../../models/projectModel')
 const Comment = require('../../models/commentModel')
 
-const numItem = require('../../lib/constant')
+const constant = require('../../lib/constant')
 
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
@@ -24,7 +25,7 @@ var transporter = nodemailer.createTransport({ // config mail server
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    Company.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    Company.find().sort({'createTime': -1}).skip(page*constant.numItem).limit(constant.numItem)
     .select()
     .exec()
     .then(results => {
@@ -101,7 +102,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                     var company = constructorModel.constructorCompany(hash, req.body.companyname, req.body.address, req.body.email, req.body.phone, req.body.website, 0,
                         req.body.avatar, req.body.description, req.body.createTime, req.adminData.id)
                     company.hash = libFunction.hashString(company._id.toString())
-                    var link = "http://localhost:3000/verifycompany/" + company._id + "/" + company.hash;
+                    var link = host.hostAdmin + '/verifycompany/' + company._id + '/' + company.hash;
                     var EmailCompanyModel = require('../../lib/emailCompanyModel')
                     var emailModel = new EmailCompanyModel()
                     emailModel.verifyMail(company.email, link, pass)
@@ -213,7 +214,8 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     Company.remove({
-        _id: req.params.id
+        _id: req.params.id,
+        verify: false,
     })
     .exec()
     .then(result => {

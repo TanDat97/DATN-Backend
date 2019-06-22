@@ -6,11 +6,11 @@ const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
 const libFunction = require('../../lib/function')
 const News = require('../../models/newsModel')
 
-const numItem = require('../../lib/constant')
+const constant = require('../../lib/constant')
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    News.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    News.find().sort({'createTime': -1}).skip(page*constant.numItem).limit(constant.numItem)
     .select()
     .exec()
     .then(results => {

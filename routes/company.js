@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const nodemailer = require("nodemailer")
 
+const host = require('../config/host')
 const checkAuthCompany = require('../middleware/checkAuthCompany')
 const libFunction = require('../lib/function')
 const Company = require('../models/companyModel')
@@ -19,7 +20,7 @@ var transporter = nodemailer.createTransport({ // config mail server
     }
 })
 
-const numItem = require('../lib/constant')
+const constant = require('../lib/constant')
 
 router.post('/verifycompany', (req, res, next) => {
     const id = req.body.id
@@ -296,7 +297,7 @@ router.get('/all/:page', (req, res, next) => {
     Company.find({
         verify: true,
         lock: false,
-    }).sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    }).sort({'createTime': -1}).skip(page*constant.numItem).limit(constant.numItem)
     .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
     .exec()
     .then(result => {
@@ -319,7 +320,7 @@ router.get('/all/:page', (req, res, next) => {
 
 router.get('/info/:id', (req, res, next) => {
     const id = req.params.id
-    Company.find({
+    Company.findOne({
         _id: id,
         verify: true,
     })
@@ -389,11 +390,9 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
     const address = req.body.address
     const phone = req.body.phone
     const website = req.body.website
-    const totalProject = req.body.totalProject
     const status = req.body.status
     const avatar = req.body.avatar
     const description = req.body.description
-    const createTime = req.body.createTime
     const updateTime = req.body.updateTime
     Company.update({
         _id: id,
@@ -406,7 +405,6 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
             address: address,
             phone: phone,
             website: website,
-            totalProject: totalProject,
             status: status,
             avatar: avatar,
             description: description,
@@ -425,11 +423,9 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
                     companyname: companyname,
                     address: address,
                     phone: phone,
-                    totalProject: totalProject,
                     status: status,
                     avatar: avatar,
                     description: description,
-                    createTime: createTime,
                     updateTime: updateTime,
                 },
             })
@@ -437,7 +433,6 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
             res.status(404).json({
                 status: 404,
                 message: 'No valid entry found',
-                result: result,
             })
         }
     })
@@ -462,7 +457,7 @@ router.get('/infoemployee/:id/:page', checkAuthCompany, (req, res, next) => {
     .then(result => {
         Project.find({
             ownerid: employeeid,
-        }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+        }).sort({ 'createTime': -1 }).skip(page*constant.numItem).limit(constant.numItem)
         .select()
         .exec()
         .then(results => {
@@ -535,7 +530,7 @@ router.post('/addemployee', checkAuthCompany, (req, res, next) => {
                         createTime: req.body.createTime
                     }
                     user.hash = libFunction.hashString(user._id.toString())
-                    var link = "http://localhost:3000/verifyemployee/" + user.company + "/" + user._id + "/" + user.hash
+                    var link = host.hostWeb + '/verifyemployee/' + user.company + '/' + user._id + '/' + user.hash
                     var EmailEmployeeModel = require('../lib/emailEmployeeModel')
                     var emailModel = new EmailEmployeeModel()
                     emailModel.verifyMail(user.email, link, pass)
@@ -595,11 +590,10 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     const identify = req.body.identify
     const address = req.body.address
     const phone = req.body.phone
-    const totalProject = req.body.totalProject
     const statusAccount = req.body.statusAccount
     const avatar = req.body.avatar
     const description = req.body.description
-    User.updateMany({
+    User.update({
         _id: id,
         email: email,
     },{
@@ -608,7 +602,6 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
             identify: identify,
             address: address,
             phone: phone,
-            totalProject: totalProject,
             statusAccount: statusAccount,
             avatar: avatar,
             description: description,
@@ -619,7 +612,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
         if(result.nModified > 0){
             res.status(200).json({
                 status:200,
-                message:'update employee success'
+                message:'update employee success',
             })
         } else {
             res.status(404).json({
@@ -632,7 +625,7 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
         console.log(err)
         res.status(500).json({
             status: 500,
-            message: 'Edit Employee Error'
+            message: 'Edit Employee Error',
         })
     })
 })
@@ -656,13 +649,14 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
                 .exec()
                 .then(
                     User.findByIdAndRemove({
-                        _id: id
+                        _id: id,
+                        verify: false,
                     })
                     .exec()
                     .then(
                         res.status(200).json({
                             status: 200,
-                            message: 'employee has been deleted',
+                            message: 'employee was deleted or was verified',
                         })
                     )
                 )

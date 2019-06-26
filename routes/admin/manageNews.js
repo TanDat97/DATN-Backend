@@ -66,21 +66,21 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
         updateTime: req.body.updateTime,
     })
     news
-        .save()
-        .then(result => {
-            res.status(201).json({
-                status: 201,
-                message: 'add news success',
-                news: result,
-            })
+    .save()
+    .then(result => {
+        res.status(201).json({
+            status: 201,
+            message: 'add news success',
+            news: result,
         })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                status: 500,
-                error: err,
-            })
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err,
         })
+    })
 
 })
 
@@ -91,53 +91,51 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const type = req.body.type
     const createTime = req.body.createTime
     const updateTime = req.body.updateTime
-    News.update({
+    News.updateOne({
         _id: id
     }, {
-            $set: {
-                title: title,
-                content: content,
-                type: type,
-                updateTime: updateTime,
-            }
-        })
-        .exec()
-        .then(result => {
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: 'update news success',
-                    news: {
-                        _id: id,
-                        title: title,
-                        content: content,
-                        type: type,
-                        createTime: createTime,
-                        updateTime: updateTime, 
-                    },
-                    request: {
-                        type: 'PATCH',
-                    }
-                })
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found'
-                })
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                status: 500,
-                error: err
+        title: title,
+        content: content,
+        type: type,
+        updateTime: updateTime,
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'update news success',
+                news: {
+                    _id: id,
+                    title: title,
+                    content: content,
+                    type: type,
+                    createTime: createTime,
+                    updateTime: updateTime, 
+                },
+                request: {
+                    type: 'PATCH',
+                }
             })
+        } else {
+            res.status(404).json({
+                status: 404,
+                message: 'No valid entry found'
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
         })
+    })
 })
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id
-    News.remove({
+    News.deleteOne({
         _id: id
     })
     .exec()

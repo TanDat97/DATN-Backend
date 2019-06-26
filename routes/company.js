@@ -25,14 +25,12 @@ const constant = require('../lib/constant')
 router.post('/verifycompany', (req, res, next) => {
     const id = req.body.id
     const hash = req.body.hash
-    Company.update({
+    Company.updateOne({
         _id: id,
         hash: hash,
         verify: false,
     }, {
-        $set: {
-            verify: true,
-        }
+        verify: true,
     })
     .exec()
     .then(result => {
@@ -83,12 +81,10 @@ router.post('/resetpassword', (req, res, next) => {
                     var EmailCompanyModel = require('../lib/emailCompanyModel')
                     var emailModel = new EmailCompanyModel()
                     emailModel.resetMail(email, pass)
-                    Company.update({
+                    Company.updateOne({
                         email: email
                     }, {
-                        $set: {
-                            password: hash,
-                        }
+                        password: hash,
                     })
                     .then(result => {
                         if (result.nModified > 0) {
@@ -165,13 +161,11 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
                             error: err,
                         })
                     } else {
-                        Company.update({
+                        Company.updateOne({
                             email: req.companyData.email,
                             _id: req.companyData.id,
                         }, {
-                            $set: {
-                                password: hash
-                            }
+                            password: hash
                         })
                         .exec()
                         .then(result => {
@@ -394,22 +388,20 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
     const avatar = req.body.avatar
     const description = req.body.description
     const updateTime = req.body.updateTime
-    Company.update({
+    Company.updateOne({
         _id: id,
         email: email,
         verify: true,
         lock: false,
     }, {
-        $set: {
-            companyname: companyname,
-            address: address,
-            phone: phone,
-            website: website,
-            status: status,
-            avatar: avatar,
-            description: description,
-            updateTime: updateTime,
-        }
+        companyname: companyname,
+        address: address,
+        phone: phone,
+        website: website,
+        status: status,
+        avatar: avatar,
+        description: description,
+        updateTime: updateTime,
     })
     .exec()
     .then(result => {
@@ -593,19 +585,17 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     const statusAccount = req.body.statusAccount
     const avatar = req.body.avatar
     const description = req.body.description
-    User.update({
+    User.updateOne({
         _id: id,
         email: email,
     },{
-        $set :{
-            fullname: fullname,
-            identify: identify,
-            address: address,
-            phone: phone,
-            statusAccount: statusAccount,
-            avatar: avatar,
-            description: description,
-        }
+        fullname: fullname,
+        identify: identify,
+        address: address,
+        phone: phone,
+        statusAccount: statusAccount,
+        avatar: avatar,
+        description: description,
     })
     .exec()
     .then(result => {
@@ -648,7 +638,7 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
                 Company.findOneAndUpdate({ _id: req.companyData.id }, { $pull: { employees: { employee: id }}})
                 .exec()
                 .then(
-                    User.findByIdAndRemove({
+                    User.deleteOne({
                         _id: id,
                         verify: false,
                     })
@@ -678,12 +668,10 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
 })
 
 router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
-    User.update({
+    User.updateOne({
         _id: req.body.id,
     }, {
-        $set: {
-            lock: req.body.lock,
-        }
+        lock: req.body.lock,
     })
     .exec()
     .then(result => {
@@ -711,12 +699,10 @@ router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
 
 
 router.post('/changePermission', checkAuthCompany, (req, res, next) => {
-    User.update({
+    User.updateOne({
         _id: req.body.id,
     }, {
-        $set: {
-            permission: req.body.permission,
-        }
+        permission: req.body.permission,
     })
     .exec()
     .then(result => {

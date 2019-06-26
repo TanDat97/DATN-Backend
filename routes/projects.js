@@ -101,13 +101,15 @@ router.post('/home', (req, res, next) => {
 })
 
 router.post('/searchmap', (req, res, next) => {
-    const typeParam = req.body.type == '0' ? '{ "$gte": 1, "$lte": 4 }': req.body.type
     const statusParam = req.body.statusProject
     const areaParam = libFunction.convertData(req.body.area)
     const priceParam = libFunction.convertData(req.body.price)
     const radius = req.body.radius
     const lat = req.body.lat
     const long = req.body.long
+    // const typeParam = req.body.type
+    const typeParam = req.body.type == '0' ? '{ "$gte": 1, "$lte": 4 }': req.body.type
+    const typeParam = req.body.type == '0' ? '{ "$gte": 1, "$lte": 4 }': req.body.typ
     const query =   '{ ' +
                         '"verify": "true", ' +
                         '"type": ' + typeParam + ',' +
@@ -279,23 +281,21 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     const email = req.body.email
     const avatar = req.body.avatar
     const updateTime = req.body.updateTime
-    const url = req.body.url
-    const publicId = req.body.publicId
-    const codelist = req.body.codelist
+    const url = req.body.url ? req.body.url : []
+    const publicId = req.body.publicId ? req.body.publicId : []
+    const codelist = req.body.codelist ? req.body.codelist : []
 
     Project.find({
         _id: id,
-        ownerid: req.userData.id,
+        ownerid: ownerid,
         verify: true,
         $or: [{statusProject: 1},{statusProject: 3}],
     })
     .exec()
     .then(doc => {
         if (doc.length > 0) {
-            // console.log(typeof (publicId))
-            publicIdInDataBase = doc[0].publicId
-            // console.log(typeof (publicIdInDataBase))
-            publicIdDelete = compare(publicIdInDataBase, publicId)
+            const publicIdInDataBase = doc[0].publicId
+            const publicIdDelete = compare(publicIdInDataBase, publicId)
             // console.log(publicIdDelete)
             if (publicIdDelete.length > 0) {
                 cloudinary.v2.api.delete_resources(publicIdDelete, { invalidate: true },
@@ -304,32 +304,30 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
         }
     })
 
-    Project.update({
+    Project.updateOne({
         _id: id,
         ownerid: req.userData.id,
         verify: true,
         $or: [{statusProject: 1},{statusProject: 3}],
     }, {
-        $set: {
-            name: name,
-            investor: investor,
-            price: price,
-            unit: unit,
-            area: area,
-            address: address,
-            type: type,
-            info: info,
-            lat: lat,
-            long: long,
-            fullname: fullname,
-            phone: phone,
-            email: email,
-            avatar: avatar,
-            updateTime: updateTime,
-            url: url,
-            publicId: publicId,
-            codelist:  codelist,
-        }
+        name: name,
+        investor: investor,
+        price: price,
+        unit: unit,
+        area: area,
+        address: address,
+        type: type,
+        info: info,
+        lat: lat,
+        long: long,
+        fullname: fullname,
+        phone: phone,
+        email: email,
+        avatar: avatar,
+        updateTime: updateTime,
+        url: url,
+        publicId: publicId, 
+        codelist: codelist
     })
     .exec()
     .then(result => {
@@ -337,32 +335,32 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'update project success',
-                project: {
-                    _id: id,
-                    name: name,
-                    investor: investor,
-                    price: price,
-                    unit: unit,
-                    area: area,
-                    address: address,
-                    type: type,
-                    info: info,
-                    lat: lat,
-                    long: long,
-                    ownerid: ownerid,
-                    fullname: fullname,
-                    phone: phone,
-                    email: email,
-                    avatar: avatar,
-                    updateTime: updateTime,
-                    url: url,
-                    publicId: publicId,
-                },
+                // project: {
+                //     _id: id,
+                //     name: name,
+                //     investor: investor,
+                //     price: price,
+                //     unit: unit,
+                //     area: area,
+                //     address: address,
+                //     type: type,
+                //     info: info,
+                //     lat: lat,
+                //     long: long,
+                //     ownerid: ownerid,
+                //     fullname: fullname,
+                //     phone: phone,
+                //     email: email,
+                //     avatar: avatar,
+                //     updateTime: updateTime,
+                //     url: url,
+                //     publicId: publicId,
+                // },
             })
         } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found',
+            res.status(200).json({
+                status: 200,
+                message: 'No info change or project does not exist',
             })
         }
     })
@@ -383,7 +381,7 @@ router.delete('/:id', checkAuth, (req, res, next) => {
     })
     .exec()
     .then(resultuser => {
-        Project.remove({
+        Project.deleteOne({
             _id: projectid,
             ownerid: req.userData.id,
         })
@@ -394,14 +392,14 @@ router.delete('/:id', checkAuth, (req, res, next) => {
                 User.findOneAndUpdate({_id: req.userData.id, verify: true}, {totalProject: temp})
                 .exec()
                 .then(ex1 => console.log('update total project success: ' + temp))
-                Comment.remove({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
-                Waiting.remove({ project: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
+                Comment.deleteOne({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
+                Waiting.deleteOne({ project: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
                 Transaction.findOneAndRemove({project: projectid}).exec().then(ex4 => {
                     console.log('delete transaction success')
-                    if(ex4.typetransaction === 1) {
-                        SellDetail.remove({transactionid: ex4._id}).exec().then(ex5 => console.log('delete selldetail success'))
-                    } else if(ex4.typetransaction === 2) {
-                        RentDetail.remove({transactionid: ex4._id}).exec().then(ex6 => console.log('delete rentdetail success'))
+                    if(ex4 && ex4.typetransaction === 1) {
+                        SellDetail.deleteOne({transactionid: ex4._id}).exec().then(ex5 => console.log('delete selldetail success'))
+                    } else if(ex4 && ex4.typetransaction === 2) {
+                        RentDetail.deleteOne({transactionid: ex4._id}).exec().then(ex6 => console.log('delete rentdetail success'))
                     }
                 })
                 res.status(200).json({

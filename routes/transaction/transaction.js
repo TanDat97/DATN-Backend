@@ -272,15 +272,13 @@ router.post('/create', checkAuth, (req, res, next) => {
 router.post('/changeactive', checkAuth, (req, res, next) => {
     const transactionid = req.body.transactionid
     const active = req.body.active
-    Transaction.update({
+    Transaction.updateOne({
         _id: transactionid,
         verify: false,
         status: 1,
         seller: req.userData.id,
     },{
-        $set: {
-            active: active,
-        }
+        active: active,
     })
     .exec()
     .then(result => {
@@ -309,15 +307,13 @@ router.post('/changeactive', checkAuth, (req, res, next) => {
 
 router.post('/complete', checkAuth, (req, res, next) => {
     const transactionid = req.body.transactionid
-    Transaction.update({
+    Transaction.updateOne({
         _id: transactionid,
         verify: false,
         status: 1,
         seller: req.userData.id,
     },{
-        $set: {
-            status: 2,
-        }
+        status: 2,
     })
     .exec()
     .then(result => {
@@ -351,7 +347,7 @@ router.post('/cancel', checkAuth, (req, res, next) => {
     const projectid = req.body.projectid
     const seller = req.body.seller
     const buyer = req.body.buyer
-    Transaction.remove({
+    Transaction.deleteOne({
         _id: transactionid,
         verify: false,
         status: 1,
@@ -361,14 +357,14 @@ router.post('/cancel', checkAuth, (req, res, next) => {
     .then(result => {
         if (result.n > 0) {
             if(type === 1) {
-                SellDetail.remove({
+                SellDetail.deleteOne({
                     _id: transactiondetail,
                     transactionid: transactionid,
                 })
                 .exec()
                 .then(console.log('delete selldetail success'))
             } else if(type === 2) {
-                RentDetail.remove({
+                RentDetail.deleteOne({
                     _id: transactiondetail,
                     transactionid: transactionid,
                 })

@@ -114,30 +114,30 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const statusProject = req.body.statusProject
     const createTime = req.body.createTime
     const updateTime = req.body.updateTime
-    const url = req.body.url
-    const publicId = req.body.publicId
-    Project.update({
+    const url = req.body.url ?  req.body.url : []
+    const publicId = req.body.publicId ?  req.body.publicId : []
+    const codelist = req.body.codelist ?  req.body.codelist : []
+    Project.updateOne({
         _id: id,
     }, {
-        $set: {
-            name: name,
-            investor: investor,
-            price: price,
-            unit: unit,
-            area: area,
-            address: address,
-            type: type,
-            info: info,
-            lat: lat,
-            long: long,
-            fullname: fullname,
-            phone: phone,
-            email: email,
-            statusProject: statusProject,
-            updateTime: updateTime,
-            // url: url,
-            // publicId: publicId,
-        }
+        name: name,
+        investor: investor,
+        price: price,
+        unit: unit,
+        area: area,
+        address: address,
+        type: type,
+        info: info,
+        lat: lat,
+        long: long,
+        fullname: fullname,
+        phone: phone,
+        email: email,
+        statusProject: statusProject,
+        updateTime: updateTime,
+        // url: url,
+        // publicId: publicId,
+        // codelist: codelist
     })
     .exec()
     .then(result => {
@@ -167,6 +167,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                     updateTime: updateTime,
                     url: url,
                     publicId: publicId,
+                    codelist: codelist
                 },
                 request: {
                     type: 'PATCH',
@@ -190,7 +191,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     const projectid = req.params.id
-    Project.remove({
+    Project.deleteOne({
         _id: id
     })
     .exec()
@@ -200,14 +201,14 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
             // User.findOneAndUpdate({_id: req.userData.id, verify: true}, {totalProject: temp})
             // .exec()
             // .then(ex1 => console.log('update total project success: ' + temp))
-            Comment.remove({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
-            Waiting.remove({ project: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
+            Comment.deleteMany({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
+            Waiting.deleteOne({ project: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
             Transaction.findOneAndRemove({project: projectid}).exec().then(ex4 => {
                 console.log('delete transaction success')
-                if(ex4.typetransaction === 1) {
-                    SellDetail.remove({transactionid: ex4._id}).exec().then(ex5 => console.log('delete selldetail success'))
-                } else if(ex4.typetransaction === 2) {
-                    RentDetail.remove({transactionid: ex4._id}).exec().then(ex6 => console.log('delete rentdetail success'))
+                if(ex4 && ex4.typetransaction === 1) {
+                    SellDetail.deleteOne({transactionid: ex4._id}).exec().then(ex5 => console.log('delete selldetail success'))
+                } else if(ex4 && ex4.typetransaction === 2) {
+                    RentDetail.deleteOne({transactionid: ex4._id}).exec().then(ex6 => console.log('delete rentdetail success'))
                 }
             })
             res.status(200).json({
@@ -232,12 +233,10 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
 
 
 router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
-    Project.update({
+    Project.updateOne({
         _id: req.params.id,
     }, {
-        $set: {
-            verify: req.body.verify,
-        }
+        verify: req.body.verify,
     })
     .exec()
     .then(result => {
@@ -264,12 +263,10 @@ router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
-    Project.update({
+    Project.updateOne({
         _id: req.params.id,
     }, {
-        $set: {
-            allowComment: req.body.allowComment,
-        }
+        allowComment: req.body.allowComment,
     })
     .exec()
     .then(result => {

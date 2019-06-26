@@ -54,7 +54,7 @@ router.post('/home', (req, res, next) => {
     const radius = req.body.radius
     const lat = req.body.lat
     const long = req.body.long
-    const query =   '{ '+
+    const query =   '{ ' +
                         '"verify": "true", ' +
                         '"$or": [{"statusProject": "1"}, {"statusProject": "3"}], ' +
                         '"$where": "function() { ' +
@@ -70,16 +70,13 @@ router.post('/home', (req, res, next) => {
                             '}"'+
                     '}'
 
-    Project.find({
-        verify: true,
-        $or: [{statusProject: 1}, {statusProject: 3}]
-    })
+    Project.find(JSON.parse(query))
         .sort({ 'createTime': -1 })
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(temp => {
-            const results = libFunction.distanceListPlace(temp, radius, lat, long)
-            // const results = temp
+            // const results = libFunction.distanceListPlace(temp, radius, lat, long)
+            const results = temp
             if (results.length > 0) {
                 res.status(200).json({
                     status: 200,
@@ -104,16 +101,19 @@ router.post('/home', (req, res, next) => {
 })
 
 router.post('/searchmap', (req, res, next) => {
-    const typeParam = req.body.type
+    const typeParam = req.body.type == '0' ? '{ "$gte": 1, "$lte": 4 }': req.body.type
     const statusParam = req.body.statusProject
     const areaParam = libFunction.convertData(req.body.area)
     const priceParam = libFunction.convertData(req.body.price)
     const radius = req.body.radius
     const lat = req.body.lat
     const long = req.body.long
-    const query =   '{ '+
+    const query =   '{ ' +
                         '"verify": "true", ' +
-                        '"$or": [{"statusProject": "1"},{"statusProject": "3"}], ' +
+                        '"type": ' + typeParam + ',' +
+                        '"statusProject": ' + statusParam + ', ' +
+                        '"area": { "$gte": ' + areaParam.start + ', "$lte": ' +  areaParam.end + '}, ' +
+                        '"price": { "$gte": ' + priceParam.start + ', "$lte": ' + priceParam.end + '}, ' +
                         '"$where": "function() { ' +
                                 'var R = 6371; ' +
                                 'var dLat = (this.lat - ' + lat + ')  * (Math.PI / 180); ' +
@@ -126,19 +126,13 @@ router.post('/searchmap', (req, res, next) => {
                                 ' return d <= ' + radius + 
                             '}"'+
                     '}'
-
-    Project.find({
-        verify: true,
-        type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
-        statusProject: statusParam,
-        area: { $gte: areaParam.start, $lte: areaParam.end },
-        price: { $gte: priceParam.start, $lte: priceParam.end },
-    })
+    Project.find(JSON.parse(query))
         .sort({ 'createTime': -1 })
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(temp => {
-            const results = libFunction.distanceListPlace(temp, radius, lat, long)
+            // const results = libFunction.distanceListPlace(temp, radius, lat, long)
+            const results = temp
             if (results.length > 0) {
                 res.status(200).json({
                     status: 200,

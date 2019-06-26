@@ -109,7 +109,6 @@ router.post('/searchmap', (req, res, next) => {
     const long = req.body.long
     // const typeParam = req.body.type
     const typeParam = req.body.type == '0' ? '{ "$gte": 1, "$lte": 4 }': req.body.type
-    const typeParam = req.body.type == '0' ? '{ "$gte": 1, "$lte": 4 }': req.body.typ
     const query =   '{ ' +
                         '"verify": "true", ' +
                         '"type": ' + typeParam + ',' +

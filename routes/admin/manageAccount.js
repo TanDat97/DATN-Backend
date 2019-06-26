@@ -78,19 +78,17 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const totalProject = req.body.totalProject
     const statusAccount = req.body.statusAccount
     const description = req.body.description
-    User.update({
+    User.updateOne({
         _id: id,
         email: email,
     }, {
-        $set: {
-            fullname: fullname,
-            identify: identify,
-            address: address,
-            phone: phone,
-            totalProject: totalProject,
-            statusAccount: statusAccount,
-            description: description,
-        }
+        fullname: fullname,
+        identify: identify,
+        address: address,
+        phone: phone,
+        totalProject: totalProject,
+        statusAccount: statusAccount,
+        description: description,
     })
     .exec()
     .then(result => {
@@ -131,15 +129,15 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
-    User.remove({
+    User.deleteOne({
         _id: req.params.id,
         verify: false,
     })
     .exec()
     .then(result => {
-        Project.remove({ownerid: req.params.id}).exec().then(result => console.log('delete project success'))
-        Comment.remove({userid: req.params.id}).exec().then(result => console.log('delete comment success'))
-        SavedProject.remove({userid: req.params.id}).exec().then(result => console.log('delete saved project success'))
+        Project.deleteMany({ownerid: req.params.id}).exec().then(result => console.log('delete project success'))
+        Comment.deleteMany({userid: req.params.id}).exec().then(result => console.log('delete comment success'))
+        SavedProject.deleteOne({userid: req.params.id}).exec().then(result => console.log('delete saved project success'))
         if(result.n > 0) {
             res.status(200).json({
                 status: 200,
@@ -163,12 +161,10 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
-    User.update({
+    User.updateOne({
         _id: req.params.id,
     }, {
-        $set: {
-            lock: req.body.lock,
-        }
+        lock: req.body.lock,
     })
     .exec()
     .then(result => {
@@ -195,12 +191,10 @@ router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/changePermission/:id', checkAuthAdmin, (req, res, next) => {
-    User.update({
+    User.updateOne({
         _id: req.params.id,
     }, {
-        $set: {
-            permission: req.body.permission,
-        }
+        permission: req.body.permission,
     })
     .exec()
     .then(result => {

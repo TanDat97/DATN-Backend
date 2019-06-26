@@ -71,6 +71,10 @@ mongoose.connect(mongo.url, mongo.options)
     process.exit()
 })
 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+
 mongoose.Promise = global.Promise
 
 app.get('/favicon.ico', (req, res) => res.status(204));

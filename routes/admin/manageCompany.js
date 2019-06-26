@@ -160,19 +160,17 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const description = req.body.description;
     const createTime = req.body.createTime;
     const updateTime= req.body.updateTime;
-    Company.update({
+    Company.updateOne({
         _id: id,
         email: email,
     }, {
-        $set: {
-            companyname: companyname,
-            address: address,
-            phone: phone,
-            website: website,
-            status: status,
-            description: description,
-            updateTime: updateTime,
-        }
+        companyname: companyname,
+        address: address,
+        phone: phone,
+        website: website,
+        status: status,
+        description: description,
+        updateTime: updateTime,
     })
     .exec()
     .then(result => {
@@ -213,14 +211,14 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
-    Company.remove({
+    Company.deleteOne({
         _id: req.params.id,
         verify: false,
     })
     .exec()
     .then(result => {
-        // Project.remove({ownerid: req.params.id}).exec().then(result => console.log('delete project success'))
-        // User.remove({company: req.params.id}).exec().then(result => console.log('delete user success'))
+        // Project.deleteMany({ownerid: req.params.id}).exec().then(result => console.log('delete project success'))
+        // User.deleMany({company: req.params.id}).exec().then(result => console.log('delete user success'))
         if(result.n > 0) {
             res.status(200).json({
                 status: 200,
@@ -244,12 +242,10 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
-    Company.update({
+    Company.updateOne({
         _id: req.params.id,
     }, {
-        $set: {
-            lock: req.body.lock,
-        }
+        lock: req.body.lock,
     })
     .exec()
     .then(result => {

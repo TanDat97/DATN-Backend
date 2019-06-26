@@ -108,14 +108,12 @@ router.post('/signup', checkAuthAdmin, (req, res, next) => {
 router.post('/verify', (req, res, next) => {
     const id = req.body.id
     const hash = req.body.hash
-    Admin.update({
+    Admin.updateOne({
         _id: id,
         hash: hash,
         verify: false,
     }, {
-        $set: {
-            verify: true,
-        }
+        verify: true,
     })
     .exec()
     .then(result => {
@@ -234,16 +232,14 @@ router.post('/edit', checkAuthAdmin, (req, res, next) => {
     const phone = req.body.phone
     const createBy = req.body.createBy
 
-    Admin.update({
+    Admin.updateOne({
         _id: id,
         email:email,
         verify: true,
     }, {
-        $set: {
-            fullname: fullname,
-            address: address,
-            phone: phone,
-        }
+        fullname: fullname,
+        address: address,
+        phone: phone,
     })
     .exec()
     .then(result => {
@@ -308,13 +304,11 @@ router.post('/changepassword', checkAuthAdmin, (req, res, next) => {
                             error: err,
                         })
                     } else {
-                        Admin.update({
+                        Admin.updateOne({
                             email: req.adminData.email,
                             _id: req.adminData.id,
                         }, {
-                            $set: {
-                                password: hash
-                            }
+                            password: hash
                         })
                         .exec()
                         .then(result => {
@@ -364,13 +358,11 @@ router.post('/changeavatar', checkAuthAdmin, (req, res, next) => {
     const id = req.adminData.id
     const avatar = req.body.avatar
 
-    Admin.update({
+    Admin.updateOne({
         _id: id,
         verify: true,
     }, {
-        $set: {
-            avatar: avatar,
-        }
+        avatar: avatar,
     })
     .exec()
     .then(result => {

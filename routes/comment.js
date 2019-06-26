@@ -114,15 +114,13 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     const star = req.body.star
     const projectid = req.body.projectid
 
-    Comment.update({
+    Comment.updateOne({
         _id: id,
         user: userid,
     }, {
-        $set: {
-            updateTime: updateTime,
-            content: content,
-            star: star,
-        }
+        updateTime: updateTime,
+        content: content,
+        star: star,
     })
     .exec()
     .then(result => {
@@ -157,7 +155,7 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
 })
 
 router.delete('/:id', checkAuth, (req, res, next) => {
-    Comment.remove({
+    Comment.deleteOne({
         _id: req.params.id,
         user: req.userData.id,
     })

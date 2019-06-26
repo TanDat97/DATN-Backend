@@ -252,19 +252,17 @@ router.post('/edit', checkAuth, (req, res, next) => {
     const phone = req.body.phone
     const avatar = req.body.avatar
     const description = req.body.description
-    User.update({
+    User.updateOne({
         _id: id,
         email: email,
         verify: true,
     }, {
-        $set: {
-            fullname: fullname,
-            identify: identify,
-            address: address,
-            phone: phone,
-            avatar: avatar,
-            description: description,
-        }
+        fullname: fullname,
+        identify: identify,
+        address: address,
+        phone: phone,
+        avatar: avatar,
+        description: description,
     })
     .exec()
     .then(result => {
@@ -272,21 +270,20 @@ router.post('/edit', checkAuth, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'update accont user success',
-                user: {
-                    _id: id,
-                    email: email,
-                    fullname: fullname,
-                    address: address,
-                    phone: phone,
-                    avatar: avatar,
-                    description: description,
-                },
+                // user: {
+                //     _id: id,
+                //     email: email,
+                //     fullname: fullname,
+                //     address: address,
+                //     phone: phone,
+                //     avatar: avatar,
+                //     description: description,
+                // },
             })
         } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found',
-                result: result,
+            res.status(200).json({
+                status: 200,
+                message: 'No infomation change or change failed',
             })
         }
     })
@@ -307,20 +304,13 @@ router.get('/danhsachproject/:page', checkAuth, (req, res, next) => {
     .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
     .exec()
     .then(results => {
-        if (results.length >= 0) {
-            res.status(200).json({
-                status: 200,
-                message: 'get all project list success',
-                page: page + 1,
-                count: results.length,
-                projects: results,
-            })
-        } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found',
-            })
-        }
+        res.status(200).json({
+            status: 200,
+            message: 'get all project list success',
+            page: page + 1,
+            count: results.length,
+            projects: results,
+        })
     })
     .catch(err => {
         console.log(err)

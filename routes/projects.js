@@ -253,7 +253,6 @@ router.post('/', checkAuth, (req, res, next) => {
     })
 })
 
-
 const compare = function (arr1, arr2) {
     const finalarray = []
     var flag = false
@@ -297,7 +296,7 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
         _id: id,
         ownerid: ownerid,
         verify: true,
-        $or: [{statusProject: 1},{statusProject: 3}],
+        $or: [{statusProject: 1}, {statusProject: 3}],
     })
     .exec()
     .then(doc => {
@@ -316,7 +315,7 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
         _id: id,
         ownerid: req.userData.id,
         verify: true,
-        $or: [{statusProject: 1},{statusProject: 3}],
+        $or: [{statusProject: 1}, {statusProject: 3}],
     }, {
         name: name,
         investor: investor,
@@ -343,27 +342,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'update project success',
-                // project: {
-                //     _id: id,
-                //     name: name,
-                //     investor: investor,
-                //     price: price,
-                //     unit: unit,
-                //     area: area,
-                //     address: address,
-                //     type: type,
-                //     info: info,
-                //     lat: lat,
-                //     long: long,
-                //     ownerid: ownerid,
-                //     fullname: fullname,
-                //     phone: phone,
-                //     email: email,
-                //     avatar: avatar,
-                //     updateTime: updateTime,
-                //     url: url,
-                //     publicId: publicId,
-                // },
             })
         } else {
             res.status(200).json({
@@ -383,21 +361,22 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
 
 router.delete('/:id', checkAuth, (req, res, next) => {
     const projectid = req.params.id
+    const userid = req.userData.id
     User.findOne({
-        _id: req.userData.id,
+        _id: userid,
         verify: true,
     })
     .exec()
     .then(resultuser => {
         Project.deleteOne({
             _id: projectid,
-            ownerid: req.userData.id,
+            ownerid: userid,
         })
         .exec()
         .then(result => {
             if (result.n > 0) {
                 const temp = resultuser.totalProject - 1
-                User.findOneAndUpdate({_id: req.userData.id, verify: true}, {totalProject: temp})
+                User.findOneAndUpdate({_id: userid, verify: true}, {totalProject: temp})
                 .exec()
                 .then(ex1 => console.log('update total project success: ' + temp))
                 Comment.deleteOne({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
@@ -430,7 +409,6 @@ router.delete('/:id', checkAuth, (req, res, next) => {
         })
     })
 })
-
 
 router.post('/searchprojects', (req, res, next) => {
     const typeParam = req.body.type

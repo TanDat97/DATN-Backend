@@ -587,8 +587,8 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     const description = req.body.description
     User.updateOne({
         _id: id,
-        email: email,
     },{
+        email: email,
         fullname: fullname,
         identify: identify,
         address: address,
@@ -724,6 +724,165 @@ router.post('/changePermission', checkAuthCompany, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
+        })
+    })
+})
+
+const compare = function (arr1, arr2) {
+    const finalarray = []
+    var flag = false
+    for (i = 0; i < arr1.length; i++) {
+        flag = false
+        for (j = 0; j < arr2.length; j++) {
+            if (arr1[i] === arr2[j]) {
+                flag = true
+                break
+            }
+        }
+        if (flag == false) {
+            finalarray.push(arr1[i])
+        }
+    }
+    return finalarray
+}
+router.post('/editProject/:id', checkAuthCompany, (req, res, next) => {
+    const id = req.params.id
+    const name = req.body.name
+    const investor = req.body.investor
+    const price = req.body.price
+    const unit = req.body.unit
+    const area = req.body.area
+    const address = req.body.address
+    const type = req.body.type
+    const info = req.body.info
+    const lat = req.body.lat
+    const long = req.body.long
+    const ownerid = req.body.ownerid
+    const fullname = req.body.fullname
+    const phone = req.body.phone
+    const email = req.body.email
+    const avatar = req.body.avatar
+    const updateTime = req.body.updateTime
+    const url = req.body.url ? req.body.url : []
+    const publicId = req.body.publicId ? req.body.publicId : []
+    const codelist = req.body.codelist ? req.body.codelist : []
+
+    Project.find({
+        _id: id,
+        ownerid: ownerid,
+        verify: true,
+        $or: [{statusProject: 1}, {statusProject: 3}],
+    })
+    .exec()
+    .then(doc => {
+        if (doc.length > 0) {
+            const publicIdInDataBase = doc[0].publicId
+            const publicIdDelete = compare(publicIdInDataBase, publicId)
+            // console.log(publicIdDelete)
+            if (publicIdDelete.length > 0) {
+                cloudinary.v2.api.delete_resources(publicIdDelete, { invalidate: true },
+                    function (error, result) { console.log(result) })
+            }
+        }
+    })
+
+    Project.updateOne({
+        _id: id,
+        ownerid: req.userData.id,
+        verify: true,
+        $or: [{statusProject: 1}, {statusProject: 3}],
+    }, {
+        name: name,
+        investor: investor,
+        price: price,
+        unit: unit,
+        area: area,
+        address: address,
+        type: type,
+        info: info,
+        lat: lat,
+        long: long,
+        fullname: fullname,
+        phone: phone,
+        email: email,
+        avatar: avatar,
+        updateTime: updateTime,
+        url: url,
+        publicId: publicId, 
+        codelist: codelist
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'update project success',
+            })
+        } else {
+            res.status(200).json({
+                status: 200,
+                message: 'No info change or project does not exist',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
+router.delete('/:id', checkAuthCompany, (req, res, next) => {
+    const companyid =  req.companyData.id
+    const projectid = req.params.id
+    const userid = req.body.userid
+    User.findOne({
+        _id: userid,
+        company: companyid,
+        verify: true,
+    })
+    .exec()
+    .then(resultuser => {
+        Project.deleteOne({
+            _id: projectid,
+            ownerid: userid,
+        })
+        .exec()
+        .then(result => {
+            if (result.n > 0) {
+                const temp = resultuser.totalProject - 1
+                User.findOneAndUpdate({_id: userid, verify: true}, {totalProject: temp})
+                .exec()
+                .then(ex1 => console.log('update total project success: ' + temp))
+                Comment.deleteOne({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
+                Waiting.deleteOne({ project: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
+                Transaction.findOneAndRemove({project: projectid}).exec().then(ex4 => {
+                    console.log('delete transaction success')
+                    if(ex4 && ex4.typetransaction === 1) {
+                        SellDetail.deleteOne({transactionid: ex4._id}).exec().then(ex5 => console.log('delete selldetail success'))
+                    } else if(ex4 && ex4.typetransaction === 2) {
+                        RentDetail.deleteOne({transactionid: ex4._id}).exec().then(ex6 => console.log('delete rentdetail success'))
+                    }
+                })
+                res.status(200).json({
+                    status: 200,
+                    message: 'delete project success',
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
         })
     })
 })

@@ -496,7 +496,7 @@ router.post('/search', (req, res, next) => {
     const priceParam = libFunction.convertData(req.body.price)
     Project.find({
         verify: true,
-        type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,  
+        type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
         statusProject: statusParam,
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },

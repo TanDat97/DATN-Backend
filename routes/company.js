@@ -770,7 +770,6 @@ router.post('/editProject/:id', checkAuthCompany, (req, res, next) => {
     Project.find({
         _id: id,
         ownerid: ownerid,
-        verify: true,
         $or: [{statusProject: 1}, {statusProject: 3}],
     })
     .exec()
@@ -789,7 +788,6 @@ router.post('/editProject/:id', checkAuthCompany, (req, res, next) => {
     Project.updateOne({
         _id: id,
         ownerid: req.userData.id,
-        verify: true,
         $or: [{statusProject: 1}, {statusProject: 3}],
     }, {
         name: name,

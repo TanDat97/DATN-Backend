@@ -296,7 +296,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     Project.find({
         _id: id,
         ownerid: ownerid,
-        verify: true,
         $or: [{statusProject: 1}, {statusProject: 3}],
     })
     .exec()
@@ -315,7 +314,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     Project.updateOne({
         _id: id,
         ownerid: req.userData.id,
-        verify: true,
         $or: [{statusProject: 1}, {statusProject: 3}],
     }, {
         name: name,
@@ -497,7 +495,7 @@ router.post('/search', (req, res, next) => {
     Project.find({
         verify: true,
         type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
-        statusProject: statusParam,
+        statusProject: statusParam == '1' || statusParam == '3' ? statusParam : 1,
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
     }).sort({ 'createTime': -1 })

@@ -69,8 +69,11 @@ router.post('/home', (req, res, next) => {
                                 ' return d <= ' + radius + 
                             '}" ' +
                     '}'
-
     Project.find(JSON.parse(query))
+    // Project.find({
+    //     verify: true,
+    //     $or: [{statusProject: 1}, {statusProject: 3}]
+    // })
         .sort({ 'createTime': -1 })
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
@@ -486,7 +489,7 @@ router.post('/search', (req, res, next) => {
     const priceParam = libFunction.convertData(req.body.price)
     Project.find({
         verify: true,
-        type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,  
+        type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
         statusProject: statusParam,
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },

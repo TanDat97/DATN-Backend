@@ -494,6 +494,7 @@ router.post('/search', (req, res, next) => {
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(temp => {
+            // const results = temp
             const results = libFunction.searchLevenshtein(temp, addressParam)
             if (results.length >= 0) {
                 res.status(200).json({

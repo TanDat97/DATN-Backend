@@ -277,7 +277,6 @@ router.post('/edit', checkAuth, (req, res, next) => {
                     fullname: fullname,
                     address: address,
                     phone: phone,
-                    totalProject: totalProject,
                     avatar: avatar,
                     description: description,
                 },

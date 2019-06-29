@@ -13,7 +13,7 @@ const User = require('../../models/userModel')
 const Project = require('../../models/projectModel')
 const Comment = require('../../models/commentModel')
 
-const numItem = require('../../lib/constant')
+const constant = require('../../lib/constant')
 
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
@@ -25,7 +25,7 @@ var transporter = nodemailer.createTransport({ // config mail server
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    Company.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    Company.find().sort({'createTime': -1}).skip(page*constant.numItem).limit(constant.numItem)
     .select()
     .exec()
     .then(results => {
@@ -160,19 +160,17 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const description = req.body.description;
     const createTime = req.body.createTime;
     const updateTime= req.body.updateTime;
-    Company.update({
+    Company.updateOne({
         _id: id,
         email: email,
     }, {
-        $set: {
-            companyname: companyname,
-            address: address,
-            phone: phone,
-            website: website,
-            status: status,
-            description: description,
-            updateTime: updateTime,
-        }
+        companyname: companyname,
+        address: address,
+        phone: phone,
+        website: website,
+        status: status,
+        description: description,
+        updateTime: updateTime,
     })
     .exec()
     .then(result => {
@@ -213,13 +211,14 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
-    Company.remove({
-        _id: req.params.id
+    Company.deleteOne({
+        _id: req.params.id,
+        verify: false,
     })
     .exec()
     .then(result => {
-        // Project.remove({ownerid: req.params.id}).exec().then(result => console.log('delete project success'))
-        // User.remove({company: req.params.id}).exec().then(result => console.log('delete user success'))
+        // Project.deleteMany({ownerid: req.params.id}).exec().then(result => console.log('delete project success'))
+        // User.deleMany({company: req.params.id}).exec().then(result => console.log('delete user success'))
         if(result.n > 0) {
             res.status(200).json({
                 status: 200,
@@ -243,12 +242,10 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/changeLock/:id', checkAuthAdmin, (req, res, next) => {
-    Company.update({
+    Company.updateOne({
         _id: req.params.id,
     }, {
-        $set: {
-            lock: req.body.lock,
-        }
+        lock: req.body.lock,
     })
     .exec()
     .then(result => {

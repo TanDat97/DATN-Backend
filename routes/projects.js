@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const cloudinary = require('cloudinary')
+var fs = require('fs');
 
 const checkAuth = require('../middleware/checkAuth')
 const libFunction = require('../lib/function')
@@ -10,15 +11,13 @@ const Project = require('../models/projectModel')
 const User = require('../models/userModel')
 const Comment = require('../models/commentModel')
 const Waiting = require('../models/waitingModel')
+const SavedProject = require('../models/savedProjectModel')
 
 const Transaction = require('../models/transactionModel')
 const SellDetail = require('../models/selldetailModel')
 const RentDetail = require('../models/rentdetailModel')
 
-
-const SavedProject = require('../models/savedProjectModel')
-
-const numItem = require('../lib/constant')
+const constant = require('../lib/constant')
 
 cloudinary.config({
     cloud_name: 'dne3aha8f',
@@ -26,43 +25,12 @@ cloudinary.config({
     api_secret: 'JdBsEVQDxp4_1jsZrT-qM7T8tns'
 })
 
-var fs = require('fs');
-router.get('/all', (req, res, next) => {
-    User.find()
-    .select()
-        .exec()
-        .then(results => {
-            if (results.length > 0) {
-                var json = JSON.stringify(results);
-                fs.writeFile('D:\\Do an tot nghiep\\DATN-Backend\\config\\SampleData\\user.json', json, 'utf8', (err => console.log(err)));
-                res.status(200).json({
-                    status: 200,
-                    count: results.length,
-                    result: results,
-                })
-            } else {
-                res.status(404).json({
-                    status: 404,
-                    message: 'No valid entry found',
-                })
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                status: 500,
-                error: err
-            })
-        })
-})
-
-
 router.get('/all/:page', (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     Project.find({
         verify: true,
         $or: [{statusProject: 1},{statusProject: 3}],
-    }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+    }).sort({ 'createTime': -1 }).skip(page*constant.numItem).limit(constant.numItem)
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {
@@ -83,14 +51,35 @@ router.get('/all/:page', (req, res, next) => {
 })
 
 router.post('/home', (req, res, next) => {
+    const radius = req.body.radius
+    const lat = req.body.lat
+    const long = req.body.long
+    // const query =   '{ ' +
+    //                     '"verify": "true", ' +
+    //                     '"$or": [{"statusProject": "1"}, {"statusProject": "3"}], ' +
+    //                     '"$where": "function() { ' +
+    //                             'var R = 6371; ' +
+    //                             'var dLat = (this.lat - ' + lat + ')  * (Math.PI / 180); ' +
+    //                             'var dLong = (this.long - ' + long + ')  * (Math.PI / 180); ' +
+    //                             'var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + ' +
+    //                             ' Math.cos(' + lat + ' * (Math.PI / 180)) * Math.cos(this.lat * (Math.PI / 180) ) * ' +
+    //                             ' Math.sin(dLong / 2) * Math.sin(dLong / 2); ' +
+    //                             'var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); ' +
+    //                             'var d = R * c; ' +
+    //                             ' return d <= ' + radius + 
+    //                         '}" ' +
+    //                 '}'
+    // Project.find(JSON.parse(query))
     Project.find({
         verify: true,
-        $or: [{statusProject: 1},{statusProject: 3}],
+        $or: [{statusProject: 1}, {statusProject: 3}]
     })
+        .sort({ 'createTime': -1 })
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(temp => {
-            const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
+            const results = libFunction.distanceListPlace(temp, radius, lat, long)
+            // const results = temp
             if (results.length > 0) {
                 res.status(200).json({
                     status: 200,
@@ -115,11 +104,33 @@ router.post('/home', (req, res, next) => {
 })
 
 router.post('/searchmap', (req, res, next) => {
-    const typeParam = req.body.type
     const statusParam = req.body.statusProject
     const areaParam = libFunction.convertData(req.body.area)
     const priceParam = libFunction.convertData(req.body.price)
-
+    const radius = req.body.radius
+    const lat = req.body.lat
+    const long = req.body.long
+    const typeParam = req.body.type
+    // const typeParam = req.body.type == '0' ? '{ "$gte": 1, "$lte": 4 }': req.body.typ
+    // const query =   '{ ' +
+    //                     '"verify": "true", ' +
+    //                     '"type": ' + typeParam + ',' +
+    //                     '"statusProject": ' + statusParam + ', ' +
+    //                     '"area": { "$gte": ' + areaParam.start + ', "$lte": ' +  areaParam.end + '}, ' +
+    //                     '"price": { "$gte": ' + priceParam.start + ', "$lte": ' + priceParam.end + '}, ' +
+    //                     '"$where": "function() { ' +
+    //                             'var R = 6371; ' +
+    //                             'var dLat = (this.lat - ' + lat + ')  * (Math.PI / 180); ' +
+    //                             'var dLong = (this.long - ' + long + ')  * (Math.PI / 180); ' +
+    //                             'var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + ' +
+    //                             ' Math.cos(' + lat + ' * (Math.PI / 180)) * Math.cos(this.lat * (Math.PI / 180) ) * ' +
+    //                             ' Math.sin(dLong / 2) * Math.sin(dLong / 2); ' +
+    //                             'var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); ' +
+    //                             'var d = R * c; ' +
+    //                             ' return d <= ' + radius + 
+    //                         '}" ' +
+    //                 '}'
+    // Project.find(JSON.parse(query))
     Project.find({
         verify: true,
         type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
@@ -127,10 +138,12 @@ router.post('/searchmap', (req, res, next) => {
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
     })
+        .sort({ 'createTime': -1 })
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(temp => {
-            const results = libFunction.distanceListPlace(temp, req.body.radius, req.body.lat, req.body.long)
+            const results = libFunction.distanceListPlace(temp, radius, lat, long)
+            // const results = temp
             if (results.length > 0) {
                 res.status(200).json({
                     status: 200,
@@ -241,7 +254,6 @@ router.post('/', checkAuth, (req, res, next) => {
     })
 })
 
-
 const compare = function (arr1, arr2) {
     const finalarray = []
     var flag = false
@@ -277,23 +289,20 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     const email = req.body.email
     const avatar = req.body.avatar
     const updateTime = req.body.updateTime
-    const url = req.body.url
-    const publicId = req.body.publicId
-    const codelist = req.body.codelist
+    const url = req.body.url ? req.body.url : []
+    const publicId = req.body.publicId ? req.body.publicId : []
+    const codelist = req.body.codelist ? req.body.codelist : []
 
     Project.find({
         _id: id,
-        ownerid: req.userData.id,
-        verify: true,
-        $or: [{statusProject: 1},{statusProject: 3}],
+        ownerid: ownerid,
+        $or: [{statusProject: 1}, {statusProject: 3}],
     })
     .exec()
     .then(doc => {
         if (doc.length > 0) {
-            // console.log(typeof (publicId))
-            publicIdInDataBase = doc[0].publicId
-            // console.log(typeof (publicIdInDataBase))
-            publicIdDelete = compare(publicIdInDataBase, publicId)
+            const publicIdInDataBase = doc[0].publicId
+            const publicIdDelete = compare(publicIdInDataBase, publicId)
             // console.log(publicIdDelete)
             if (publicIdDelete.length > 0) {
                 cloudinary.v2.api.delete_resources(publicIdDelete, { invalidate: true },
@@ -302,32 +311,29 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
         }
     })
 
-    Project.update({
+    Project.updateOne({
         _id: id,
         ownerid: req.userData.id,
-        verify: true,
-        $or: [{statusProject: 1},{statusProject: 3}],
+        $or: [{statusProject: 1}, {statusProject: 3}],
     }, {
-        $set: {
-            name: name,
-            investor: investor,
-            price: price,
-            unit: unit,
-            area: area,
-            address: address,
-            type: type,
-            info: info,
-            lat: lat,
-            long: long,
-            fullname: fullname,
-            phone: phone,
-            email: email,
-            avatar: avatar,
-            updateTime: updateTime,
-            url: url,
-            publicId: publicId,
-            codelist:  codelist,
-        }
+        name: name,
+        investor: investor,
+        price: price,
+        unit: unit,
+        area: area,
+        address: address,
+        type: type,
+        info: info,
+        lat: lat,
+        long: long,
+        fullname: fullname,
+        phone: phone,
+        email: email,
+        avatar: avatar,
+        updateTime: updateTime,
+        url: url,
+        publicId: publicId, 
+        codelist: codelist
     })
     .exec()
     .then(result => {
@@ -335,32 +341,11 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'update project success',
-                project: {
-                    _id: id,
-                    name: name,
-                    investor: investor,
-                    price: price,
-                    unit: unit,
-                    area: area,
-                    address: address,
-                    type: type,
-                    info: info,
-                    lat: lat,
-                    long: long,
-                    ownerid: ownerid,
-                    fullname: fullname,
-                    phone: phone,
-                    email: email,
-                    avatar: avatar,
-                    updateTime: updateTime,
-                    url: url,
-                    publicId: publicId,
-                },
             })
         } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found',
+            res.status(200).json({
+                status: 200,
+                message: 'No info change or project does not exist',
             })
         }
     })
@@ -375,25 +360,34 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
 
 router.delete('/:id', checkAuth, (req, res, next) => {
     const projectid = req.params.id
+    const userid = req.userData.id
     User.findOne({
-        _id: req.userData.id,
+        _id: userid,
         verify: true,
     })
     .exec()
     .then(resultuser => {
-        Project.remove({
+        Project.deleteOne({
             _id: projectid,
-            ownerid: req.userData.id,
+            ownerid: userid,
         })
         .exec()
         .then(result => {
             if (result.n > 0) {
                 const temp = resultuser.totalProject - 1
-                User.findOneAndUpdate({_id: req.userData.id, verify: true}, {totalProject: temp})
+                User.findOneAndUpdate({_id: userid, verify: true}, {totalProject: temp})
                 .exec()
                 .then(ex1 => console.log('update total project success: ' + temp))
-                Comment.remove({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
-                Waiting.remove({ projectid: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
+                Comment.deleteOne({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
+                Waiting.deleteOne({ project: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
+                Transaction.findOneAndRemove({project: projectid}).exec().then(ex4 => {
+                    console.log('delete transaction success')
+                    if(ex4 && ex4.typetransaction === 1) {
+                        SellDetail.deleteOne({transactionid: ex4._id}).exec().then(ex5 => console.log('delete selldetail success'))
+                    } else if(ex4 && ex4.typetransaction === 2) {
+                        RentDetail.deleteOne({transactionid: ex4._id}).exec().then(ex6 => console.log('delete rentdetail success'))
+                    }
+                })
                 res.status(200).json({
                     status: 200,
                     message: 'delete project success',
@@ -413,9 +407,7 @@ router.delete('/:id', checkAuth, (req, res, next) => {
             })
         })
     })
-    
 })
-
 
 router.post('/searchprojects', (req, res, next) => {
     const typeParam = req.body.type
@@ -425,12 +417,12 @@ router.post('/searchprojects', (req, res, next) => {
     const priceParam = libFunction.convertData(req.body.price)
     Project.find({
         verify: true,
-        type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
+        type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,  
         statusProject: statusParam,
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
         address: { $regex: `.*${addressParam}.*` },
-    })
+    }).sort({ 'createTime': -1 })
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {
@@ -467,10 +459,51 @@ router.post('/searchaddress', (req, res, next) => {
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
         address: { $regex: `.*${addressParam}.*` },
-    })
+    }).sort({ 'createTime': -1 })
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
         .then(results => {
+            if (results.length >= 0) {
+                res.status(200).json({
+                    status: 200,
+                    count: results.length,
+                    projects: results,
+                })
+            } else {
+                res.status(200).json({
+                    status: 200,
+                    count: 0,
+                    projects: [],
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+})
+
+router.post('/search', (req, res, next) => {
+    const typeParam = req.body.type
+    const statusParam = req.body.statusProject
+    const addressParam = req.body.address
+    const areaParam = libFunction.convertData(req.body.area)
+    const priceParam = libFunction.convertData(req.body.price)
+    Project.find({
+        verify: true,
+        type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
+        statusProject: statusParam == '1' || statusParam == '3' ? statusParam : 1,
+        area: { $gte: areaParam.start, $lte: areaParam.end },
+        price: { $gte: priceParam.start, $lte: priceParam.end },
+    }).sort({ 'createTime': -1 })
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
+        .exec()
+        .then(temp => {
+            // const results = temp
+            const results = libFunction.searchLevenshtein(temp, addressParam)
             if (results.length >= 0) {
                 res.status(200).json({
                     status: 200,
@@ -500,6 +533,35 @@ router.post('/deleteImages', (req, res, next) => {
     console.log(publicId)
     cloudinary.v2.uploader.destroy(publicId,
         function (error, result) { console.log(result, error) })
+})
+
+router.get('/test', (req, res, next) => {
+    // User.find()
+    // .select()
+    //     .exec()
+    //     .then(results => {
+    //         if (results.length > 0) {
+    //             var json = JSON.stringify(results);
+    //             fs.writeFile('D:\\Do an tot nghiep\\DATN-Backend\\config\\SampleData\\user.json', json, 'utf8', (err => console.log(err)));
+    //             res.status(200).json({
+    //                 status: 200,
+    //                 count: results.length,
+    //                 result: results,
+    //             })
+    //         } else {
+    //             res.status(404).json({
+    //                 status: 404,
+    //                 message: 'No valid entry found',
+    //             })
+    //         }
+    //     })
+    //     .catch(err => {
+    //         console.log(err)
+    //         res.status(500).json({
+    //             status: 500,
+    //             error: err
+    //         })
+    //     })
 })
 
 module.exports = router

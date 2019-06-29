@@ -19,21 +19,19 @@ var transporter = nodemailer.createTransport({ // config mail server
     }
 })
 
-const numItem = require('../lib/constant')
+const constant = require('../lib/constant')
 
 router.post('/verifyemloyee', (req, res, next) => {
     const id = req.body.id
     const company = req.body.company
     const hash = req.body.hash
-    User.update({
+    User.updateOne({
         _id: id,
         hash: hash,
         company: company,
         verify: false,
     }, {
-        $set: {
-            verify: true,
-        }
+        verify: true,
     })
     .exec()
     .then(result => {
@@ -84,12 +82,10 @@ router.post('/resetpassword', (req, res, next) => {
                     var EmailEmployeeModel = require('../lib/emailEmployeeModel')
                     var emailModel = new EmailEmployeeModel()
                     emailModel.resetMail(email, pass)
-                    User.update({
+                    User.updateOne({
                         email: email
                     }, {
-                        $set: {
-                            password: hash,
-                        }
+                        password: hash,
                     })
                     .then(result => {
                         if (result.nModified > 0) {
@@ -166,13 +162,11 @@ router.post('/changepassword', checkAuth, (req, res, next) => {
                             error: err,
                         })
                     } else {
-                        User.update({
+                        User.updateOne({
                             email: req.userData.email,
                             _id: req.userData.id,
                         }, {
-                            $set: {
-                                password: hash
-                            }
+                            password: hash
                         })
                         .exec()
                         .then(result => {

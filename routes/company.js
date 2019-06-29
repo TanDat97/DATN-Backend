@@ -20,19 +20,17 @@ var transporter = nodemailer.createTransport({ // config mail server
     }
 })
 
-const numItem = require('../lib/constant')
+const constant = require('../lib/constant')
 
 router.post('/verifycompany', (req, res, next) => {
     const id = req.body.id
     const hash = req.body.hash
-    Company.update({
+    Company.updateOne({
         _id: id,
         hash: hash,
         verify: false,
     }, {
-        $set: {
-            verify: true,
-        }
+        verify: true,
     })
     .exec()
     .then(result => {
@@ -83,12 +81,10 @@ router.post('/resetpassword', (req, res, next) => {
                     var EmailCompanyModel = require('../lib/emailCompanyModel')
                     var emailModel = new EmailCompanyModel()
                     emailModel.resetMail(email, pass)
-                    Company.update({
+                    Company.updateOne({
                         email: email
                     }, {
-                        $set: {
-                            password: hash,
-                        }
+                        password: hash,
                     })
                     .then(result => {
                         if (result.nModified > 0) {
@@ -165,13 +161,11 @@ router.post('/changepassword', checkAuthCompany, (req, res, next) => {
                             error: err,
                         })
                     } else {
-                        Company.update({
+                        Company.updateOne({
                             email: req.companyData.email,
                             _id: req.companyData.id,
                         }, {
-                            $set: {
-                                password: hash
-                            }
+                            password: hash
                         })
                         .exec()
                         .then(result => {
@@ -297,7 +291,7 @@ router.get('/all/:page', (req, res, next) => {
     Company.find({
         verify: true,
         lock: false,
-    }).sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    }).sort({'createTime': -1}).skip(page*constant.numItem).limit(constant.numItem)
     .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
     .exec()
     .then(result => {
@@ -390,29 +384,24 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
     const address = req.body.address
     const phone = req.body.phone
     const website = req.body.website
-    const totalProject = req.body.totalProject
     const status = req.body.status
     const avatar = req.body.avatar
     const description = req.body.description
-    const createTime = req.body.createTime
     const updateTime = req.body.updateTime
-    Company.update({
+    Company.updateOne({
         _id: id,
         email: email,
         verify: true,
         lock: false,
     }, {
-        $set: {
-            companyname: companyname,
-            address: address,
-            phone: phone,
-            website: website,
-            totalProject: totalProject,
-            status: status,
-            avatar: avatar,
-            description: description,
-            updateTime: updateTime,
-        }
+        companyname: companyname,
+        address: address,
+        phone: phone,
+        website: website,
+        status: status,
+        avatar: avatar,
+        description: description,
+        updateTime: updateTime,
     })
     .exec()
     .then(result => {
@@ -426,11 +415,9 @@ router.post('/edit', checkAuthCompany, (req, res, next) => {
                     companyname: companyname,
                     address: address,
                     phone: phone,
-                    totalProject: totalProject,
                     status: status,
                     avatar: avatar,
                     description: description,
-                    createTime: createTime,
                     updateTime: updateTime,
                 },
             })
@@ -462,7 +449,7 @@ router.get('/infoemployee/:id/:page', checkAuthCompany, (req, res, next) => {
     .then(result => {
         Project.find({
             ownerid: employeeid,
-        }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+        }).sort({ 'createTime': -1 }).skip(page*constant.numItem).limit(constant.numItem)
         .select()
         .exec()
         .then(results => {
@@ -595,24 +582,20 @@ router.post('/editemployee', checkAuthCompany, (req, res, next) => {
     const identify = req.body.identify
     const address = req.body.address
     const phone = req.body.phone
-    const totalProject = req.body.totalProject
     const statusAccount = req.body.statusAccount
     const avatar = req.body.avatar
     const description = req.body.description
-    User.updateMany({
+    User.updateOne({
         _id: id,
-        email: email,
     },{
-        $set :{
-            fullname: fullname,
-            identify: identify,
-            address: address,
-            phone: phone,
-            totalProject: totalProject,
-            statusAccount: statusAccount,
-            avatar: avatar,
-            description: description,
-        }
+        email: email,
+        fullname: fullname,
+        identify: identify,
+        address: address,
+        phone: phone,
+        statusAccount: statusAccount,
+        avatar: avatar,
+        description: description,
     })
     .exec()
     .then(result => {
@@ -655,7 +638,7 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
                 Company.findOneAndUpdate({ _id: req.companyData.id }, { $pull: { employees: { employee: id }}})
                 .exec()
                 .then(
-                    User.findByIdAndRemove({
+                    User.deleteOne({
                         _id: id,
                         verify: false,
                     })
@@ -685,12 +668,10 @@ router.post('/deleteemployee', checkAuthCompany, (req, res, next) => {
 })
 
 router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
-    User.update({
+    User.updateOne({
         _id: req.body.id,
     }, {
-        $set: {
-            lock: req.body.lock,
-        }
+        lock: req.body.lock,
     })
     .exec()
     .then(result => {
@@ -718,12 +699,10 @@ router.post('/changeLockEmployee', checkAuthCompany, (req, res, next) => {
 
 
 router.post('/changePermission', checkAuthCompany, (req, res, next) => {
-    User.update({
+    User.updateOne({
         _id: req.body.id,
     }, {
-        $set: {
-            permission: req.body.permission,
-        }
+        permission: req.body.permission,
     })
     .exec()
     .then(result => {
@@ -745,6 +724,163 @@ router.post('/changePermission', checkAuthCompany, (req, res, next) => {
         res.status(500).json({
             status: 500,
             error: err
+        })
+    })
+})
+
+const compare = function (arr1, arr2) {
+    const finalarray = []
+    var flag = false
+    for (i = 0; i < arr1.length; i++) {
+        flag = false
+        for (j = 0; j < arr2.length; j++) {
+            if (arr1[i] === arr2[j]) {
+                flag = true
+                break
+            }
+        }
+        if (flag == false) {
+            finalarray.push(arr1[i])
+        }
+    }
+    return finalarray
+}
+router.post('/editProject/:id', checkAuthCompany, (req, res, next) => {
+    const id = req.params.id
+    const name = req.body.name
+    const investor = req.body.investor
+    const price = req.body.price
+    const unit = req.body.unit
+    const area = req.body.area
+    const address = req.body.address
+    const type = req.body.type
+    const info = req.body.info
+    const lat = req.body.lat
+    const long = req.body.long
+    const ownerid = req.body.ownerid
+    const fullname = req.body.fullname
+    const phone = req.body.phone
+    const email = req.body.email
+    const avatar = req.body.avatar
+    const updateTime = req.body.updateTime
+    const url = req.body.url ? req.body.url : []
+    const publicId = req.body.publicId ? req.body.publicId : []
+    const codelist = req.body.codelist ? req.body.codelist : []
+
+    Project.find({
+        _id: id,
+        ownerid: ownerid,
+        $or: [{statusProject: 1}, {statusProject: 3}],
+    })
+    .exec()
+    .then(doc => {
+        if (doc.length > 0) {
+            const publicIdInDataBase = doc[0].publicId
+            const publicIdDelete = compare(publicIdInDataBase, publicId)
+            // console.log(publicIdDelete)
+            if (publicIdDelete.length > 0) {
+                cloudinary.v2.api.delete_resources(publicIdDelete, { invalidate: true },
+                    function (error, result) { console.log(result) })
+            }
+        }
+    })
+
+    Project.updateOne({
+        _id: id,
+        ownerid: req.userData.id,
+        $or: [{statusProject: 1}, {statusProject: 3}],
+    }, {
+        name: name,
+        investor: investor,
+        price: price,
+        unit: unit,
+        area: area,
+        address: address,
+        type: type,
+        info: info,
+        lat: lat,
+        long: long,
+        fullname: fullname,
+        phone: phone,
+        email: email,
+        avatar: avatar,
+        updateTime: updateTime,
+        url: url,
+        publicId: publicId, 
+        codelist: codelist
+    })
+    .exec()
+    .then(result => {
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: 'update project success',
+            })
+        } else {
+            res.status(200).json({
+                status: 200,
+                message: 'No info change or project does not exist',
+            })
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            status: 500,
+            error: err
+        })
+    })
+})
+
+router.delete('/:id', checkAuthCompany, (req, res, next) => {
+    const companyid =  req.companyData.id
+    const projectid = req.params.id
+    const userid = req.body.userid
+    User.findOne({
+        _id: userid,
+        company: companyid,
+        verify: true,
+    })
+    .exec()
+    .then(resultuser => {
+        Project.deleteOne({
+            _id: projectid,
+            ownerid: userid,
+        })
+        .exec()
+        .then(result => {
+            if (result.n > 0) {
+                const temp = resultuser.totalProject - 1
+                User.findOneAndUpdate({_id: userid, verify: true}, {totalProject: temp})
+                .exec()
+                .then(ex1 => console.log('update total project success: ' + temp))
+                Comment.deleteOne({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
+                Waiting.deleteOne({ project: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
+                Transaction.findOneAndRemove({project: projectid}).exec().then(ex4 => {
+                    console.log('delete transaction success')
+                    if(ex4 && ex4.typetransaction === 1) {
+                        SellDetail.deleteOne({transactionid: ex4._id}).exec().then(ex5 => console.log('delete selldetail success'))
+                    } else if(ex4 && ex4.typetransaction === 2) {
+                        RentDetail.deleteOne({transactionid: ex4._id}).exec().then(ex6 => console.log('delete rentdetail success'))
+                    }
+                })
+                res.status(200).json({
+                    status: 200,
+                    message: 'delete project success',
+                })
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No valid entry found',
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
         })
     })
 })

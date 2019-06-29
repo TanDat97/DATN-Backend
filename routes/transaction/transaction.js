@@ -14,7 +14,7 @@ const SellDetail = require('../../models/selldetailModel')
 const RentDetail = require('../../models/rentdetailModel')
 const Waiting = require('../../models/waitingModel')
 
-const numItem = require('../../lib/constant')
+const constant = require('../../lib/constant')
 
 router.get('/listrequest/:projectid', checkAuth, (req, res, next) => {
     const projectid = req.params.projectid
@@ -272,15 +272,13 @@ router.post('/create', checkAuth, (req, res, next) => {
 router.post('/changeactive', checkAuth, (req, res, next) => {
     const transactionid = req.body.transactionid
     const active = req.body.active
-    Transaction.update({
+    Transaction.updateOne({
         _id: transactionid,
         verify: false,
         status: 1,
         seller: req.userData.id,
     },{
-        $set: {
-            active: active,
-        }
+        active: active,
     })
     .exec()
     .then(result => {
@@ -309,15 +307,13 @@ router.post('/changeactive', checkAuth, (req, res, next) => {
 
 router.post('/complete', checkAuth, (req, res, next) => {
     const transactionid = req.body.transactionid
-    Transaction.update({
+    Transaction.updateOne({
         _id: transactionid,
         verify: false,
         status: 1,
         seller: req.userData.id,
     },{
-        $set: {
-            status: 2,
-        }
+        status: 2,
     })
     .exec()
     .then(result => {
@@ -348,10 +344,10 @@ router.post('/cancel', checkAuth, (req, res, next) => {
     const transactionid = req.body.transactionid
     const type = parseInt(req.body.type)
     const transactiondetail = req.body.transactiondetail
-    const waitingid = req.body.waitingid
+    const projectid = req.body.projectid
     const seller = req.body.seller
     const buyer = req.body.buyer
-    Transaction.remove({
+    Transaction.deleteOne({
         _id: transactionid,
         verify: false,
         status: 1,
@@ -361,21 +357,21 @@ router.post('/cancel', checkAuth, (req, res, next) => {
     .then(result => {
         if (result.n > 0) {
             if(type === 1) {
-                SellDetail.remove({
+                SellDetail.deleteOne({
                     _id: transactiondetail,
                     transactionid: transactionid,
                 })
                 .exec()
                 .then(console.log('delete selldetail success'))
             } else if(type === 2) {
-                RentDetail.remove({
+                RentDetail.deleteOne({
                     _id: transactiondetail,
                     transactionid: transactionid,
                 })
                 .exec()
                 .then(console.log('delete rentdetail success'))
             }
-            Waiting.findOneAndUpdate({ _id: waitingid }, { $pull: { requests: { user: buyer }}})
+            Waiting.findOneAndUpdate({ project: projectid }, { $pull: { requests: { user: buyer }}})
             .exec()
             .then(console.log('remove request success'))
             res.status(200).json({
@@ -403,7 +399,7 @@ router.get('/history/:page', checkAuth, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
     Transaction.find({
         $or: [{seller: userid},{buyer: userid}]
-    }).sort({ 'createTime': -1 }).skip(page*numItem).limit(numItem)
+    }).sort({ 'createTime': -1 }).skip(page*constant.numItem).limit(constant.numItem)
     .populate({
         path: 'project'
     })

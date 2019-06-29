@@ -12,7 +12,7 @@ const Transaction = require('../../models/transactionModel')
 const SellDetail = require('../../models/selldetailModel')
 const RentDetail = require('../../models/rentdetailModel')
 
-const numItem = require('../../lib/constant')
+const constant = require('../../lib/constant')
 
 cloudinary.config({
     cloud_name: 'dne3aha8f',

@@ -1,7 +1,7 @@
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 
-var projectSchema = new Schema({
+var savedProjectSchema = new Schema({
     _id: mongoose.Schema.Types.ObjectId,
     userid: {
         type: String,
@@ -26,4 +26,4 @@ var projectSchema = new Schema({
 })
 
 // Export the model
-module.exports = mongoose.model('SavedProject', projectSchema)
+module.exports = mongoose.model('SavedProject', savedProjectSchema)

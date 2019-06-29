@@ -6,14 +6,19 @@ const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
 const libFunction = require('../../lib/function')
 const constructorModel = require('../../lib/constructorModel')
 const Project = require('../../models/projectModel')
+const User = require('../../models/userModel')
 const Comment = require('../../models/commentModel')
 const Waiting = require('../../models/waitingModel')
 
-const numItem = require('../../lib/constant')
+const Transaction = require('../../models/transactionModel')
+const SellDetail = require('../../models/selldetailModel')
+const RentDetail = require('../../models/rentdetailModel')
+
+const constant = require('../../lib/constant')
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
-    Project.find().sort({'createTime': -1}).skip(page*numItem).limit(numItem)
+    Project.find().sort({'createTime': -1}).skip(page*constant.numItem).limit(constant.numItem)
     .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
     .exec()
     .then(results => {
@@ -109,30 +114,30 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const statusProject = req.body.statusProject
     const createTime = req.body.createTime
     const updateTime = req.body.updateTime
-    const url = req.body.url
-    const publicId = req.body.publicId
-    Project.update({
+    const url = req.body.url ?  req.body.url : []
+    const publicId = req.body.publicId ?  req.body.publicId : []
+    const codelist = req.body.codelist ?  req.body.codelist : []
+    Project.updateOne({
         _id: id,
     }, {
-        $set: {
-            name: name,
-            investor: investor,
-            price: price,
-            unit: unit,
-            area: area,
-            address: address,
-            type: type,
-            info: info,
-            lat: lat,
-            long: long,
-            fullname: fullname,
-            phone: phone,
-            email: email,
-            statusProject: statusProject,
-            updateTime: updateTime,
-            // url: url,
-            // publicId: publicId,
-        }
+        name: name,
+        investor: investor,
+        price: price,
+        unit: unit,
+        area: area,
+        address: address,
+        type: type,
+        info: info,
+        lat: lat,
+        long: long,
+        fullname: fullname,
+        phone: phone,
+        email: email,
+        statusProject: statusProject,
+        updateTime: updateTime,
+        // url: url,
+        // publicId: publicId,
+        // codelist: codelist
     })
     .exec()
     .then(result => {
@@ -162,6 +167,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                     updateTime: updateTime,
                     url: url,
                     publicId: publicId,
+                    codelist: codelist
                 },
                 request: {
                     type: 'PATCH',
@@ -185,28 +191,34 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     const projectid = req.params.id
-    Project.remove({
+    Project.deleteOne({
         _id: id
     })
     .exec()
     .then(result => {
-        // User.findOneAndUpdate({_id: req.userData.id, verify: true}, {totalProject: temp})
-        // .exec()
-        // .then(ex1 => console.log('update total project success: ' + temp))
-        Comment.remove({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
-        Waiting.remove({ projectid: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
         if (result.n > 0) {
+            // const temp = resultuser.totalProject - 1
+            // User.findOneAndUpdate({_id: req.userData.id, verify: true}, {totalProject: temp})
+            // .exec()
+            // .then(ex1 => console.log('update total project success: ' + temp))
+            Comment.deleteMany({ projectid: projectid }).exec().then(ex2 => console.log('delete comment success'))
+            Waiting.deleteOne({ project: projectid }).exec().then(ex3 => console.log('delete waiting request success'))
+            Transaction.findOneAndRemove({project: projectid}).exec().then(ex4 => {
+                console.log('delete transaction success')
+                if(ex4 && ex4.typetransaction === 1) {
+                    SellDetail.deleteOne({transactionid: ex4._id}).exec().then(ex5 => console.log('delete selldetail success'))
+                } else if(ex4 && ex4.typetransaction === 2) {
+                    RentDetail.deleteOne({transactionid: ex4._id}).exec().then(ex6 => console.log('delete rentdetail success'))
+                }
+            })
             res.status(200).json({
                 status: 200,
                 message: 'delete project success',
-                request: {
-                    type: 'DELETE',
-                }
             })
         } else {
             res.status(404).json({
                 status: 404,
-                message: 'No valid entry found'
+                message: 'No valid entry found',
             })
         }
     })
@@ -221,12 +233,10 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
 
 
 router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
-    Project.update({
+    Project.updateOne({
         _id: req.params.id,
     }, {
-        $set: {
-            verify: req.body.verify,
-        }
+        verify: req.body.verify,
     })
     .exec()
     .then(result => {
@@ -253,12 +263,10 @@ router.post('/changeVerify/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/changeAllowComment/:id', checkAuthAdmin, (req, res, next) => {
-    Project.update({
+    Project.updateOne({
         _id: req.params.id,
     }, {
-        $set: {
-            allowComment: req.body.allowComment,
-        }
+        allowComment: req.body.allowComment,
     })
     .exec()
     .then(result => {

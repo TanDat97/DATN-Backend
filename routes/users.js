@@ -144,12 +144,24 @@ router.get('/infoagent/:id/:page', (req, res, next) => {
         .select()
         .exec()
         .then(results => {
-            res.status(200).json({
-                status: 200,
-                message: 'get info agent successful',
-                page: page + 1,
-                info: result[0],
-                projects: results,
+            dataProcess.countProjectUser(id)
+            .then(count => {
+                res.status(200).json({
+                    status: 200,
+                    message: 'get info agent successful',
+                    count,
+                    page: page + 1,
+                    info: result[0],
+                    projects: results,
+                    
+                })
+            })
+            .catch(err => {
+                console.log(err)
+                res.status(500).json({
+                    status: 500,
+                    error: err
+                })
             })
         })
         .catch(err => {

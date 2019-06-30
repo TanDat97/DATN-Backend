@@ -7,6 +7,7 @@ const nodemailer = require("nodemailer")
 
 const host = require('../config/host')
 const checkAuthCompany = require('../middleware/checkAuthCompany')
+const dataProcess = require('../lib/dataProcess')
 const libFunction = require('../lib/function')
 const Company = require('../models/companyModel')
 const User = require('../models/userModel')
@@ -295,13 +296,17 @@ router.get('/all/:page', (req, res, next) => {
     .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
     .exec()
     .then(result => {
-        res.status(200).json({
-            status: 200,
-            message: 'successful',
-            page: page + 1,
-            count: result.length,
-            result: result,
-        })   
+        dataProcess.countCompany()
+        .then(countCompany=> {
+            res.status(200).json({
+                status: 200,
+                message: 'successful',
+                page: page + 1,
+                count: countCompany,
+                result: result,
+            })
+        })
+          
     })
     .catch(err => {
         console.log(err)

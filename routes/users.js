@@ -93,17 +93,27 @@ router.get('/allagent/:page', (req, res, next) => {
     User.find({
         verify: true,
         lock: false,
-        $or: [{ statusAccount: 2 }]
+        statusAccount: 2,
     }).skip(page * constant.numItem).limit(constant.numItem)
     .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify permission hash __v')
     .exec()
     .then(result => {
-        res.status(200).json({
-            status: 200,
-            message: 'get all agent successful',
-            page: page + 1,
-            count: result.length,
-            result: result,
+        dataProcess.countAgent()
+        .then(ex => {
+            res.status(200).json({
+                status: 200,
+                message: 'get all agent successful',
+                page: page + 1,
+                count: ex,
+                result: result,
+            })
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
         })
     })
     .catch(err => {

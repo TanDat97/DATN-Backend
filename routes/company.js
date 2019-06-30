@@ -12,6 +12,12 @@ const libFunction = require('../lib/function')
 const Company = require('../models/companyModel')
 const User = require('../models/userModel')
 const Project = require('../models/projectModel')
+const Comment = require('../models/commentModel')
+const Waiting = require('../models/waitingModel')
+
+const Transaction = require('../models/transactionModel')
+const SellDetail = require('../models/selldetailModel')
+const RentDetail = require('../models/rentdetailModel')
 
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
@@ -792,7 +798,7 @@ router.post('/editProject/:id', checkAuthCompany, (req, res, next) => {
 
     Project.updateOne({
         _id: id,
-        ownerid: req.userData.id,
+        ownerid: ownerid,
         $or: [{statusProject: 1}, {statusProject: 3}],
     }, {
         name: name,

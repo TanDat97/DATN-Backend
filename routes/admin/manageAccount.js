@@ -107,9 +107,6 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                     statusAccount: statusAccount,
                     description: description,
                 },
-                request: {
-                    type: 'PATCH',
-                }
             })
         } else {
             res.status(404).json({

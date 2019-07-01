@@ -113,9 +113,6 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                     createTime: createTime,
                     updateTime: updateTime, 
                 },
-                request: {
-                    type: 'PATCH',
-                }
             })
         } else {
             res.status(404).json({
@@ -144,9 +141,6 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
             res.status(200).json({
                 status: 200,
                 message: 'delete news success',
-                request: {
-                    type: 'DELETE',
-                }
             })
         } else {
             res.status(404).json({

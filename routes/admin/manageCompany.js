@@ -190,9 +190,6 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                     createTime: createTime,
                     updateTime: updateTime,
                 },
-                request: {
-                    type: 'PATCH',
-                }
             })
         } else {
             res.status(404).json({

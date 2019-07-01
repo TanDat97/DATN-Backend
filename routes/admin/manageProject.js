@@ -169,9 +169,6 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
                     publicId: publicId,
                     codelist: codelist
                 },
-                request: {
-                    type: 'PATCH',
-                }
             })
         } else {
             res.status(404).json({
@@ -192,7 +189,7 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     const projectid = req.params.id
     Project.deleteOne({
-        _id: id
+        _id: projectid
     })
     .exec()
     .then(result => {

@@ -95,7 +95,7 @@ router.post('/home', (req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err)
+            console.trace(err)
             res.status(500).json({
                 status: 500,
                 error: err
@@ -131,6 +131,13 @@ router.post('/searchmap', (req, res, next) => {
                             '}" ' +
                     '}'
     Project.find(JSON.parse(query))
+    // Project.find({
+    //     verify: true,
+    //     type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
+    //     statusProject: statusParam,
+    //     area: { $gte: areaParam.start, $lte: areaParam.end },
+    //     price: { $gte: priceParam.start, $lte: priceParam.end },
+    // })
         .sort({ 'createTime': -1 })
         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
         .exec()
@@ -289,7 +296,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     Project.find({
         _id: id,
         ownerid: ownerid,
-        verify: true,
         $or: [{statusProject: 1}, {statusProject: 3}],
     })
     .exec()
@@ -308,7 +314,6 @@ router.post('/edit/:id', checkAuth, (req, res, next) => {
     Project.updateOne({
         _id: id,
         ownerid: req.userData.id,
-        verify: true,
         $or: [{statusProject: 1}, {statusProject: 3}],
     }, {
         name: name,
@@ -490,7 +495,7 @@ router.post('/search', (req, res, next) => {
     Project.find({
         verify: true,
         type: typeParam == '0' ? { $gte: 1, $lte: 4 } : typeParam,
-        statusProject: statusParam,
+        statusProject: statusParam == '1' || statusParam == '3' ? statusParam : 1,
         area: { $gte: areaParam.start, $lte: areaParam.end },
         price: { $gte: priceParam.start, $lte: priceParam.end },
     }).sort({ 'createTime': -1 })

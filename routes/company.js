@@ -7,10 +7,17 @@ const nodemailer = require("nodemailer")
 
 const host = require('../config/host')
 const checkAuthCompany = require('../middleware/checkAuthCompany')
+const dataProcess = require('../lib/dataProcess')
 const libFunction = require('../lib/function')
 const Company = require('../models/companyModel')
 const User = require('../models/userModel')
 const Project = require('../models/projectModel')
+const Comment = require('../models/commentModel')
+const Waiting = require('../models/waitingModel')
+
+const Transaction = require('../models/transactionModel')
+const SellDetail = require('../models/selldetailModel')
+const RentDetail = require('../models/rentdetailModel')
 
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
@@ -295,13 +302,17 @@ router.get('/all/:page', (req, res, next) => {
     .select('_id companyname address email phone website totalProject status avatar description createTime updateTime createBy lock verify hash employees __v')
     .exec()
     .then(result => {
-        res.status(200).json({
-            status: 200,
-            message: 'successful',
-            page: page + 1,
-            count: result.length,
-            result: result,
-        })   
+        dataProcess.countCompany()
+        .then(countCompany=> {
+            res.status(200).json({
+                status: 200,
+                message: 'successful',
+                page: page + 1,
+                count: countCompany,
+                result: result,
+            })
+        })
+          
     })
     .catch(err => {
         console.log(err)
@@ -770,7 +781,6 @@ router.post('/editProject/:id', checkAuthCompany, (req, res, next) => {
     Project.find({
         _id: id,
         ownerid: ownerid,
-        verify: true,
         $or: [{statusProject: 1}, {statusProject: 3}],
     })
     .exec()
@@ -788,8 +798,7 @@ router.post('/editProject/:id', checkAuthCompany, (req, res, next) => {
 
     Project.updateOne({
         _id: id,
-        ownerid: req.userData.id,
-        verify: true,
+        ownerid: ownerid,
         $or: [{statusProject: 1}, {statusProject: 3}],
     }, {
         name: name,

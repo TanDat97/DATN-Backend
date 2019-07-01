@@ -16,7 +16,7 @@ const notifyManager = NotifyManager()
 //
 
 // Get port from environment and store in Express.
-var port = normalizePort(process.env.PORT || '3001')
+var port = normalizePort(process.env.PORT || '5000')
 app.set('port', port)
 
 // Create HTTP server.

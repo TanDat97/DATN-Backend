@@ -6,6 +6,7 @@ var fs = require('fs');
 
 const checkAuth = require('../middleware/checkAuth')
 const libFunction = require('../lib/function')
+const dataProcess = require('../lib/dataProcess')
 const constructorModel = require('../lib/constructorModel')
 const Project = require('../models/projectModel')
 const User = require('../models/userModel')
@@ -207,43 +208,53 @@ router.post('/', checkAuth, (req, res, next) => {
     })
     .exec()
     .then(resultuser => {
-        if(resultuser.statusAccount === 1 && resultuser.totalProject >= 5) {
-            res.status(203).json({
-                status: 203,
-                message: 'your account has maximum 5 project, upgrade your account for more',
-            })
-        } else if (resultuser.statusAccount === 2 && resultuser.totalProject >= 40) {
-            res.status(204).json({
-                status: 204,
-                message: 'your account has maximum 40 project',
-            })
-        } else {
-            if(resultuser.permission === true) {
-                project.verify = true
-            }
-            project
-            .save()
-            .then(result => {
-                const temp = resultuser.totalProject + 1
-                User.findOneAndUpdate({_id: req.userData.id}, {totalProject: temp})
-                .exec()
-                .then(ex => {
-                    console.log('update total project success: ' + temp)
-                    res.status(201).json({
-                        status: 201,
-                        message: 'add project success',
-                        project: result,
+        dataProcess.countProjectOwner(req.userData.id)
+        .then(countProject => {
+            if(resultuser.statusAccount === 1 && countProject >= 5) {
+                res.status(203).json({
+                    status: 203,
+                    message: 'your account has maximum 5 project, upgrade your account for more',
+                })
+            } else if (resultuser.statusAccount === 2 && countProject >= 40) {
+                res.status(204).json({
+                    status: 204,
+                    message: 'your account has maximum 40 project',
+                })
+            } else {
+                if(resultuser.permission === true) {
+                    project.verify = true
+                }
+                project
+                .save()
+                .then(result => {
+                    const temp = countProject + 1
+                    User.findOneAndUpdate({_id: req.userData.id}, {totalProject: temp})
+                    .exec()
+                    .then(ex => {
+                        console.log('update total project success: ' + temp)
+                        res.status(201).json({
+                            status: 201,
+                            message: 'add project success',
+                            project: result,
+                        })
                     })
                 })
-            })
-            .catch(err => {
-                console.log(err)
-                res.status(500).json({
-                    status: 500,
-                    error: err,
+                .catch(err => {
+                    console.log(err)
+                    res.status(500).json({
+                        status: 500,
+                        error: err,
+                    })
                 })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err,
             })
-        }
+        })
     })
     .catch(err => {
         console.log(err)

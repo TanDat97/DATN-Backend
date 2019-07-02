@@ -214,8 +214,6 @@ router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     })
     .exec()
     .then(result => {
-        // Project.deleteMany({ownerid: req.params.id}).exec().then(result => console.log('delete project success'))
-        // User.deleMany({company: req.params.id}).exec().then(result => console.log('delete user success'))
         if(result.n > 0) {
             res.status(200).json({
                 status: 200,

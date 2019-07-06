@@ -63,7 +63,7 @@ router.post('/', checkAuth, (req, res, next) => {
     })
     .exec()
     .then(result => {
-        if(result.length >= 2) {
+        if(result.length >= 5) {
             return res.status(403).json({
                 status: 403,
                 message: 'user can not add more comment to this project',

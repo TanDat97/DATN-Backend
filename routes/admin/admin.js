@@ -19,7 +19,7 @@ const Company = require('../../models/companyModel')
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
     auth: {
-        user: 'trandat.sgg@gmail.com',
+        user: 'myreales.company@gmail.com',
         pass: 'datdeptrai',
     }
 })

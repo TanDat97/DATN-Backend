@@ -18,7 +18,7 @@ const constant = require('../../lib/constant')
 var transporter = nodemailer.createTransport({ // config mail server
     service: 'Gmail',
     auth: {
-        user: 'trandat.sgg@gmail.com',
+        user: 'myreales.company@gmail.com',
         pass: 'datdeptrai',
     }
 })
@@ -210,7 +210,6 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     Company.deleteOne({
         _id: req.params.id,
-        verify: false,
     })
     .exec()
     .then(result => {

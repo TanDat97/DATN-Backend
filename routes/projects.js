@@ -133,111 +133,111 @@ router.post('/searchmap', (req, res, next) => {
         })
 })
 
-// //for mongodb local
-// router.post('/home', (req, res, next) => {
-//     const radius = req.body.radius
-//     const lat = req.body.lat
-//     const long = req.body.long
-//     const query =   '{ ' +
-//                         '"verify": "true", ' +
-//                         '"$or": [{"statusProject": "1"}, {"statusProject": "3"}], ' +
-//                         '"$where": "function() { ' +
-//                                 'var R = 6371; ' +
-//                                 'var dLat = (this.lat - ' + lat + ')  * (Math.PI / 180); ' +
-//                                 'var dLong = (this.long - ' + long + ')  * (Math.PI / 180); ' +
-//                                 'var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + ' +
-//                                 ' Math.cos(' + lat + ' * (Math.PI / 180)) * Math.cos(this.lat * (Math.PI / 180) ) * ' +
-//                                 ' Math.sin(dLong / 2) * Math.sin(dLong / 2); ' +
-//                                 'var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); ' +
-//                                 'var d = R * c; ' +
-//                                 ' return d <= ' + radius + 
-//                             '}" ' +
-//                     '}'
-//     Project.find(JSON.parse(query))
-//         .sort({ 'createTime': -1 })
-//         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
-//         .exec()
-//         .then(temp => {
-//             const results = temp
-//             if (results.length > 0) {
-//                 res.status(200).json({
-//                     status: 200,
-//                     count: results.length,
-//                     projects: results,
-//                 })
-//             } else {
-//                 res.status(200).json({
-//                     status: 200,
-//                     count: 0,
-//                     projects: [],
-//                 })
-//             }
-//         })
-//         .catch(err => {
-//             console.trace(err)
-//             res.status(500).json({
-//                 status: 500,
-//                 error: err
-//             })
-//         })
-// })
-// //for mongodb local
-// router.post('/searchmap', (req, res, next) => {
-//     const statusParam = req.body.statusProject
-//     const areaParam = libFunction.convertData(req.body.area)
-//     const priceParam = libFunction.convertData(req.body.price)
-//     const radius = req.body.radius
-//     const lat = req.body.lat
-//     const long = req.body.long
-//     const typeParam = req.body.type == '0' ? '{ "$gte": 1, "$lte": 4 }': req.body.type
-//     const query =   '{ ' +
-//                         '"verify": "true", ' +
-//                         '"type": ' + typeParam + ',' +
-//                         '"statusProject": ' + statusParam + ', ' +
-//                         '"area": { "$gte": ' + areaParam.start + ', "$lte": ' +  areaParam.end + '}, ' +
-//                         '"price": { "$gte": ' + priceParam.start + ', "$lte": ' + priceParam.end + '}, ' +
-//                         '"$where": "function() { ' +
-//                                 'var R = 6371; ' +
-//                                 'var dLat = (this.lat - ' + lat + ')  * (Math.PI / 180); ' +
-//                                 'var dLong = (this.long - ' + long + ')  * (Math.PI / 180); ' +
-//                                 'var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + ' +
-//                                 ' Math.cos(' + lat + ' * (Math.PI / 180)) * Math.cos(this.lat * (Math.PI / 180) ) * ' +
-//                                 ' Math.sin(dLong / 2) * Math.sin(dLong / 2); ' +
-//                                 'var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); ' +
-//                                 'var d = R * c; ' +
-//                                 ' return d <= ' + radius + 
-//                             '}" ' +
-//                     '}'
-//     Project.find(JSON.parse(query))
-//         .sort({ 'createTime': -1 })
-//         .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
-//         .exec()
-//         .then(temp => {
-//             const results = temp
-//             if (results.length > 0) {
-//                 res.status(200).json({
-//                     status: 200,
-//                     message: 'get list project success',
-//                     count: results.length,
-//                     projects: results,
-//                 })
-//             } else {
-//                 res.status(200).json({
-//                     status: 200,
-//                     message: 'get list project success',
-//                     count: 0,
-//                     projects: [],
-//                 })
-//             }
-//         })
-//         .catch(err => {
-//             console.log(err)
-//             res.status(500).json({
-//                 status: 500,
-//                 error: err
-//             })
-//         })
-// })
+//for mongodb local
+router.post('/home', (req, res, next) => {
+    const radius = req.body.radius
+    const lat = req.body.lat
+    const long = req.body.long
+    const query =   '{ ' +
+                        '"verify": "true", ' +
+                        '"$or": [{"statusProject": "1"}, {"statusProject": "3"}], ' +
+                        '"$where": "function() { ' +
+                                'var R = 6371; ' +
+                                'var dLat = (this.lat - ' + lat + ')  * (Math.PI / 180); ' +
+                                'var dLong = (this.long - ' + long + ')  * (Math.PI / 180); ' +
+                                'var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + ' +
+                                ' Math.cos(' + lat + ' * (Math.PI / 180)) * Math.cos(this.lat * (Math.PI / 180) ) * ' +
+                                ' Math.sin(dLong / 2) * Math.sin(dLong / 2); ' +
+                                'var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); ' +
+                                'var d = R * c; ' +
+                                ' return d <= ' + radius + 
+                            '}" ' +
+                    '}'
+    Project.find(JSON.parse(query))
+        .sort({ 'createTime': -1 })
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
+        .exec()
+        .then(temp => {
+            const results = temp
+            if (results.length > 0) {
+                res.status(200).json({
+                    status: 200,
+                    count: results.length,
+                    projects: results,
+                })
+            } else {
+                res.status(200).json({
+                    status: 200,
+                    count: 0,
+                    projects: [],
+                })
+            }
+        })
+        .catch(err => {
+            console.trace(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+})
+//for mongodb local
+router.post('/searchmap', (req, res, next) => {
+    const statusParam = req.body.statusProject
+    const areaParam = libFunction.convertData(req.body.area)
+    const priceParam = libFunction.convertData(req.body.price)
+    const radius = req.body.radius
+    const lat = req.body.lat
+    const long = req.body.long
+    const typeParam = req.body.type == '0' ? '{ "$gte": 1, "$lte": 4 }': req.body.type
+    const query =   '{ ' +
+                        '"verify": "true", ' +
+                        '"type": ' + typeParam + ',' +
+                        '"statusProject": ' + statusParam + ', ' +
+                        '"area": { "$gte": ' + areaParam.start + ', "$lte": ' +  areaParam.end + '}, ' +
+                        '"price": { "$gte": ' + priceParam.start + ', "$lte": ' + priceParam.end + '}, ' +
+                        '"$where": "function() { ' +
+                                'var R = 6371; ' +
+                                'var dLat = (this.lat - ' + lat + ')  * (Math.PI / 180); ' +
+                                'var dLong = (this.long - ' + long + ')  * (Math.PI / 180); ' +
+                                'var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + ' +
+                                ' Math.cos(' + lat + ' * (Math.PI / 180)) * Math.cos(this.lat * (Math.PI / 180) ) * ' +
+                                ' Math.sin(dLong / 2) * Math.sin(dLong / 2); ' +
+                                'var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); ' +
+                                'var d = R * c; ' +
+                                ' return d <= ' + radius + 
+                            '}" ' +
+                    '}'
+    Project.find(JSON.parse(query))
+        .sort({ 'createTime': -1 })
+        .select('_id url publicId codelist name investor price unit area address type info lat long ownerid fullname phone email avatar statusProject amount createTime updateTime verify allowComment __v')
+        .exec()
+        .then(temp => {
+            const results = temp
+            if (results.length > 0) {
+                res.status(200).json({
+                    status: 200,
+                    message: 'get list project success',
+                    count: results.length,
+                    projects: results,
+                })
+            } else {
+                res.status(200).json({
+                    status: 200,
+                    message: 'get list project success',
+                    count: 0,
+                    projects: [],
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                status: 500,
+                error: err
+            })
+        })
+})
 
 router.get('/:id', (req, res, next) => {
     const id = req.params.id

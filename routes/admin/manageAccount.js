@@ -128,7 +128,6 @@ router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
 router.delete('/:id', checkAuthAdmin, (req, res, next) => {
     User.deleteOne({
         _id: req.params.id,
-        verify: false,
     })
     .exec()
     .then(result => {

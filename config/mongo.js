@@ -1,22 +1,22 @@
-// const  url = 'mongodb+srv://@cluster0-mmyqj.mongodb.net/realestate?retryWrites=true'
-// const options = {
-//     user: "tuan",
-//     pass: "tuan123",
-//     auth: {
-//         authdb: 'admin'
-//     },
-//     useNewUrlParser: true,
-// }
-
-const url = 'mongodb://127.0.0.1:27017/realestate?retryWrites=true'
+const  url = 'mongodb+srv://@cluster0-mmyqj.mongodb.net/realestate?retryWrites=true'
 const options = {
-    // user: "root",
-    // pass: "root_password",
-    // auth: {
-    //     authdb: 'admin'
-    // },
+    user: "tuan",
+    pass: "tuan123",
+    auth: {
+        authdb: 'admin'
+    },
     useNewUrlParser: true,
 }
+
+// const url = 'mongodb://127.0.0.1:27017/realestate?retryWrites=true'
+// const options = {
+//     // user: "root",
+//     // pass: "root_password",
+//     // auth: {
+//     //     authdb: 'admin'
+//     // },
+//     useNewUrlParser: true,
+// }
 
 // const url = 'mongodb://127.0.0.1:27017/realestate?retryWrites=true'
 // const options = {

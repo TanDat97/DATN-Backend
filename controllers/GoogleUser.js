@@ -1,5 +1,5 @@
-var User = require('../models/userModel'),
-var  mongoose = require('mongoose')
+var User = require('../models/userModel')
+var mongoose = require('mongoose')
 
 exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
     User.findOne({

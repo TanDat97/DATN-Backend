@@ -102,7 +102,7 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
                     var company = constructorModel.constructorCompany(hash, req.body.companyname, req.body.address, req.body.email, req.body.phone, req.body.website, 0,
                         req.body.avatar, req.body.description, req.body.createTime, req.adminData.id)
                     company.hash = libFunction.hashString(company._id.toString())
-                    var link = host.hostAdmin + '/verifycompany/' + company._id + '/' + company.hash;
+                    var link = host.hostWeb + '/verifycompany/' + company._id + '/' + company.hash;
                     var EmailCompanyModel = require('../../lib/emailCompanyModel')
                     var emailModel = new EmailCompanyModel()
                     emailModel.verifyMail(company.email, link, pass)

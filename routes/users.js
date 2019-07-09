@@ -246,6 +246,14 @@ router.post('/login', (req, res, next) => {
 
 router.get('/info', checkAuth, (req, res, next) => {
     const id = req.userData.id
+    dataProcess.countProjectOwner(id)
+    .then(count => {
+        User.updateOne({
+            _id: id,
+            email: email,
+            verify: true,
+        }, {totalProject: count}).exec()
+    })
     User.findById(id)
     .select('_id identify fullname address phone description email totalProject statusAccount avatar company lock verify permission hash __v')
     .exec()
@@ -637,6 +645,14 @@ router.get('/alluser/:page', (req, res, next) => {
 })
 router.get('/profile/:id', (req, res, next) => {
     const id = req.params.id
+    dataProcess.countProjectOwner(id)
+    .then(count => {
+        User.updateOne({
+            _id: id,
+            email: email,
+            verify: true,
+        }, {totalProject: count}).exec()
+    })
     User.findOne({
         _id: id,
         verify: true,

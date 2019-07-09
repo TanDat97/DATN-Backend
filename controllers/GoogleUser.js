@@ -1,11 +1,9 @@
-var gg = require('../models/userModel'),
-  UserGG = gg.model('User')
-
+var User = require('../models/userModel'),
 var  mongoose = require('mongoose')
 
 exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
-    UserGG.findOne({
-        'googleProvider.id': profile.id
+    User.findOne({
+        email: profile.emails[0].value
     }, function(err, user) {
         // no user was found, lets create a new one
         if (!user) {

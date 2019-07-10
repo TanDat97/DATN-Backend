@@ -16,7 +16,7 @@ const Waiting = require('../../models/waitingModel')
 
 const constant = require('../../lib/constant')
 
-router.get('/listrequest/:projectid', checkAuth, (req, res, next) => {
+router.get('/listrequest/:projectid', (req, res, next) => {
     const projectid = req.params.projectid
     Waiting.find({
         project: projectid,

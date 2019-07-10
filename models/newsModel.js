@@ -5,6 +5,20 @@ const Schema = mongoose.Schema({
         type: String,
         required: true
     },
+    image: {
+        url: {
+            type: String,
+            default: '',
+        },
+        id: {
+            type: String,
+            default: '',
+        }
+    },
+    infoImage: {
+        type: String,
+        default: '',
+    },
     content: {
         type: String,
         required: true

@@ -1,12 +1,19 @@
 const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
+const cloudinary = require('cloudinary')
 
 const checkAuthAdmin = require('../../middleware/checkAuthAdmin')
 const libFunction = require('../../lib/function')
 const News = require('../../models/newsModel')
 
 const constant = require('../../lib/constant')
+
+cloudinary.config({
+    cloud_name: 'dne3aha8f',
+    api_key: '464146278492844',
+    api_secret: 'JdBsEVQDxp4_1jsZrT-qM7T8tns'
+})
 
 router.get('/all/:page', checkAuthAdmin, (req, res, next) => {
     const page = parseInt(req.params.page) - 1
@@ -57,9 +64,15 @@ router.get('/:id', checkAuthAdmin, (req, res, next) => {
 })
 
 router.post('/', checkAuthAdmin, (req, res, next) => {
+    const imageTemp = {
+        url: '',
+        id: '',
+    }
     const news= new News({
         _id: new mongoose.Types.ObjectId(),
         title: req.body.title,
+        image: req.body.image ? req.body.image : imageTemp,
+        infoImage: req.body.infoImage ? req.body.infoImage : '',
         content: req.body.content,
         type: req.body.type,
         createTime: req.body.createTime,
@@ -87,39 +100,44 @@ router.post('/', checkAuthAdmin, (req, res, next) => {
 router.post('/edit/:id', checkAuthAdmin, (req, res, next) => {
     const id = req.params.id
     const title = req.body.title
+    const image = req.body.image
+    const infoImage = req.body.infoImage ? req.body.infoImage : ''
     const content = req.body.content
     const type = req.body.type
     const createTime = req.body.createTime
     const updateTime = req.body.updateTime
-    News.updateOne({
+    const isChooseImage = req.body.isChooseImage
+
+    News.findOneAndUpdate({
         _id: id
     }, {
         title: title,
         content: content,
+        image: image,
+        infoImage: infoImage,
         type: type,
         updateTime: updateTime,
     })
     .exec()
-    .then(result => {
-        if (result.nModified > 0) {
-            res.status(200).json({
-                status: 200,
-                message: 'update news success',
-                news: {
-                    _id: id,
-                    title: title,
-                    content: content,
-                    type: type,
-                    createTime: createTime,
-                    updateTime: updateTime, 
-                },
-            })
-        } else {
-            res.status(404).json({
-                status: 404,
-                message: 'No valid entry found'
-            })
+    .then(ex => {
+        if(isChooseImage) {
+            cloudinary.v2.api.delete_resources([ex.image.id], { invalidate: true },
+                function (error, result) { console.log(result) })
         }
+        res.status(200).json({
+            status: 200,
+            message: 'update news success',
+            news: {
+                _id: id,
+                title: title,
+                image: image,
+                infoImage: infoImage,
+                content: content,
+                type: type,
+                createTime: createTime,
+                updateTime: updateTime, 
+            },
+        })
     })
     .catch(err => {
         console.log(err)

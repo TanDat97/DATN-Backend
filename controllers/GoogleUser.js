@@ -7,7 +7,7 @@ exports.upsertGoogleUser = function(accessToken, refreshToken, profile, cb) {
     }, function(err, user) {
         // no user was found, lets create a new one
         if (!user) {
-            var newUser = new UserGG({
+            var newUser = new User({
                 _id: new mongoose.Types.ObjectId(),
                 fullname: profile.displayName,
                 identify: '',

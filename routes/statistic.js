@@ -17,12 +17,13 @@ const SavedProject = require('../models/savedProjectModel')
 router.post('/', (req, res, next) => {
     const start = req.body.start
     const end = req.body.end
-    const query =   '{ "$match": { "createTime": { "$gte": '+ start + ', "$lt": ' + end + '} } }'
+    const match = '{ "$match": { "createTime": { "$gte": '+ start + ', "$lt": ' + end + '} } }'
+    const limit = '{ $limit: ' + req.body.limit + '}'
     Project.aggregate([
-        JSON.parse(query),
+        JSON.parse(match),
         { $group: { _id: "$ownerid", number: { $sum: 1 } } },
         { $sort: { number: -1 } },
-        { $limit: 2 },
+        JSON.parse(limit),
     ])
     .exec()
     .then(ex  => {

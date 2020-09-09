@@ -25,11 +25,11 @@ module.exports = function ({ projectid }) {
 
     function addEntry(entry) {
         commentHistory = commentHistory.concat(entry)
-      }
+    }
     
-      function getCommentHistory() {
+    function getCommentHistory() {
         return commentHistory.slice()
-      }
+    }
 
     return {
         broadcastComment,
